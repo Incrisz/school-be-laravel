@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register-school', [\App\Http\Controllers\SchoolRegistrationController::class, 'register']);
+use App\Http\Controllers\Api\V1\SchoolRegistrationController;
+
+Route::post('/register-school', [SchoolRegistrationController::class, 'register']);
 
 Route::get('/migrate', [\App\Http\Controllers\MigrateController::class, 'migrate']);

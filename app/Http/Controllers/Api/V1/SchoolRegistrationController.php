@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\School;
 use App\Models\User;
@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
  *      description="API for managing school data"
  * )
  */
+use App\Http\Controllers\Controller;
+
 class SchoolRegistrationController extends Controller
 {
     /**
