@@ -42,10 +42,22 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
+use Illuminate\Support\Str;
+
 class School extends Model
 {
 	protected $table = 'schools';
 	public $incrementing = false;
+	protected $keyType = 'string';
+
+	protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->{$model->getKeyName()} = (string) Str::uuid();
+        });
+    }
 
 	protected $casts = [
 		'established_at' => 'datetime'
@@ -75,7 +87,7 @@ class School extends Model
 
 	public function classes()
 	{
-		return $this->hasMany(Class::class);
+		return $this->hasMany(Classes::class);
 	}
 
 	public function grading_scales()
