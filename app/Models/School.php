@@ -44,6 +44,24 @@ use Illuminate\Database\Eloquent\Model;
  */
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Schema(
+ *     schema="School",
+ *     type="object",
+ *     @OA\Property(property="id", type="string", format="uuid"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="slug", type="string"),
+ *     @OA\Property(property="address", type="string"),
+ *     @OA\Property(property="email", type="string", format="email"),
+ *     @OA\Property(property="phone", type="string"),
+ *     @OA\Property(property="logo_url", type="string"),
+ *     @OA\Property(property="established_at", type="string", format="date"),
+ *     @OA\Property(property="owner_name", type="string"),
+ *     @OA\Property(property="status", type="string", enum={"active", "inactive"}),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class School extends Model
 {
 	protected $table = 'schools';

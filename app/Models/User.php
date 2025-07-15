@@ -35,6 +35,20 @@ use Illuminate\Database\Eloquent\Model;
  */
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     @OA\Property(property="id", type="string", format="uuid"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="email", type="string", format="email"),
+ *     @OA\Property(property="role", type="string", enum={"staff", "parent", "super_admin", "accountant"}),
+ *     @OA\Property(property="status", type="string", enum={"active", "inactive", "suspended"}),
+ *     @OA\Property(property="last_login", type="string", format="date-time"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class User extends Model
 {
 	protected $table = 'users';
@@ -66,7 +80,8 @@ class User extends Model
 		'role',
 		'status',
 		'last_login',
-		'email_verified_at'
+		'email_verified_at',
+		'school_id'
 	];
 
 	public function audit_logs()
