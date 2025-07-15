@@ -33,10 +33,36 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
+use Illuminate\Support\Str;
+
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     @OA\Property(property="id", type="string", format="uuid"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="email", type="string", format="email"),
+ *     @OA\Property(property="role", type="string", enum={"staff", "parent", "super_admin", "accountant"}),
+ *     @OA\Property(property="status", type="string", enum={"active", "inactive", "suspended"}),
+ *     @OA\Property(property="last_login", type="string", format="date-time"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class User extends Model
 {
 	protected $table = 'users';
 	public $incrementing = false;
+	protected $keyType = 'string';
+
+	protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->{$model->getKeyName()} = (string) Str::uuid();
+        });
+    }
 
 	protected $casts = [
 		'last_login' => 'datetime',
@@ -54,7 +80,8 @@ class User extends Model
 		'role',
 		'status',
 		'last_login',
-		'email_verified_at'
+		'email_verified_at',
+		'school_id'
 	];
 
 	public function audit_logs()

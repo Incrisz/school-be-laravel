@@ -42,10 +42,40 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
+use Illuminate\Support\Str;
+
+/**
+ * @OA\Schema(
+ *     schema="School",
+ *     type="object",
+ *     @OA\Property(property="id", type="string", format="uuid"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="slug", type="string"),
+ *     @OA\Property(property="address", type="string"),
+ *     @OA\Property(property="email", type="string", format="email"),
+ *     @OA\Property(property="phone", type="string"),
+ *     @OA\Property(property="logo_url", type="string"),
+ *     @OA\Property(property="established_at", type="string", format="date"),
+ *     @OA\Property(property="owner_name", type="string"),
+ *     @OA\Property(property="status", type="string", enum={"active", "inactive"}),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class School extends Model
 {
 	protected $table = 'schools';
 	public $incrementing = false;
+	protected $keyType = 'string';
+
+	protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->{$model->getKeyName()} = (string) Str::uuid();
+        });
+    }
 
 	protected $casts = [
 		'established_at' => 'datetime'
@@ -75,7 +105,7 @@ class School extends Model
 
 	public function classes()
 	{
-		return $this->hasMany(Class::class);
+		return $this->hasMany(Classes::class);
 	}
 
 	public function grading_scales()
