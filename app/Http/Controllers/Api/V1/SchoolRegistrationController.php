@@ -84,6 +84,7 @@ class SchoolRegistrationController extends Controller
         $school = School::create([
             'name' => $validatedData['name'],
             'slug' => Str::slug($validatedData['name']),
+            'subdomain' => Str::slug($validatedData['name']),
             'address' => $validatedData['address'],
             'email' => $validatedData['email'],
         ]);
