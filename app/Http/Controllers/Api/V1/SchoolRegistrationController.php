@@ -32,7 +32,8 @@ class SchoolRegistrationController extends Controller
      *              @OA\Property(property="address", type="string", example="123 Main St"),
      *              @OA\Property(property="email", type="string", format="email", example="school@example.com"),
      *              @OA\Property(property="password", type="string", format="password", example="password"),
-     *              @OA\Property(property="password_confirmation", type="string", format="password", example="password")
+     *              @OA\Property(property="password_confirmation", type="string", format="password", example="password"),
+     *              @OA\Property(property="subdomain", type="string", example="my-school")
      *          )
      *      ),
      *      @OA\Response(
