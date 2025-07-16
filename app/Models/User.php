@@ -8,14 +8,16 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
 
 /**
  * Class User
  *
  * @property string $id
+ * @property string|null $school_id
  * @property string $name
  * @property string $email
  * @property string $password
@@ -23,9 +25,11 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $status
  * @property Carbon|null $last_login
  * @property Carbon|null $email_verified_at
+ * @property string|null $remember_token
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
+ * @property School|null $school
  * @property Collection|AuditLog[] $audit_logs
  * @property Collection|MessageThread[] $message_threads
  * @property Collection|Message[] $messages
@@ -35,37 +39,11 @@ use Laravel\Sanctum\HasApiTokens;
  *
  * @package App\Models
  */
-use Illuminate\Support\Str;
-
-/**
- * @OA\Schema(
- *     schema="User",
- *     type="object",
- *     @OA\Property(property="id", type="string", format="uuid"),
- *     @OA\Property(property="name", type="string"),
- *     @OA\Property(property="email", type="string", format="email"),
- *     @OA\Property(property="role", type="string", enum={"staff", "parent", "super_admin", "accountant"}),
- *     @OA\Property(property="status", type="string", enum={"active", "inactive", "suspended"}),
- *     @OA\Property(property="last_login", type="string", format="date-time"),
- *     @OA\Property(property="created_at", type="string", format="date-time"),
- *     @OA\Property(property="updated_at", type="string", format="date-time")
- * )
- */
-class User extends Model
+class User extends Authenticatable
 {
-	use HasFactory, HasApiTokens;
+	use HasApiTokens;
 	protected $table = 'users';
 	public $incrementing = false;
-	protected $keyType = 'string';
-
-	protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->{$model->getKeyName()} = (string) Str::uuid();
-        });
-    }
 
 	protected $casts = [
 		'last_login' => 'datetime',
@@ -73,10 +51,13 @@ class User extends Model
 	];
 
 	protected $hidden = [
-		'password'
+		'password',
+		'remember_token'
 	];
 
 	protected $fillable = [
+		'id',
+		'school_id',
 		'name',
 		'email',
 		'password',
@@ -84,8 +65,13 @@ class User extends Model
 		'status',
 		'last_login',
 		'email_verified_at',
-		'school_id'
+		'remember_token'
 	];
+
+	public function school()
+	{
+		return $this->belongsTo(School::class);
+	}
 
 	public function audit_logs()
 	{

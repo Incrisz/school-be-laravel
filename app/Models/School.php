@@ -8,7 +8,6 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -17,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $name
  * @property string $slug
+ * @property string $subdomain
  * @property string $address
  * @property string|null $email
  * @property string|null $phone
@@ -43,47 +43,17 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-use Illuminate\Support\Str;
-
-/**
- * @OA\Schema(
- *     schema="School",
- *     type="object",
- *     @OA\Property(property="id", type="string", format="uuid"),
- *     @OA\Property(property="name", type="string"),
- *     @OA\Property(property="slug", type="string"),
- *     @OA\Property(property="address", type="string"),
- *     @OA\Property(property="email", type="string", format="email"),
- *     @OA\Property(property="phone", type="string"),
- *     @OA\Property(property="logo_url", type="string"),
- *     @OA\Property(property="established_at", type="string", format="date"),
- *     @OA\Property(property="owner_name", type="string"),
- *     @OA\Property(property="status", type="string", enum={"active", "inactive"}),
- *     @OA\Property(property="created_at", type="string", format="date-time"),
- *     @OA\Property(property="updated_at", type="string", format="date-time")
- * )
- */
 class School extends Model
 {
-	use HasFactory;
 	protected $table = 'schools';
 	public $incrementing = false;
-	protected $keyType = 'string';
-
-	protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->{$model->getKeyName()} = (string) Str::uuid();
-        });
-    }
 
 	protected $casts = [
 		'established_at' => 'datetime'
 	];
 
 	protected $fillable = [
+        'id',
 		'name',
 		'slug',
 		'subdomain',
@@ -108,7 +78,7 @@ class School extends Model
 
 	public function classes()
 	{
-		return $this->hasMany(Classes::class);
+		return $this->hasMany(\App\Models\Classes::class);
 	}
 
 	public function grading_scales()
@@ -128,9 +98,7 @@ class School extends Model
 
 	public function users()
 	{
-		return $this->belongsToMany(User::class, 'school_user_assignments')
-					->withPivot('id')
-					->withTimestamps();
+		return $this->hasMany(User::class);
 	}
 
 	public function sessions()
