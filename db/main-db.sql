@@ -27,7 +27,7 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('staff', 'parent', 'super_admin', 'accountant','admin') NOT NULL,
+    role ENUM('staff', 'parent', 'super_admin', 'accountant') NOT NULL,
     status ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
     last_login TIMESTAMP NULL DEFAULT NULL,
     email_verified_at TIMESTAMP NULL DEFAULT NULL,

@@ -92,10 +92,10 @@ class SchoolRegistrationController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $validatedData['name'] ,
+            'name' => $validatedData['name'] . ' Admin',
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
-            'role' => 'admin',
+            'role' => 'super_admin',
             'school_id' => $school->id,
         ]);
 
