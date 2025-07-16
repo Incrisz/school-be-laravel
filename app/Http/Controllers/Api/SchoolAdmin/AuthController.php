@@ -58,7 +58,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if ($user->role !== 'staff' && $user->role !== 'super_admin') {
+        if ($user->role !== 'staff' && $user->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
