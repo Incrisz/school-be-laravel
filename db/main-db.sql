@@ -628,6 +628,64 @@ CREATE INDEX idx_school_skill_types_skill_type ON school_skill_types(skill_type_
 
 
 
+-- laravel default
+
+
+CREATE TABLE personal_access_tokens (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    tokenable_type VARCHAR(255) NOT NULL,
+    tokenable_id CHAR(36) NOT NULL,
+    name TEXT NOT NULL,
+    token VARCHAR(64) NOT NULL UNIQUE,
+    abilities TEXT DEFAULT NULL,
+    last_used_at TIMESTAMP NULL DEFAULT NULL,
+    expires_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP NULL DEFAULT NULL,
+    updated_at TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_tokenable (tokenable_type, tokenable_id)
+);
+CREATE TABLE cache (
+    `key` VARCHAR(255) NOT NULL PRIMARY KEY,
+    `value` MEDIUMTEXT NOT NULL,
+    `expiration` INT NOT NULL
+);
+CREATE TABLE cache_locks (
+    `key` VARCHAR(255) NOT NULL PRIMARY KEY,
+    `owner` VARCHAR(255) NOT NULL,
+    `expiration` INT NOT NULL
+);
+CREATE TABLE jobs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    queue VARCHAR(255) NOT NULL,
+    payload LONGTEXT NOT NULL,
+    attempts TINYINT UNSIGNED NOT NULL,
+    reserved_at INT UNSIGNED DEFAULT NULL,
+    available_at INT UNSIGNED NOT NULL,
+    created_at INT UNSIGNED NOT NULL,
+    INDEX jobs_queue_index (queue)
+);
+CREATE TABLE job_batches (
+    id VARCHAR(255) NOT NULL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    total_jobs INT NOT NULL,
+    pending_jobs INT NOT NULL,
+    failed_jobs INT NOT NULL,
+    failed_job_ids LONGTEXT NOT NULL,
+    options MEDIUMTEXT DEFAULT NULL,
+    cancelled_at INT DEFAULT NULL,
+    created_at INT NOT NULL,
+    finished_at INT DEFAULT NULL
+);
+CREATE TABLE failed_jobs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    uuid VARCHAR(255) NOT NULL UNIQUE,
+    connection TEXT NOT NULL,
+    queue TEXT NOT NULL,
+    payload LONGTEXT NOT NULL,
+    exception LONGTEXT NOT NULL,
+    failed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 
 
 -- upgrade
