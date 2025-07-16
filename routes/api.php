@@ -13,11 +13,13 @@ Route::domain('{subdomain}.' . $host)->group(function () {
 
 use App\Http\Controllers\Api\V1\SchoolController;
 
-Route::post('/register-school', [SchoolRegistrationController::class, 'register']);
+Route::post('/register-school', [SchoolController::class, 'register']);
 
 Route::get('/migrate', [\App\Http\Controllers\MigrateController::class, 'migrate']);
 
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
-    Route::put('/school', [SchoolController::class, 'updateSchoolProfile']);
-    Route::put('/user', [SchoolController::class, 'updatePersonalProfile']);
+Route::prefix('v1')->group(function () {
+    Route::post('/login', [SchoolController::class, 'login']);
+    Route::middleware('auth:sanctum')->post('/logout', [SchoolController::class, 'logout']);
+    Route::middleware('auth:sanctum')->put('/school', [SchoolController::class, 'updateSchoolProfile']);
+    Route::middleware('auth:sanctum')->put('/user', [SchoolController::class, 'updatePersonalProfile']);
 });

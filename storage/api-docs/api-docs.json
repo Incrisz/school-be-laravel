@@ -6,209 +6,13 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/school-admin/login": {
+        "/api/v1/register-school": {
             "post": {
-                "tags": [
-                    "School Admin"
-                ],
-                "summary": "Login as a school admin",
-                "operationId": "b87ef1b9c5d96b073d7d13d1f5ea46c1",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "admin@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful login",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "token": {
-                                            "type": "string"
-                                        },
-                                        "user": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                }
-            }
-        },
-        "/school-admin/logout": {
-            "post": {
-                "tags": [
-                    "School Admin"
-                ],
-                "summary": "Logout the authenticated user",
-                "operationId": "91be664ccfd53b14528fbbdaaf8c08d5",
-                "responses": {
-                    "200": {
-                        "description": "Successfully logged out",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Logged out successfully"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/school": {
-            "put": {
                 "tags": [
                     "school-v1.0"
-                ],
-                "summary": "Update school profile",
-                "operationId": "1602f246e0f93bb4ded0cfd660dbaadc",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "address": {
-                                        "type": "string"
-                                    },
-                                    "email": {
-                                        "type": "string"
-                                    },
-                                    "phone": {
-                                        "type": "string"
-                                    },
-                                    "logo_url": {
-                                        "type": "string"
-                                    },
-                                    "established_at": {
-                                        "type": "string",
-                                        "format": "date"
-                                    },
-                                    "owner_name": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "School profile updated successfully"
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/user": {
-            "put": {
-                "tags": [
-                    "school-v1.0"
-                ],
-                "summary": "Update user profile",
-                "operationId": "d8256e2daf6b738069a8734aeefcf400",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "email": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User profile updated successfully"
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/register-school": {
-            "post": {
-                "tags": [
-                    "School"
                 ],
                 "summary": "Register a new school",
-                "operationId": "699d5f8e0912fda08c153e8b90be7725",
+                "operationId": "d488d2d37d460c84a9de0eb5dc4ddf2a",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -372,20 +176,208 @@
                     }
                 }
             }
+        },
+        "/api/v1/login": {
+            "post": {
+                "tags": [
+                    "school-v1.0"
+                ],
+                "summary": "Login as a school admin",
+                "operationId": "dd88ccaa8c0202be7608c248fcbc5b6d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string"
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/logout": {
+            "post": {
+                "tags": [
+                    "school-v1.0"
+                ],
+                "summary": "Logout the authenticated user",
+                "operationId": "f68497443ec1640d78b54128c8a98fde",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/school": {
+            "put": {
+                "tags": [
+                    "school-v1.0"
+                ],
+                "summary": "Update school profile",
+                "operationId": "1602f246e0f93bb4ded0cfd660dbaadc",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "logo_url": {
+                                        "type": "string"
+                                    },
+                                    "established_at": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "owner_name": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "School profile updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user": {
+            "put": {
+                "tags": [
+                    "school-v1.0"
+                ],
+                "summary": "Update user profile",
+                "operationId": "d8256e2daf6b738069a8734aeefcf400",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User profile updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "tags": [
         {
-            "name": "School Admin",
-            "description": "School Admin"
-        },
-        {
             "name": "school-v1.0",
             "description": "school-v1.0"
-        },
-        {
-            "name": "School",
-            "description": "School"
         }
     ],
     "components": {
