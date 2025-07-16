@@ -14,7 +14,7 @@ class AuthController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/api/school-admin/login",
+     *     path="/school-admin/login",
      *     summary="Login as a school admin",
      *     tags={"School Admin"},
      *     @OA\RequestBody(
@@ -72,7 +72,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/school-admin/logout",
+     *     path="/school-admin/logout",
      *     summary="Logout the authenticated user",
      *     tags={"School Admin"},
      *     security={{"sanctum":{}}},
