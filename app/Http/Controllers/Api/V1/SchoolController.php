@@ -87,6 +87,7 @@ class SchoolController extends Controller
         ]);
 
         $school = School::create([
+            'id' => Str::uuid(),
             'name' => $validatedData['name'],
             'slug' => Str::slug($validatedData['name']),
             'subdomain' => $validatedData['subdomain'],

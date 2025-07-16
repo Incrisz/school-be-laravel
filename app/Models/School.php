@@ -53,6 +53,7 @@ class School extends Model
 	];
 
 	protected $fillable = [
+        'id',
 		'name',
 		'slug',
 		'subdomain',
