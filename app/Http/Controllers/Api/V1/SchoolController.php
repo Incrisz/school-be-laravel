@@ -13,17 +13,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
-/**
- * @OA\Info(
- *      version="1.0.0",
- *      title="School API",
- *      description="API for managing school data"
- * )
- * @OA\Tag(
- *     name="school-v1.0",
- *     description="API Endpoints for School v1.0"
- * )
- */
 class SchoolController extends Controller
 {
     /**
