@@ -14,7 +14,7 @@ sleep 10
 #     cp "$FILENAME" .env
 # fi
 
-cp .env.example .env
+cp .env.prod .env
 
 # Ensure storage and cache dirs are present
 mkdir -p storage/logs \
