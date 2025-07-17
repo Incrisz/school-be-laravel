@@ -64,14 +64,13 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: school_phpmyadmin
-    restart: unless-stopped
-    environment:
-      PMA_HOST: db
-      PMA_USER: school
-      PMA_PASSWORD: school
-      PMA_ARBITRARY: 0           
+    restart: unless-stopped      
     ports:
       - "8081:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: 1ncrease
+      UPLOAD_LIMIT: 300M
     networks:
       - school
     depends_on:
