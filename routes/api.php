@@ -16,6 +16,8 @@ Route::domain('{subdomain}.' . $host)->group(function () {
 
 Route::get('/migrate', [\App\Http\Controllers\MigrateController::class, 'migrate']);
 
+use App\Http\Controllers\Api\V1\AcademicSessionController;
+
 Route::prefix('api/v1')->group(function () {
     Route::post('/register-school', [SchoolController::class, 'register']);
     Route::post('/login', [SchoolController::class, 'login']);
@@ -26,5 +28,12 @@ Route::prefix('api/v1')->group(function () {
         Route::put('/school', [SchoolController::class, 'updateSchoolProfile']);
         Route::get('/user', [SchoolController::class, 'showSchoolAdminProfile']);            
         Route::put('/user', [SchoolController::class, 'updateSchoolAdminProfile']);
+
+        // Academic Session Routes
+        Route::apiResource('sessions', AcademicSessionController::class);
+        Route::get('sessions/{session}/terms', [AcademicSessionController::class, 'getTermsForSession']);
+        Route::post('sessions/{session}/terms', [AcademicSessionController::class, 'storeTerm']);
+        Route::put('terms/{term}', [AcademicSessionController::class, 'updateTerm']);
+        Route::delete('terms/{term}', [AcademicSessionController::class, 'destroyTerm']);
     });
 });
