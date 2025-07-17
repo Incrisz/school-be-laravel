@@ -344,15 +344,31 @@
                 "summary": "Update user profile",
                 "operationId": "2fe2c5c7466f0e20b3e41e35750fd84a",
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "properties": {
                                     "name": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Jane Doe"
                                     },
                                     "email": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jane@example.com"
+                                    },
+                                    "old_password": {
+                                        "type": "string",
+                                        "example": "currentPassword123"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "newPassword456"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "newPassword456"
                                     }
                                 },
                                 "type": "object"

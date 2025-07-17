@@ -258,12 +258,13 @@ class SchoolController extends Controller
      *     tags={"school-v1.0"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 @OA\Property(property="name", type="string"),
-     *                 @OA\Property(property="email", type="string"),
-     *             )
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="old_password", type="string", example="currentPassword123"),
+     *             @OA\Property(property="password", type="string", example="newPassword456"),
+     *             @OA\Property(property="password_confirmation", type="string", example="newPassword456")
      *         )
      *     ),
      *     @OA\Response(response=200, description="User profile updated successfully"),
@@ -271,21 +272,44 @@ class SchoolController extends Controller
      *     @OA\Response(response=422, description="Validation error")
      * )
      */
+
     public function updatePersonalProfile(Request $request)
-    {
-        $user = Auth::user();
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'string|max:255',
-            'email' => 'string|email|max:255|unique:users,email,' . $user->id,
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+        {
+            $user = Auth::user();
+        
+            $rules = [
+                'name' => 'string|max:255',
+                'email' => 'string|email|max:255|unique:users,email,' . $user->id,
+            ];
+        
+            // If user is trying to change password, add password + old_password rules
+            if ($request->filled('password')) {
+                $rules['password'] = 'required|string|min:8|confirmed';
+                $rules['old_password'] = 'required|string';
+            }
+        
+            $validator = Validator::make($request->all(), $rules);
+        
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+        
+            // Check old password
+            if ($request->filled('password') && !Hash::check($request->old_password, $user->password)) {
+                return response()->json(['old_password' => ['Old password is incorrect']], 422);
+            }
+        
+            $data = $request->only(['name', 'email']);
+        
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
+            }
+        
+            $user->update($data);
+        
+            return response()->json([
+                'message' => 'User profile updated successfully',
+                'user' => $user
+            ]);
         }
-
-        $user->update($request->all());
-
-        return response()->json(['message' => 'User profile updated successfully', 'user' => $user]);
-    }
 }
