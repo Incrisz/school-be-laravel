@@ -50,4 +50,4 @@ jobs:
           script: |
             cd /home/ubuntu/school-be-php
             git pull 
-            docker restart school_be
+            docker restart school-be
