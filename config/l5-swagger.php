@@ -67,6 +67,7 @@ return [
         'proxy' => false,
         'additional_config_url' => null,
         'operations_sort' => env('L5_SWAGGER_OPERATIONS_SORT', null),
+        'tags_sort' => 'alpha',
         'validator_url' => null,
         'ui' => [
             'display' => [
