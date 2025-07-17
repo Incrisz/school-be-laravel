@@ -69,6 +69,7 @@ services:
       PMA_HOST: db
       PMA_USER: school
       PMA_PASSWORD: school
+      PMA_ARBITRARY: 0           
     ports:
       - "8081:80"
     networks:
