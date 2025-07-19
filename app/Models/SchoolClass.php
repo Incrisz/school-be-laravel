@@ -29,12 +29,15 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Class extends Model
+class SchoolClass extends Model
 {
 	protected $table = 'classes';
 	public $incrementing = false;
+    protected $keyType = 'string';
+
 
 	protected $fillable = [
+        'id',
 		'school_id',
 		'name',
 		'slug',
@@ -53,7 +56,7 @@ class Class extends Model
 
 	public function class_arms()
 	{
-		return $this->hasMany(ClassArm::class);
+		return $this->hasMany(ClassArm::class, 'class_id');
 	}
 
 	public function students()

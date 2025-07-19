@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Models\Class as SchoolClass;
+use App\Models\SchoolClass;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
