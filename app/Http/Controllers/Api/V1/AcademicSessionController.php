@@ -75,7 +75,7 @@ class AcademicSessionController extends Controller
                 'required',
                 Rule::unique('sessions')->where(fn ($q) => $q->where('school_id', $schoolId)),
             ],
-            'slug' => 'sometimes|string',
+            'slug' => 'string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
         ]);
