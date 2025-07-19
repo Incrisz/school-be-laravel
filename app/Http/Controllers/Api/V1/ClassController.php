@@ -215,10 +215,9 @@ class ClassController extends Controller
      *       )
      *     )
      */
-    public function indexArms(string $classId)
+    public function indexArms(SchoolClass $schoolClass)
     {
-        $class = SchoolClass::findOrFail($classId);
-        return $class->class_arms;
+        return $schoolClass->class_arms;
     }
 
     /**
@@ -250,10 +249,8 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function storeArm(Request $request, string $classId)
+    public function storeArm(Request $request, SchoolClass $schoolClass)
     {
-        $class = SchoolClass::findOrFail($classId);
-
         $request->validate([
             'name' => [
                 'required',
@@ -305,10 +302,9 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function showArm(string $classId, string $armId)
+    public function showArm(SchoolClass $schoolClass, string $armId)
     {
-        $class = SchoolClass::findOrFail($classId);
-        return $class->class_arms()->findOrFail($armId);
+        return $schoolClass->class_arms()->findOrFail($armId);
     }
 
     /**
@@ -350,10 +346,9 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function updateArm(Request $request, string $classId, string $armId)
+    public function updateArm(Request $request, SchoolClass $schoolClass, string $armId)
     {
-        $class = SchoolClass::findOrFail($classId);
-        $arm = $class->class_arms()->findOrFail($armId);
+        $arm = $schoolClass->class_arms()->findOrFail($armId);
 
         $request->validate([
             'name' => [
@@ -405,10 +400,9 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function destroyArm(string $classId, string $armId)
+    public function destroyArm(SchoolClass $schoolClass, string $armId)
     {
-        $class = SchoolClass::findOrFail($classId);
-        $arm = $class->class_arms()->findOrFail($armId);
+        $arm = $schoolClass->class_arms()->findOrFail($armId);
 
         if ($arm->students()->exists()) {
             return response()->json(['error' => 'Cannot delete arm with associated students.'], 422);
@@ -450,9 +444,9 @@ class ClassController extends Controller
      *       )
      *     )
      */
-    public function indexSections(string $classId, string $armId)
+    public function indexSections(SchoolClass $schoolClass, string $armId)
     {
-        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = $schoolClass->class_arms()->findOrFail($armId);
         return $arm->class_sections;
     }
 
@@ -494,9 +488,9 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function storeSection(Request $request, string $classId, string $armId)
+    public function storeSection(Request $request, SchoolClass $schoolClass, string $armId)
     {
-        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = $schoolClass->class_arms()->findOrFail($armId);
 
         $request->validate([
             'name' => [
@@ -558,9 +552,9 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function showSection(string $classId, string $armId, string $sectionId)
+    public function showSection(SchoolClass $schoolClass, string $armId, string $sectionId)
     {
-        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = $schoolClass->class_arms()->findOrFail($armId);
         return $arm->class_sections()->findOrFail($sectionId);
     }
 
@@ -611,9 +605,9 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function updateSection(Request $request, string $classId, string $armId, string $sectionId)
+    public function updateSection(Request $request, SchoolClass $schoolClass, string $armId, string $sectionId)
     {
-        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = $schoolClass->class_arms()->findOrFail($armId);
         $section = $arm->class_sections()->findOrFail($sectionId);
 
         $request->validate([
@@ -675,9 +669,9 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function destroySection(string $classId, string $armId, string $sectionId)
+    public function destroySection(SchoolClass $schoolClass, string $armId, string $sectionId)
     {
-        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = $schoolClass->class_arms()->findOrFail($armId);
         $section = $arm->class_sections()->findOrFail($sectionId);
 
         if ($section->students()->exists()) {
