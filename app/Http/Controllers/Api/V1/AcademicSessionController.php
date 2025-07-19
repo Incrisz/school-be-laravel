@@ -18,7 +18,7 @@ class AcademicSessionController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/sessions",
+     *      path="/v1/sessions",
      *      operationId="getSessionsList",
      *      tags={"school-v1.1"},
      *      summary="Get list of sessions",
@@ -36,13 +36,19 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/sessions",
+     *      path="/v1/sessions",
      *      operationId="storeSession",
      *      tags={"school-v1.1"},
      *      summary="Store new session",
      *      description="Returns session data",
      *      @OA\RequestBody(
      *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="name", type="string", example="2025/2026"),
+     *              @OA\Property(property="start_date", type="string", format="date", example="2025-09-01"),
+     *              @OA\Property(property="end_date", type="string", format="date", example="2026-07-31")
+     *          )
      *      ),
      *      @OA\Response(
      *          response=201,
@@ -67,11 +73,13 @@ class AcademicSessionController extends Controller
         }
 
         $validated = $validator->validated();
+        $validated['school_id'] = auth()->user()->school_id;
 
-        $existingSession = Session::where(function ($query) use ($validated) {
-            $query->where('start_date', '<=', $validated['end_date'])
-                  ->where('end_date', '>=', $validated['start_date']);
-        })->exists();
+        $existingSession = Session::where('school_id', $validated['school_id'])
+            ->where(function ($query) use ($validated) {
+                $query->where('start_date', '<=', $validated['end_date'])
+                      ->where('end_date', '>=', $validated['start_date']);
+            })->exists();
 
         if ($existingSession) {
             return response()->json(['error' => 'A session already exists within the specified date range.'], 400);
@@ -83,7 +91,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/sessions/{id}",
+     *      path="/v1/sessions/{id}",
      *      operationId="getSessionById",
      *      tags={"school-v1.1"},
      *      summary="Get session information",
@@ -110,7 +118,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/sessions/{id}",
+     *      path="/v1/sessions/{id}",
      *      operationId="updateSession",
      *      tags={"school-v1.1"},
      *      summary="Update existing session",
@@ -167,7 +175,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/sessions/{id}",
+     *      path="/v1/sessions/{id}",
      *      operationId="deleteSession",
      *      tags={"school-v1.1"},
      *      summary="Delete existing session",
@@ -203,7 +211,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/sessions/{id}/terms",
+     *      path="/v1/sessions/{id}/terms",
      *      operationId="getTermsForSession",
      *      tags={"school-v1.1"},
      *      summary="Get list of terms for a session",
@@ -230,7 +238,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/sessions/{id}/terms",
+     *      path="/v1/sessions/{id}/terms",
      *      operationId="storeTerm",
      *      tags={"school-v1.1"},
      *      summary="Store new term",
@@ -286,7 +294,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/terms/{id}",
+     *      path="/v1/terms/{id}",
      *      operationId="updateTerm",
      *      tags={"school-v1.1"},
      *      summary="Update existing term",
@@ -343,7 +351,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/terms/{id}",
+     *      path="/v1/terms/{id}",
      *      operationId="deleteTerm",
      *      tags={"school-v1.1"},
      *      summary="Delete existing term",
