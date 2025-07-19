@@ -5,24 +5,23 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Models\Class;
+use App\Models\Class as SchoolClass;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
- * @OA\Info(
- *      version="1.2",
- *      title="Class & Arm Setup",
- *      description="API for managing classes, class arms, and class sections"
+ * @OA\Tag(
+ *     name="school-v1.2",
+ *     description="Class & Arm Setup"
  * )
  */
 class ClassController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/classes",
+     *      path="/v1/classes",
      *      operationId="getClassesList",
-     *      tags={"Classes"},
+     *      tags={"school-v1.2"},
      *      summary="Get list of classes",
      *      description="Returns list of classes",
      *      @OA\Response(
@@ -33,15 +32,18 @@ class ClassController extends Controller
      */
     public function index()
     {
-        return Class::all();
+        $schoolId = auth()->user()->school_id;
+        $classes = SchoolClass::where('school_id', $schoolId)->get();
+
+        return response()->json($classes);
     }
 
     /**
      * @OA\Post(
-     *      path="/classes",
+     *      path="/v1/classes",
      *      operationId="storeClass",
-     *      tags={"Classes"},
-     *      summary="Store a newly created class",
+     *      tags={"school-v1.2"},
+     *      summary="Store new class",
      *      description="Stores a new class and returns the created class",
      *      @OA\RequestBody(
      *          required=true,
@@ -71,7 +73,7 @@ class ClassController extends Controller
             'school_id' => 'required|exists:schools,id',
         ]);
 
-        $class = Class::create([
+        $class = SchoolClass::create([
             'id' => Str::uuid(),
             'name' => $request->name,
             'slug' => Str::slug($request->name),
@@ -83,10 +85,10 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/classes/{id}",
+     *      path="/v1/classes/{id}",
      *      operationId="getClassById",
-     *      tags={"Classes"},
-     *      summary="Get class information",
+     *      tags={"school-v1.2"},
+     *      summary="Get session information",
      *      description="Returns class data",
      *      @OA\Parameter(
      *          name="id",
@@ -103,17 +105,17 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function show(string $id)
+    public function show(SchoolClass $schoolClass)
     {
-        return Class::findOrFail($id);
+        return $schoolClass;
     }
 
     /**
      * @OA\Put(
-     *      path="/classes/{id}",
+     *      path="/v1/classes/{id}",
      *      operationId="updateClass",
-     *      tags={"Classes"},
-     *      summary="Update an existing class",
+     *      tags={"school-v1.2"},
+     *      summary="Update existing class",
      *      description="Updates a class and returns the updated class",
      *      @OA\Parameter(
      *          name="id",
@@ -137,35 +139,33 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, SchoolClass $schoolClass)
     {
-        $class = Class::findOrFail($id);
-
         $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('classes')->where(function ($query) use ($request, $class) {
-                    return $query->where('school_id', $class->school_id)->where('id', '!=', $class->id);
+                Rule::unique('classes')->where(function ($query) use ($request, $schoolClass) {
+                    return $query->where('school_id', $schoolClass->school_id)->where('id', '!=', $schoolClass->id);
                 }),
             ],
         ]);
 
-        $class->update([
+        $schoolClass->update([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
         ]);
 
-        return response()->json($class);
+        return response()->json($schoolClass);
     }
 
     /**
      * @OA\Delete(
-     *      path="/classes/{id}",
+     *      path="/v1/classes/{id}",
      *      operationId="deleteClass",
-     *      tags={"Classes"},
-     *      summary="Delete an existing class",
+     *      tags={"school-v1.2"},
+     *      summary="Delete existing class",
      *      description="Deletes a class and returns no content",
      *      @OA\Parameter(
      *          name="id",
@@ -182,24 +182,22 @@ class ClassController extends Controller
      *       )
      * )
      */
-    public function destroy(string $id)
+    public function destroy(SchoolClass $schoolClass)
     {
-        $class = Class::findOrFail($id);
-
-        if ($class->class_arms()->exists() || $class->students()->exists()) {
+        if ($schoolClass->class_arms()->exists() || $schoolClass->students()->exists()) {
             return response()->json(['error' => 'Cannot delete class with associated arms or students.'], 422);
         }
 
-        $class->delete();
+        $schoolClass->delete();
 
         return response()->json(null, 204);
     }
 
     /**
      * @OA\Get(
-     *      path="/classes/{classId}/arms",
+     *      path="/v1/classes/{classId}/arms",
      *      operationId="getClassArmsList",
-     *      tags={"Class Arms"},
+     *      tags={"school-v1.2"},
      *      summary="Get list of class arms",
      *      description="Returns list of class arms for a given class",
      *      @OA\Parameter(
@@ -219,16 +217,16 @@ class ClassController extends Controller
      */
     public function indexArms(string $classId)
     {
-        $class = Class::findOrFail($classId);
+        $class = SchoolClass::findOrFail($classId);
         return $class->class_arms;
     }
 
     /**
      * @OA\Post(
-     *      path="/classes/{classId}/arms",
+     *      path="/v1/classes/{classId}/arms",
      *      operationId="storeClassArm",
-     *      tags={"Class Arms"},
-     *      summary="Store a newly created class arm",
+     *      tags={"school-v1.2"},
+     *      summary="Store new class arm",
      *      description="Stores a new class arm and returns the created class arm",
      *      @OA\Parameter(
      *          name="classId",
@@ -254,7 +252,7 @@ class ClassController extends Controller
      */
     public function storeArm(Request $request, string $classId)
     {
-        $class = Class::findOrFail($classId);
+        $class = SchoolClass::findOrFail($classId);
 
         $request->validate([
             'name' => [
@@ -278,9 +276,9 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/classes/{classId}/arms/{armId}",
+     *      path="/v1/classes/{classId}/arms/{armId}",
      *      operationId="getClassArmById",
-     *      tags={"Class Arms"},
+     *      tags={"school-v1.2"},
      *      summary="Get class arm information",
      *      description="Returns class arm data",
      *      @OA\Parameter(
@@ -309,16 +307,16 @@ class ClassController extends Controller
      */
     public function showArm(string $classId, string $armId)
     {
-        $class = Class::findOrFail($classId);
+        $class = SchoolClass::findOrFail($classId);
         return $class->class_arms()->findOrFail($armId);
     }
 
     /**
      * @OA\Put(
-     *      path="/classes/{classId}/arms/{armId}",
+     *      path="/v1/classes/{classId}/arms/{armId}",
      *      operationId="updateClassArm",
-     *      tags={"Class Arms"},
-     *      summary="Update an existing class arm",
+     *      tags={"school-v1.2"},
+     *      summary="Update existing class arm",
      *      description="Updates a class arm and returns the updated class arm",
      *      @OA\Parameter(
      *          name="classId",
@@ -354,7 +352,7 @@ class ClassController extends Controller
      */
     public function updateArm(Request $request, string $classId, string $armId)
     {
-        $class = Class::findOrFail($classId);
+        $class = SchoolClass::findOrFail($classId);
         $arm = $class->class_arms()->findOrFail($armId);
 
         $request->validate([
@@ -378,10 +376,10 @@ class ClassController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/classes/{classId}/arms/{armId}",
+     *      path="/v1/classes/{classId}/arms/{armId}",
      *      operationId="deleteClassArm",
-     *      tags={"Class Arms"},
-     *      summary="Delete an existing class arm",
+     *      tags={"school-v1.2"},
+     *      summary="Delete existing class arm",
      *      description="Deletes a class arm and returns no content",
      *      @OA\Parameter(
      *          name="classId",
@@ -409,7 +407,7 @@ class ClassController extends Controller
      */
     public function destroyArm(string $classId, string $armId)
     {
-        $class = Class::findOrFail($classId);
+        $class = SchoolClass::findOrFail($classId);
         $arm = $class->class_arms()->findOrFail($armId);
 
         if ($arm->students()->exists()) {
@@ -423,9 +421,9 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/classes/{classId}/arms/{armId}/sections",
+     *      path="/v1/classes/{classId}/arms/{armId}/sections",
      *      operationId="getClassArmSectionsList",
-     *      tags={"Class Arm Sections"},
+     *      tags={"school-v1.2"},
      *      summary="Get list of class arm sections",
      *      description="Returns list of class arm sections for a given class arm",
      *      @OA\Parameter(
@@ -454,16 +452,16 @@ class ClassController extends Controller
      */
     public function indexSections(string $classId, string $armId)
     {
-        $arm = Class::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
         return $arm->class_sections;
     }
 
     /**
      * @OA\Post(
-     *      path="/classes/{classId}/arms/{armId}/sections",
+     *      path="/v1/classes/{classId}/arms/{armId}/sections",
      *      operationId="storeClassArmSection",
-     *      tags={"Class Arm Sections"},
-     *      summary="Store a newly created class arm section",
+     *      tags={"school-v1.2"},
+     *      summary="Store new class arm section",
      *      description="Stores a new class arm section and returns the created class arm section",
      *      @OA\Parameter(
      *          name="classId",
@@ -498,7 +496,7 @@ class ClassController extends Controller
      */
     public function storeSection(Request $request, string $classId, string $armId)
     {
-        $arm = Class::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
 
         $request->validate([
             'name' => [
@@ -522,9 +520,9 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/classes/{classId}/arms/{armId}/sections/{sectionId}",
+     *      path="/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
      *      operationId="getClassArmSectionById",
-     *      tags={"Class Arm Sections"},
+     *      tags={"school-v1.2"},
      *      summary="Get class arm section information",
      *      description="Returns class arm section data",
      *      @OA\Parameter(
@@ -562,16 +560,16 @@ class ClassController extends Controller
      */
     public function showSection(string $classId, string $armId, string $sectionId)
     {
-        $arm = Class::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
         return $arm->class_sections()->findOrFail($sectionId);
     }
 
     /**
      * @OA\Put(
-     *      path="/classes/{classId}/arms/{armId}/sections/{sectionId}",
+     *      path="/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
      *      operationId="updateClassArmSection",
-     *      tags={"Class Arm Sections"},
-     *      summary="Update an existing class arm section",
+     *      tags={"school-v1.2"},
+     *      summary="Update existing class arm section",
      *      description="Updates a class arm section and returns the updated class arm section",
      *      @OA\Parameter(
      *          name="classId",
@@ -615,7 +613,7 @@ class ClassController extends Controller
      */
     public function updateSection(Request $request, string $classId, string $armId, string $sectionId)
     {
-        $arm = Class::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
         $section = $arm->class_sections()->findOrFail($sectionId);
 
         $request->validate([
@@ -639,10 +637,10 @@ class ClassController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/classes/{classId}/arms/{armId}/sections/{sectionId}",
+     *      path="/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
      *      operationId="deleteClassArmSection",
-     *      tags={"Class Arm Sections"},
-     *      summary="Delete an existing class arm section",
+     *      tags={"school-v1.2"},
+     *      summary="Delete existing class arm section",
      *      description="Deletes a class arm section and returns no content",
      *      @OA\Parameter(
      *          name="classId",
@@ -679,7 +677,7 @@ class ClassController extends Controller
      */
     public function destroySection(string $classId, string $armId, string $sectionId)
     {
-        $arm = Class::findOrFail($classId)->class_arms()->findOrFail($armId);
+        $arm = SchoolClass::findOrFail($classId)->class_arms()->findOrFail($armId);
         $section = $arm->class_sections()->findOrFail($sectionId);
 
         if ($section->students()->exists()) {

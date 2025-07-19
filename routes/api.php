@@ -17,6 +17,7 @@ Route::domain('{subdomain}.' . $host)->group(function () {
 Route::get('/migrate', [\App\Http\Controllers\MigrateController::class, 'migrate']);
 
 use App\Http\Controllers\Api\V1\AcademicSessionController;
+use App\Http\Controllers\Api\V1\ClassController;
 
 Route::prefix('api/v1')->group(function () {
     Route::post('/register-school', [SchoolController::class, 'register']);
@@ -37,8 +38,10 @@ Route::prefix('api/v1')->group(function () {
         Route::delete('terms/{term}', [AcademicSessionController::class, 'destroyTerm']);
 
         // Class, Class Arm, and Class Arm Section Routes
-        Route::apiResource('classes', ClassController::class);
-        Route::prefix('classes/{class}')->group(function () {
+        Route::apiResource('classes', ClassController::class)->parameters([
+            'classes' => 'schoolClass'
+        ]);
+        Route::prefix('classes/{schoolClass}')->group(function () {
             Route::get('arms', [ClassController::class, 'indexArms']);
             Route::post('arms', [ClassController::class, 'storeArm']);
             Route::get('arms/{arm}', [ClassController::class, 'showArm']);
