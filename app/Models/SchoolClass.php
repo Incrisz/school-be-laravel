@@ -56,7 +56,7 @@ class SchoolClass extends Model
 
 	public function class_arms()
 	{
-		return $this->hasMany(ClassArm::class, 'class_id');
+		return $this->hasMany(ClassArm::class, 'school_class_id');
 	}
 
 	public function students()
