@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Class;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
  * @OA\Info(
- *      version="1.0.0",
- *      title="School Management API",
+ *      version="1.2",
+ *      title="Class & Arm Setup",
  *      description="API for managing classes, class arms, and class sections"
  * )
  */
