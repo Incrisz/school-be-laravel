@@ -56,5 +56,8 @@ Route::prefix('api/v1')->group(function () {
                 Route::delete('sections/{section}', [ClassController::class, 'destroySection']);
             });
         });
+
+        // Parent Routes
+        Route::apiResource('parents', \App\Http\Controllers\Api\V1\ParentController::class);
     });
 });
