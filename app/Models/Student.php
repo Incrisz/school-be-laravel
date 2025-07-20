@@ -41,7 +41,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Class $class
  * @property ClassArm $class_arm
  * @property ClassSection|null $class_section
- * @property Parent $parent
+ * @property SchoolParent $parent
  * @property School $school
  * @property Session $session
  * @property Term $term
@@ -107,7 +107,7 @@ class Student extends Model
 
 	public function parent()
 	{
-		return $this->belongsTo(Parent::class);
+		return $this->belongsTo(SchoolParent::class);
 	}
 
 	public function school()

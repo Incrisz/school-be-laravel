@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Collection|AssessmentComponent[] $assessment_components
  * @property Collection|Class[] $classes
  * @property Collection|GradingScale[] $grading_scales
- * @property Collection|Parent[] $parents
+ * @property Collection|SchoolParent[] $parents
  * @property Collection|SkillType[] $skill_types
  * @property Collection|User[] $users
  * @property Collection|Session[] $sessions
@@ -88,7 +88,7 @@ class School extends Model
 
 	public function parents()
 	{
-		return $this->hasMany(Parent::class);
+		return $this->hasMany(SchoolParent::class);
 	}
 
 	public function skill_types()

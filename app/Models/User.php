@@ -33,7 +33,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property Collection|AuditLog[] $audit_logs
  * @property Collection|MessageThread[] $message_threads
  * @property Collection|Message[] $messages
- * @property Collection|Parent[] $parents
+ * @property Collection|SchoolParent[] $parents
  * @property Collection|School[] $schools
  * @property Collection|Staff[] $staff
  *
@@ -90,7 +90,7 @@ class User extends Authenticatable
 
 	public function parents()
 	{
-		return $this->hasMany(Parent::class);
+		return $this->hasMany(SchoolParent::class);
 	}
 
 	public function schools()
