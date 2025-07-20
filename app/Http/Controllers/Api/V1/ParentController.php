@@ -70,6 +70,15 @@ class ParentController extends Controller
      *      description="Returns parent data",
      *      @OA\RequestBody(
      *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="last_name", type="string", example="Doe"),
+     *              @OA\Property(property="phone", type="string", example="1234567890"),
+     *              @OA\Property(property="email", type="string", example="john.doe@example.com"),
+     *              @OA\Property(property="address", type="string", example="123 Main St"),
+     *              @OA\Property(property="occupation", type="string", example="Engineer"),
+     *          )
      *      ),
      *      @OA\Response(
      *          response=201,
@@ -168,6 +177,15 @@ class ParentController extends Controller
      *      ),
      *      @OA\RequestBody(
      *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="last_name", type="string", example="Doe"),
+     *              @OA\Property(property="phone", type="string", example="1234567890"),
+     *              @OA\Property(property="email", type="string", example="john.doe@example.com"),
+     *              @OA\Property(property="address", type="string", example="123 Main St"),
+     *              @OA\Property(property="occupation", type="string", example="Engineer"),
+     *          )
      *      ),
      *      @OA\Response(
      *          response=200,
