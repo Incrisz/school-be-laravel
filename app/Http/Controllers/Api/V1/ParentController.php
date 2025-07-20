@@ -44,7 +44,7 @@ class ParentController extends Controller
      */
     public function index(Request $request)
     {
-        $parents = SchoolParent::withCount('students')
+        $parents = $request->user()->school->parents()->withCount('students')
             ->when($request->has('search'), function ($query) use ($request) {
                 $query->where('first_name', 'like', '%' . $request->search . '%')
                     ->orWhere('last_name', 'like', '%' . $request->search . '%')
@@ -94,7 +94,7 @@ class ParentController extends Controller
             'email' => 'nullable|email|unique:parents,email,NULL,id,school_id,' . $request->user()->school_id,
         ]);
 
-        $parent = SchoolParent::create($request->all());
+        $parent = $request->user()->school->parents()->create($request->all());
 
         return response()->json($parent, 201);
     }
@@ -135,8 +135,11 @@ class ParentController extends Controller
      *      )
      * )
      */
-    public function show(SchoolParent $parent)
+    public function show(Request $request, SchoolParent $parent)
     {
+        if ($parent->school_id !== $request->user()->school_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
         return response()->json($parent);
     }
 
@@ -186,6 +189,10 @@ class ParentController extends Controller
      */
     public function update(Request $request, SchoolParent $parent)
     {
+        if ($parent->school_id !== $request->user()->school_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -234,8 +241,12 @@ class ParentController extends Controller
      *      )
      * )
      */
-    public function destroy(SchoolParent $parent)
+    public function destroy(Request $request, SchoolParent $parent)
     {
+        if ($parent->school_id !== $request->user()->school_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         if ($parent->students()->exists()) {
             return response()->json(['message' => 'Cannot delete parent with linked students.'], 409);
         }
