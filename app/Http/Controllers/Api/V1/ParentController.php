@@ -6,6 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\SchoolParent;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.3",
+ *     description="API for Parent Management "
+ * )
+ */
 class ParentController extends Controller
 {
     /**
@@ -15,9 +21,9 @@ class ParentController extends Controller
      */
     /**
      * @OA\Get(
-     *      path="/parents",
+     *      path="/v1/parents",
      *      operationId="getParentsList",
-     *      tags={"Parents"},
+     *      tags={"school-v1.3"},
      *      summary="Get list of parents",
      *      description="Returns list of parents",
      *      @OA\Parameter(
@@ -57,9 +63,9 @@ class ParentController extends Controller
      */
     /**
      * @OA\Post(
-     *      path="/parents",
+     *      path="/v1/parents",
      *      operationId="storeParent",
-     *      tags={"Parents"},
+     *      tags={"school-v1.3"},
      *      summary="Store new parent",
      *      description="Returns parent data",
      *      @OA\RequestBody(
@@ -101,9 +107,9 @@ class ParentController extends Controller
      */
     /**
      * @OA\Get(
-     *      path="/parents/{id}",
+     *      path="/v1/parents/{id}",
      *      operationId="getParentById",
-     *      tags={"Parents"},
+     *      tags={"school-v1.3"},
      *      summary="Get parent information",
      *      description="Returns parent data",
      *      @OA\Parameter(
@@ -143,9 +149,9 @@ class ParentController extends Controller
      */
     /**
      * @OA\Put(
-     *      path="/parents/{id}",
+     *      path="/v1/parents/{id}",
      *      operationId="updateParent",
-     *      tags={"Parents"},
+     *      tags={"school-v1.3"},
      *      summary="Update existing parent",
      *      description="Returns updated parent data",
      *      @OA\Parameter(
@@ -200,9 +206,9 @@ class ParentController extends Controller
      */
     /**
      * @OA\Delete(
-     *      path="/parents/{id}",
+     *      path="/v1/parents/{id}",
      *      operationId="deleteParent",
-     *      tags={"Parents"},
+     *      tags={"school-v1.3"},
      *      summary="Delete existing parent",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
