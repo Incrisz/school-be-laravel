@@ -111,7 +111,7 @@ class ParentController extends Controller
             'school_id' => $request->user()->school_id,
         ]);
 
-        $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['user_id' => $user->id]));
+        $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
 
         return response()->json($parent, 201);
     }
