@@ -299,7 +299,6 @@ class ParentController extends Controller
         $parent->delete();
         $parent->user()->delete();
 
-        return response()->json(['message' => 'Parent deleted successfully']);
-
+        return response()->json(null, 204);
     }
 }

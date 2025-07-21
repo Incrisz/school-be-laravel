@@ -190,7 +190,7 @@ class ClassController extends Controller
 
         $schoolClass->delete();
 
-        return response()->json(['message' => 'Class deleted successfully']);
+        return response()->json(null, 204);
     }
 
     /**
@@ -410,7 +410,7 @@ class ClassController extends Controller
 
         $arm->delete();
 
-        return response()->json(['message' => 'Class-Arm deleted successfully']);
+        return response()->json(null, 204);
     }
 
     /**
@@ -680,6 +680,6 @@ class ClassController extends Controller
 
         $section->delete();
 
-        return response()->json(['message' => 'Class-Section deleted successfully']);
+        return response()->json(null, 204);
     }
 }
