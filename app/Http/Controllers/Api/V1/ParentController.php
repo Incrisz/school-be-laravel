@@ -111,6 +111,12 @@ class ParentController extends Controller
             'password' => bcrypt($request->first_name),
             'school_id' => $request->user()->school_id,
             'role' => 'parent',
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'occupation' => $request->occupation,
+            'nationality' => $request->nationality,
+            'state_of_origin' => $request->state_of_origin,
+            'local_government_area' => $request->local_government_area,
         ]);
 
         $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
@@ -231,6 +237,12 @@ class ParentController extends Controller
         $parent->user->update([
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'occupation' => $request->occupation,
+            'nationality' => $request->nationality,
+            'state_of_origin' => $request->state_of_origin,
+            'local_government_area' => $request->local_government_area,
         ]);
 
         $parent->update($request->all());
