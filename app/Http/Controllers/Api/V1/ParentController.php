@@ -110,6 +110,7 @@ class ParentController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->first_name),
             'school_id' => $request->user()->school_id,
+            'role' => 'parent',
         ]);
 
         $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
