@@ -132,7 +132,6 @@ class StudentController extends Controller
     {
         $request->validate([
             'school_id' => 'required|exists:schools,id',
-            'admission_no' => 'required|string|max:255|unique:students,admission_no',
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -154,8 +153,13 @@ class StudentController extends Controller
             'status' => 'required|string|max:255',
         ]);
 
+        $school = \App\Models\School::find($request->school_id);
+        $session = \App\Models\Session::find($request->current_session_id);
+        $admission_number = $session->name . '/' . ($school->students()->where('current_session_id', $session->id)->count() + 1);
+
         $student = Student::create(array_merge($request->all(), [
-            'id' => str()->uuid()
+            'id' => str()->uuid(),
+            'admission_no' => $admission_number,
         ]));
 
         return response()->json($student, 201);
