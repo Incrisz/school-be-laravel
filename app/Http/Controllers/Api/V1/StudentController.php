@@ -14,6 +14,41 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * @OA\Get(
+     *      path="/v1/students",
+     *      operationId="getStudentsList",
+     *      tags={"Students"},
+     *      summary="Get list of students",
+     *      description="Returns list of students",
+     *      @OA\Parameter(
+     *          name="search",
+     *          description="Search by name or admission number",
+     *          in="query",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
+     *          name="class_id",
+     *          description="Filter by class",
+     *          in="query",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
+     *          name="parent_id",
+     *          description="Filter by parent",
+     *          in="query",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      )
+     * )
+     */
     public function index(Request $request)
     {
         $students = $request->user()->school->students()
@@ -38,6 +73,41 @@ class StudentController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * @OA\Post(
+     *      path="/v1/students",
+     *      operationId="storeStudent",
+     *      tags={"Students"},
+     *      summary="Store new student",
+     *      description="Returns student data",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="full_name", type="string", example="John Doe"),
+     *              @OA\Property(property="date_of_birth", type="string", format="date", example="2010-01-01"),
+     *              @OA\Property(property="gender", type="string", example="male"),
+     *              @OA\Property(property="parent_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="class_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="class_arm_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="class_section_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="session_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      )
+     * )
      */
     public function store(Request $request)
     {
@@ -70,9 +140,43 @@ class StudentController extends Controller
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
      */
-    public function show(Student $student)
+    /**
+     * @OA\Get(
+     *      path="/v1/students/{id}",
+     *      operationId="getStudentById",
+     *      tags={"Students"},
+     *      summary="Get student information",
+     *      description="Returns student data",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Student id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Resource Not Found"
+     *      )
+     * )
+     */
+    public function show(Request $request, Student $student)
     {
-        //
+        if ($student->school_id !== $request->user()->school_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
+        return response()->json($student);
     }
 
     /**
@@ -81,6 +185,54 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * @OA\Put(
+     *      path="/v1/students/{id}",
+     *      operationId="updateStudent",
+     *      tags={"Students"},
+     *      summary="Update existing student",
+     *      description="Returns updated student data",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Student id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="full_name", type="string", example="John Doe"),
+     *              @OA\Property(property="date_of_birth", type="string", format="date", example="2010-01-01"),
+     *              @OA\Property(property="gender", type="string", example="male"),
+     *              @OA\Property(property="parent_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="class_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="class_arm_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="class_section_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *              @OA\Property(property="session_id", type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Resource Not Found"
+     *      )
+     * )
      */
     public function update(Request $request, Student $student)
     {
@@ -109,6 +261,36 @@ class StudentController extends Controller
      *
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * @OA\Delete(
+     *      path="/v1/students/{id}",
+     *      operationId="deleteStudent",
+     *      tags={"Students"},
+     *      summary="Delete existing student",
+     *      description="Deletes a record and returns no content",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Student id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Resource Not Found"
+     *      )
+     * )
      */
     public function destroy(Request $request, Student $student)
     {
