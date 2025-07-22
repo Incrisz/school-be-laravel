@@ -50,7 +50,7 @@ class RoleController extends Controller
      *              type="object",
      *              @OA\Property(property="name", type="string", example="Admin"),
      *              @OA\Property(property="description", type="string", example="Administrator role"),
-     *              @OA\Property(property="permissions", type="array", @OA\Items(type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")),
+     *              @OA\Property(property="permissions", type="array", @OA\Items(type="string", example="view-students")),
      *          )
      *      ),
      *      @OA\Response(
@@ -146,7 +146,7 @@ class RoleController extends Controller
      *              type="object",
      *              @OA\Property(property="name", type="string", example="Admin"),
      *              @OA\Property(property="description", type="string", example="Administrator role"),
-     *              @OA\Property(property="permissions", type="array", @OA\Items(type="string", example="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")),
+     *              @OA\Property(property="permissions", type="array", @OA\Items(type="string", example="view-students")),
      *          )
      *      ),
      *      @OA\Response(
