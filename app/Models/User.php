@@ -61,7 +61,6 @@ class User extends Authenticatable
 		'name',
 		'email',
 		'password',
-		'role',
 		'status',
 		'last_login',
 		'email_verified_at',
@@ -73,6 +72,11 @@ class User extends Authenticatable
 		'state_of_origin',
 		'local_government_area',
 	];
+
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'user_has_roles');
+	}
 
 	public function school()
 	{

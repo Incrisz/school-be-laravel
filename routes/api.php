@@ -62,5 +62,10 @@ Route::prefix('api/v1')->group(function () {
 
         // Student Routes
         Route::apiResource('students', \App\Http\Controllers\Api\V1\StudentController::class);
+
+        // Role Routes
+        Route::apiResource('roles', \App\Http\Controllers\Api\V1\RoleController::class)->middleware('permission:manage-roles');
+        Route::post('users/{user}/assign-role', [\App\Http\Controllers\Api\V1\UserRoleController::class, 'assignRole'])->middleware('permission:assign-roles');
+        Route::post('users/{user}/unassign-role', [\App\Http\Controllers\Api\V1\UserRoleController::class, 'unassignRole'])->middleware('permission:unassign-roles');
     });
 });

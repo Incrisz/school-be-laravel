@@ -1,37 +1,15 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Class RoleHasPermission
- *
- * @property string $role_id
- * @property string $permission_id
- *
- * @property Permission $permission
- * @property Role $role
- *
- * @package App\Models
- */
 class RoleHasPermission extends Model
 {
-	protected $table = 'role_has_permissions';
-	public $incrementing = false;
-	public $timestamps = false;
+    use HasFactory;
 
-	public function permission()
-	{
-		return $this->belongsTo(Permission::class);
-	}
+    protected $table = 'role_has_permissions';
 
-	public function role()
-	{
-		return $this->belongsTo(Role::class);
-	}
+    public $timestamps = false;
 }

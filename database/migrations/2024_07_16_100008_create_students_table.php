@@ -32,7 +32,7 @@ return new class extends Migration
             $table->uuid('class_id');
             $table->uuid('class_arm_id');
             $table->uuid('class_section_id')->nullable();
-            $table->uuid('parent_id')->nullable();
+            $table->uuid('parent_id');
             $table->date('admission_date');
             $table->string('photo_url', 512)->nullable();
             $table->enum('status', ['active', 'inactive', 'graduated', 'withdrawn'])->default('active');
