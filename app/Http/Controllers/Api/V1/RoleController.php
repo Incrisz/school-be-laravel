@@ -6,13 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\Role;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="Role and permission  Management"
+ * )
+ */
 class RoleController extends Controller
 {
     /**
      * @OA\Get(
      *      path="/v1/roles",
      *      operationId="getRolesList",
-     *      tags={"Roles"},
+     *      tags={"school-v1.9"},
      *      summary="Get list of roles",
      *      description="Returns list of roles",
      *      @OA\Response(
@@ -35,7 +41,7 @@ class RoleController extends Controller
      * @OA\Post(
      *      path="/v1/roles",
      *      operationId="storeRole",
-     *      tags={"Roles"},
+     *      tags={"school-v1.9"},
      *      summary="Store new role",
      *      description="Returns role data",
      *      @OA\RequestBody(
@@ -83,7 +89,7 @@ class RoleController extends Controller
      * @OA\Get(
      *      path="/v1/roles/{id}",
      *      operationId="getRoleById",
-     *      tags={"Roles"},
+     *      tags={"school-v1.9"},
      *      summary="Get role information",
      *      description="Returns role data",
      *      @OA\Parameter(
@@ -122,7 +128,7 @@ class RoleController extends Controller
      * @OA\Put(
      *      path="/v1/roles/{id}",
      *      operationId="updateRole",
-     *      tags={"Roles"},
+     *      tags={"school-v1.9"},
      *      summary="Update existing role",
      *      description="Returns updated role data",
      *      @OA\Parameter(
@@ -187,7 +193,7 @@ class RoleController extends Controller
      * @OA\Delete(
      *      path="/v1/roles/{id}",
      *      operationId="deleteRole",
-     *      tags={"Roles"},
+     *      tags={"school-v1.9"},
      *      summary="Delete existing role",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(

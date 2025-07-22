@@ -6,13 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.9.1",
+ *     description="user-role assigning"
+ * )
+ */
 class UserRoleController extends Controller
 {
     /**
      * @OA\Post(
      *      path="/v1/users/{user}/assign-role",
      *      operationId="assignRole",
-     *      tags={"Users"},
+     *      tags={"school-v1.9.1"},
      *      summary="Assign role to user",
      *      description="Assigns a role to a user",
      *      @OA\Parameter(
@@ -68,7 +74,7 @@ class UserRoleController extends Controller
      * @OA\Post(
      *      path="/v1/users/{user}/unassign-role",
      *      operationId="unassignRole",
-     *      tags={"Users"},
+     *      tags={"school-v1.9.1"},
      *      summary="Unassign role from user",
      *      description="Unassigns a role from a user",
      *      @OA\Parameter(
