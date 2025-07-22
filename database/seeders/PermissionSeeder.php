@@ -14,16 +14,16 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            ['name' => 'View Students', 'description' => 'Can view students'],
-            ['name' => 'Create Students', 'description' => 'Can create students'],
-            ['name' => 'Edit Students', 'description' => 'Can edit students'],
-            ['name' => 'Delete Students', 'description' => 'Can delete students'],
-            ['name' => 'View Roles', 'description' => 'Can view roles'],
-            ['name' => 'Create Roles', 'description' => 'Can create roles'],
-            ['name' => 'Edit Roles', 'description' => 'Can edit roles'],
-            ['name' => 'Delete Roles', 'description' => 'Can delete roles'],
-            ['name' => 'Assign Roles', 'description' => 'Can assign roles to users'],
-            ['name' => 'Unassign Roles', 'description' => 'Can unassign roles from users'],
+            ['name' => 'view-students', 'description' => 'Can view students'],
+            ['name' => 'create-students', 'description' => 'Can create students'],
+            ['name' => 'edit-students', 'description' => 'Can edit students'],
+            ['name' => 'delete-students', 'description' => 'Can delete students'],
+            ['name' => 'view-roles', 'description' => 'Can view roles'],
+            ['name' => 'create-roles', 'description' => 'Can create roles'],
+            ['name' => 'edit-roles', 'description' => 'Can edit roles'],
+            ['name' => 'delete-roles', 'description' => 'Can delete roles'],
+            ['name' => 'assign-roles', 'description' => 'Can assign roles to users'],
+            ['name' => 'unassign-roles', 'description' => 'Can unassign roles from users'],
         ];
 
         foreach ($permissions as $permission) {

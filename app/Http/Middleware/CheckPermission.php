@@ -19,7 +19,7 @@ class CheckPermission
         if (Auth::check()) {
             $user = Auth::user();
             if ($user->roles()->whereHas('permissions', function ($query) use ($permission) {
-                $query->where('slug', $permission);
+                $query->where('name', $permission);
             })->exists()) {
                 return $next($request);
             }
