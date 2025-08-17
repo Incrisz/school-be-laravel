@@ -110,7 +110,6 @@ class ParentController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->first_name),
             'school_id' => $request->user()->school_id,
-            'role' => 'parent',
             'phone' => $request->phone,
             'address' => $request->address,
             'occupation' => $request->occupation,
@@ -118,6 +117,11 @@ class ParentController extends Controller
             'state_of_origin' => $request->state_of_origin,
             'local_government_area' => $request->local_government_area,
         ]);
+
+        $parentRole = \App\Models\Role::where('name', 'parent')->where('school_id', $request->user()->school_id)->first();
+        if ($parentRole) {
+            $user->roles()->attach($parentRole->id);
+        }
 
         $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
 
