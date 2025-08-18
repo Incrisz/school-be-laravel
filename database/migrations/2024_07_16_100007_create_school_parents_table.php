@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('parents', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('school_id');
-            $table->uuid('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('middle_name')->nullable();
@@ -29,7 +29,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('school_id')->references('id')->on('schools')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('restrict');
         });
     }
 
