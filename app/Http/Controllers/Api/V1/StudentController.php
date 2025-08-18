@@ -60,14 +60,24 @@ class StudentController extends Controller
         $students = $request->user()->school->students()
             ->with(['class', 'class_arm', 'parent', 'session'])
             ->when($request->has('search'), function ($query) use ($request) {
-                $query->where('full_name', 'like', '%' . $request->search . '%')
+                $query->where('first_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('last_name', 'like', '%' . $request->search . '%')
                     ->orWhere('admission_no', 'like', '%' . $request->search . '%');
+            })
+            ->when($request->has('session_id'), function ($query) use ($request) {
+                $query->where('current_session_id', $request->session_id);
             })
             ->when($request->has('class_id'), function ($query) use ($request) {
                 $query->where('class_id', $request->class_id);
             })
-            ->when($request->has('parent_id'), function ($query) use ($request) {
-                $query->where('parent_id', $request->parent_id);
+            ->when($request->has('class_arm_id'), function ($query) use ($request) {
+                $query->where('class_arm_id', $request->class_arm_id);
+            })
+            ->when($request->has('class_section_id'), function ($query) use ($request) {
+                $query->where('class_section_id', $request->class_section_id);
+            })
+            ->when($request->has('sortBy'), function ($query) use ($request) {
+                $query->orderBy($request->sortBy, $request->sortDirection ?? 'asc');
             })
             ->paginate(10);
 
