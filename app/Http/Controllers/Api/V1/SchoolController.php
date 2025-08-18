@@ -161,10 +161,6 @@ class SchoolController extends Controller
             ]);
         }
 
-        if ($user->role !== 'staff' && $user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
