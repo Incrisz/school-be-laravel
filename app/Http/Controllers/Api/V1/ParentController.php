@@ -97,35 +97,39 @@ class ParentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone' => 'required|string|unique:parents,phone,NULL,id,school_id,' . $request->user()->school_id,
-            'email' => 'nullable|email|unique:users,email',
-        ]);
+        try {
+            $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'phone' => 'required|string|unique:parents,phone,NULL,id,school_id,' . $request->user()->school_id,
+                'email' => 'nullable|email|unique:users,email',
+            ]);
 
-        $user = \App\Models\User::create([
-            'id' => str()->uuid(),
-            'name' => $request->first_name . ' ' . $request->last_name,
-            'email' => $request->email,
-            'password' => bcrypt($request->first_name),
-            'school_id' => $request->user()->school_id,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'occupation' => $request->occupation,
-            'nationality' => $request->nationality,
-            'state_of_origin' => $request->state_of_origin,
-            'local_government_area' => $request->local_government_area,
-        ]);
+            $user = \App\Models\User::create([
+                'id' => str()->uuid(),
+                'name' => $request->first_name . ' ' . $request->last_name,
+                'email' => $request->email,
+                'password' => bcrypt($request->first_name),
+                'school_id' => $request->user()->school_id,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'occupation' => $request->occupation,
+                'nationality' => $request->nationality,
+                'state_of_origin' => $request->state_of_origin,
+                'local_government_area' => $request->local_government_area,
+            ]);
 
-        $parentRole = \App\Models\Role::where('name', 'parent')->where('school_id', $request->user()->school_id)->first();
-        if ($parentRole) {
-            $user->roles()->attach($parentRole->id);
+            $parentRole = \App\Models\Role::where('name', 'parent')->where('school_id', $request->user()->school_id)->first();
+            if ($parentRole) {
+                $user->roles()->attach($parentRole->id);
+            }
+
+            $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
+
+            return response()->json($parent, 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
         }
-
-        $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
-
-        return response()->json($parent, 201);
     }
 
     /**
@@ -232,27 +236,31 @@ class ParentController extends Controller
             return response()->json(['message' => 'Not Found'], 404);
         }
 
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone' => 'required|string|unique:parents,phone,' . $parent->id . ',id,school_id,' . $request->user()->school_id,
-            'email' => 'nullable|email|unique:users,email,' . $parent->user_id,
-        ]);
+        try {
+            $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'phone' => 'required|string|unique:parents,phone,' . $parent->id . ',id,school_id,' . $request->user()->school_id,
+                'email' => 'nullable|email|unique:users,email,' . $parent->user_id,
+            ]);
 
-        $parent->user->update([
-            'name' => $request->first_name . ' ' . $request->last_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'occupation' => $request->occupation,
-            'nationality' => $request->nationality,
-            'state_of_origin' => $request->state_of_origin,
-            'local_government_area' => $request->local_government_area,
-        ]);
+            $parent->user->update([
+                'name' => $request->first_name . ' ' . $request->last_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'occupation' => $request->occupation,
+                'nationality' => $request->nationality,
+                'state_of_origin' => $request->state_of_origin,
+                'local_government_area' => $request->local_government_area,
+            ]);
 
-        $parent->update($request->all());
+            $parent->update($request->all());
 
-        return response()->json($parent);
+            return response()->json($parent);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
     }
 
     /**
