@@ -307,6 +307,23 @@ class ParentController extends Controller
         return response()->json(null, 204);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/v1/all-parents",
+     *      operationId="getAllParents",
+     *      tags={"school-v1.3"},
+     *      summary="Get list of all parents",
+     *      description="Returns list of all parents",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      )
+     * )
+     */
     public function getAllParents(Request $request)
     {
         $parents = $request->user()->school->parents()->with('user')->get();
