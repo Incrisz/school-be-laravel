@@ -39,6 +39,10 @@ class SchoolParent extends Model
 	protected $table = 'parents';
 	public $incrementing = false;
 
+	protected $casts = [
+		'user_id' => 'string'
+	];
+
 	protected $fillable = [
 		'id',
 		'school_id',
