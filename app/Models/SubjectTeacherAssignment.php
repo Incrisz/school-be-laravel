@@ -15,13 +15,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $subject_id
  * @property string $staff_id
- * @property string $class_section_id
+ * @property string|null $school_class_id
+ * @property string|null $class_arm_id
+ * @property string|null $class_section_id
  * @property string $session_id
  * @property string $term_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
- * @property ClassSection $class_section
+ * @property SchoolClass|null $school_class
+ * @property ClassArm|null $class_arm
+ * @property ClassSection|null $class_section
  * @property Session $session
  * @property Staff $staff
  * @property Subject $subject
@@ -39,10 +43,22 @@ class SubjectTeacherAssignment extends Model
 	protected $fillable = [
 		'subject_id',
 		'staff_id',
+		'school_class_id',
+		'class_arm_id',
 		'class_section_id',
 		'session_id',
 		'term_id'
 	];
+
+	public function school_class()
+	{
+		return $this->belongsTo(SchoolClass::class, 'school_class_id');
+	}
+
+	public function class_arm()
+	{
+		return $this->belongsTo(ClassArm::class);
+	}
 
 	public function class_section()
 	{

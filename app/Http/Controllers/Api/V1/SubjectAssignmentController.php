@@ -1,0 +1,266 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\ClassArm;
+use App\Models\ClassSection;
+use App\Models\SchoolClass;
+use App\Models\Subject;
+use App\Models\SubjectAssignment;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class SubjectAssignmentController extends Controller
+{
+    public function index(Request $request)
+    {
+        $school = $request->user()->school;
+
+        if (! $school) {
+            return response()->json([
+                'message' => 'Authenticated user is not associated with any school.',
+            ], 422);
+        }
+
+        $perPage = max((int) $request->input('per_page', 15), 1);
+        $sortBy = $request->input('sortBy', 'created_at');
+        $sortDirection = strtolower($request->input('sortDirection', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $allowedSorts = ['created_at', 'updated_at'];
+        if (! in_array($sortBy, $allowedSorts, true)) {
+            $sortBy = 'created_at';
+        }
+
+        $query = SubjectAssignment::query()
+            ->with([
+                'subject:id,name,code,school_id',
+                'school_class:id,name,slug,school_id',
+                'class_arm:id,name,school_class_id',
+                'class_section:id,name,class_arm_id',
+            ])
+            ->whereHas('subject', fn (Builder $builder) => $builder->where('school_id', $school->id));
+
+        if ($request->filled('subject_id')) {
+            $query->where('subject_id', $request->input('subject_id'));
+        }
+
+        if ($request->filled('school_class_id')) {
+            $query->where('school_class_id', $request->input('school_class_id'));
+        }
+
+        if ($request->filled('class_arm_id')) {
+            $query->where('class_arm_id', $request->input('class_arm_id'));
+        }
+
+        if ($request->filled('class_section_id')) {
+            $query->where('class_section_id', $request->input('class_section_id'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->whereHas('subject', function (Builder $builder) use ($search) {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        $assignments = $query->orderBy($sortBy, $sortDirection)
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return response()->json($assignments);
+    }
+
+    public function store(Request $request)
+    {
+        $school = $request->user()->school;
+
+        if (! $school) {
+            return response()->json([
+                'message' => 'Authenticated user is not associated with any school.',
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'subject_id' => ['required', 'uuid'],
+            'school_class_id' => ['required', 'uuid'],
+            'class_arm_id' => ['required', 'uuid'],
+            'class_section_id' => ['nullable', 'uuid'],
+        ]);
+
+        [$subject, $class, $classArm, $classSection] = $this->resolveAssignmentEntities(
+            $school->id,
+            $validated['subject_id'],
+            $validated['school_class_id'],
+            $validated['class_arm_id'],
+            $validated['class_section_id'] ?? null
+        );
+
+        if ($this->assignmentExists($subject->id, $class->id, $classArm->id, $classSection?->id)) {
+            return response()->json([
+                'message' => 'Subject is already assigned to the selected class context.',
+            ], 422);
+        }
+
+        $assignment = SubjectAssignment::create([
+            'id' => (string) Str::uuid(),
+            'subject_id' => $subject->id,
+            'school_class_id' => $class->id,
+            'class_arm_id' => $classArm->id,
+            'class_section_id' => $classSection?->id,
+        ]);
+
+        return response()->json([
+            'message' => 'Subject assigned successfully.',
+            'data' => $assignment->load([
+                'subject:id,name,code',
+                'school_class:id,name',
+                'class_arm:id,name',
+                'class_section:id,name',
+            ]),
+        ], 201);
+    }
+
+    public function update(Request $request, SubjectAssignment $assignment)
+    {
+        $this->authorizeAssignment($request, $assignment);
+
+        $validated = $request->validate([
+            'subject_id' => ['sometimes', 'required', 'uuid'],
+            'school_class_id' => ['sometimes', 'required', 'uuid'],
+            'class_arm_id' => ['sometimes', 'required', 'uuid'],
+            'class_section_id' => ['nullable', 'uuid'],
+        ]);
+
+        $subjectId = $validated['subject_id'] ?? $assignment->subject_id;
+        $classId = $validated['school_class_id'] ?? $assignment->school_class_id;
+        $classArmId = $validated['class_arm_id'] ?? $assignment->class_arm_id;
+        $classSectionId = array_key_exists('class_section_id', $validated)
+            ? $validated['class_section_id']
+            : $assignment->class_section_id;
+
+        $school = $request->user()->school;
+
+        if (! $school) {
+            return response()->json([
+                'message' => 'Authenticated user is not associated with any school.',
+            ], 422);
+        }
+
+        [$subject, $class, $classArm, $classSection] = $this->resolveAssignmentEntities(
+            $school->id,
+            $subjectId,
+            $classId,
+            $classArmId,
+            $classSectionId
+        );
+
+        if ($this->assignmentExists($subject->id, $class->id, $classArm->id, $classSection?->id, $assignment->id)) {
+            return response()->json([
+                'message' => 'Subject is already assigned to the selected class context.',
+            ], 422);
+        }
+
+        $assignment->fill([
+            'subject_id' => $subject->id,
+            'school_class_id' => $class->id,
+            'class_arm_id' => $classArm->id,
+            'class_section_id' => $classSection?->id,
+        ]);
+
+        if ($assignment->isDirty()) {
+            $assignment->save();
+        }
+
+        return response()->json([
+            'message' => 'Subject assignment updated successfully.',
+            'data' => $assignment->fresh()->load([
+                'subject:id,name,code',
+                'school_class:id,name',
+                'class_arm:id,name',
+                'class_section:id,name',
+            ]),
+        ]);
+    }
+
+    public function destroy(Request $request, SubjectAssignment $assignment)
+    {
+        $this->authorizeAssignment($request, $assignment);
+        $assignment->delete();
+
+        return response()->json([
+            'message' => 'Subject assignment removed successfully.',
+        ]);
+    }
+
+    private function resolveAssignmentEntities(
+        string $schoolId,
+        string $subjectId,
+        string $classId,
+        string $classArmId,
+        ?string $classSectionId
+    ): array {
+        $subject = Subject::where('id', $subjectId)
+            ->where('school_id', $schoolId)
+            ->first();
+
+        if (! $subject) {
+            abort(404, 'Subject not found for the authenticated school.');
+        }
+
+        $class = SchoolClass::where('id', $classId)
+            ->where('school_id', $schoolId)
+            ->first();
+
+        if (! $class) {
+            abort(404, 'Class not found for the authenticated school.');
+        }
+
+        $classArm = ClassArm::where('id', $classArmId)
+            ->where('school_class_id', $class->id)
+            ->first();
+
+        if (! $classArm) {
+            abort(404, 'Class arm not found or does not belong to the selected class.');
+        }
+
+        $classSection = null;
+        if ($classSectionId) {
+            $classSection = ClassSection::where('id', $classSectionId)
+                ->where('class_arm_id', $classArm->id)
+                ->first();
+
+            if (! $classSection) {
+                abort(404, 'Class section not found or does not belong to the selected class arm.');
+            }
+        }
+
+        return [$subject, $class, $classArm, $classSection];
+    }
+
+    private function assignmentExists(string $subjectId, string $classId, string $classArmId, ?string $classSectionId, ?string $ignoreId = null): bool
+    {
+        $query = SubjectAssignment::query()
+            ->where('subject_id', $subjectId)
+            ->where('school_class_id', $classId)
+            ->where('class_arm_id', $classArmId)
+            ->when($classSectionId, fn (Builder $builder) => $builder->where('class_section_id', $classSectionId))
+            ->when(! $classSectionId, fn (Builder $builder) => $builder->whereNull('class_section_id'));
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        return $query->exists();
+    }
+
+    private function authorizeAssignment(Request $request, SubjectAssignment $assignment): void
+    {
+        $schoolId = optional($request->user()->school)->id;
+
+        $assignment->loadMissing('subject');
+
+        abort_unless($schoolId && optional($assignment->subject)->school_id === $schoolId, 404);
+    }
+}

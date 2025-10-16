@@ -35,7 +35,7 @@ class ClassArm extends Model
 
 	protected $fillable = [
 		'id',
-		'class_id',
+		'school_class_id',
 		'name',
 		'slug',
 		'description',
@@ -55,5 +55,17 @@ class ClassArm extends Model
 	public function students()
 	{
 		return $this->hasMany(Student::class);
+	}
+
+	public function assignments()
+	{
+		return $this->hasMany(SubjectAssignment::class, 'class_arm_id');
+	}
+
+	public function subjects()
+	{
+		return $this->belongsToMany(Subject::class, 'subject_school_class_assignments', 'class_arm_id', 'subject_id')
+			->withPivot(['id', 'school_class_id', 'class_section_id'])
+			->withTimestamps();
 	}
 }
