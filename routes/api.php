@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\ClassController;
 use App\Http\Controllers\Api\V1\SubjectController;
 use App\Http\Controllers\Api\V1\SubjectAssignmentController;
 use App\Http\Controllers\Api\V1\SubjectTeacherAssignmentController;
+use App\Http\Controllers\Api\V1\ClassTeacherAssignmentController;
 
 $host = parse_url(config('app.url'), PHP_URL_HOST);
 
@@ -74,8 +75,13 @@ Route::prefix('api/v1')->group(function () {
         // Settings Routes
         Route::prefix('settings')->group(function () {
             Route::apiResource('subjects', SubjectController::class);
-            Route::apiResource('subject-assignments', SubjectAssignmentController::class)->except(['create', 'edit']);
-            Route::apiResource('subject-teacher-assignments', SubjectTeacherAssignmentController::class)->except(['create', 'edit']);
+            Route::apiResource('subject-assignments', SubjectAssignmentController::class)
+                ->parameters(['subject-assignments' => 'assignment'])
+                ->except(['create', 'edit']);
+            Route::apiResource('subject-teacher-assignments', SubjectTeacherAssignmentController::class)
+                ->parameters(['subject-teacher-assignments' => 'assignment'])
+                ->except(['create', 'edit']);
+            Route::apiResource('class-teachers', ClassTeacherAssignmentController::class)->except(['create', 'edit']);
         });
     });
 });

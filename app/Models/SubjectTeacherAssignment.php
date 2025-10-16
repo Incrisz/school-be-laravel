@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -40,7 +41,10 @@ class SubjectTeacherAssignment extends Model
 
 	protected $keyType = 'string';
 
+	use HasUuids;
+
 	protected $fillable = [
+		'id',
 		'subject_id',
 		'staff_id',
 		'school_class_id',

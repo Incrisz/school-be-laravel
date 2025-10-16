@@ -97,7 +97,7 @@ class SubjectAssignmentController extends Controller
             $validated['class_section_id'] ?? null
         );
 
-        if ($this->assignmentExists($subject->id, $class->id, $classArm->id, $classSection?->id)) {
+        if ($this->assignmentExists($subject->id, $class->id, $classArm->id, optional($classSection)->id)) {
             return response()->json([
                 'message' => 'Subject is already assigned to the selected class context.',
             ], 422);
@@ -108,7 +108,7 @@ class SubjectAssignmentController extends Controller
             'subject_id' => $subject->id,
             'school_class_id' => $class->id,
             'class_arm_id' => $classArm->id,
-            'class_section_id' => $classSection?->id,
+            'class_section_id' => optional($classSection)->id,
         ]);
 
         return response()->json([
@@ -120,6 +120,23 @@ class SubjectAssignmentController extends Controller
                 'class_section:id,name',
             ]),
         ], 201);
+    }
+
+    public function show(Request $request, SubjectAssignment $assignment)
+    {
+        $this->authorizeAssignment($request, $assignment);
+
+        return response()->json([
+            'id' => $assignment->id,
+            'subject_id' => $assignment->subject_id,
+            'school_class_id' => $assignment->school_class_id,
+            'class_arm_id' => $assignment->class_arm_id,
+            'class_section_id' => $assignment->class_section_id,
+            'subject' => optional($assignment->subject)->only(['id', 'name', 'code']),
+            'school_class' => optional($assignment->school_class)->only(['id', 'name']),
+            'class_arm' => optional($assignment->class_arm)->only(['id', 'name']),
+            'class_section' => optional($assignment->class_section)->only(['id', 'name']),
+        ]);
     }
 
     public function update(Request $request, SubjectAssignment $assignment)
@@ -156,7 +173,7 @@ class SubjectAssignmentController extends Controller
             $classSectionId
         );
 
-        if ($this->assignmentExists($subject->id, $class->id, $classArm->id, $classSection?->id, $assignment->id)) {
+        if ($this->assignmentExists($subject->id, $class->id, $classArm->id, optional($classSection)->id, $assignment->id)) {
             return response()->json([
                 'message' => 'Subject is already assigned to the selected class context.',
             ], 422);
@@ -166,7 +183,7 @@ class SubjectAssignmentController extends Controller
             'subject_id' => $subject->id,
             'school_class_id' => $class->id,
             'class_arm_id' => $classArm->id,
-            'class_section_id' => $classSection?->id,
+            'class_section_id' => optional($classSection)->id,
         ]);
 
         if ($assignment->isDirty()) {
@@ -259,8 +276,13 @@ class SubjectAssignmentController extends Controller
     {
         $schoolId = optional($request->user()->school)->id;
 
-        $assignment->loadMissing('subject');
+        $assignment->loadMissing('subject', 'school_class');
 
-        abort_unless($schoolId && optional($assignment->subject)->school_id === $schoolId, 404);
+        $belongsToSchool = $schoolId && (
+            optional($assignment->subject)->school_id === $schoolId
+            || optional($assignment->school_class)->school_id === $schoolId
+        );
+
+        abort_unless($belongsToSchool, 404);
     }
 }

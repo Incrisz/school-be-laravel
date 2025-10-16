@@ -9,7 +9,6 @@ use App\Models\SchoolClass;
 use App\Models\Session;
 use App\Models\Staff;
 use App\Models\Subject;
-use App\Models\SubjectAssignment;
 use App\Models\SubjectTeacherAssignment;
 use App\Models\Term;
 use Illuminate\Database\Eloquent\Builder;
@@ -99,8 +98,8 @@ class SubjectTeacherAssignmentController extends Controller
         $validated = $request->validate([
             'subject_id' => ['required', 'uuid'],
             'staff_id' => ['required', 'uuid'],
-            'school_class_id' => ['required', 'uuid'],
-            'class_arm_id' => ['required', 'uuid'],
+            'school_class_id' => ['nullable', 'uuid'],
+            'class_arm_id' => ['nullable', 'uuid'],
             'class_section_id' => ['nullable', 'uuid'],
             'session_id' => ['required', 'uuid'],
             'term_id' => ['required', 'uuid'],
@@ -114,18 +113,12 @@ class SubjectTeacherAssignmentController extends Controller
             ], 422);
         }
 
-        if (! $this->subjectAssignmentExists($entities['subject']->id, $entities['class']->id, $entities['class_arm']->id, $entities['class_section']?->id)) {
-            return response()->json([
-                'message' => 'Assign the subject to the class arm/section before assigning a teacher.',
-            ], 422);
-        }
-
         $assignment = SubjectTeacherAssignment::create([
             'id' => (string) Str::uuid(),
             'subject_id' => $entities['subject']->id,
             'staff_id' => $entities['staff']->id,
-            'school_class_id' => $entities['class']->id,
-            'class_arm_id' => $entities['class_arm']->id,
+            'school_class_id' => $entities['class']?->id,
+            'class_arm_id' => $entities['class_arm']?->id,
             'class_section_id' => $entities['class_section']?->id,
             'session_id' => $entities['session']->id,
             'term_id' => $entities['term']->id,
@@ -145,6 +138,29 @@ class SubjectTeacherAssignmentController extends Controller
         ], 201);
     }
 
+    public function show(Request $request, SubjectTeacherAssignment $assignment)
+    {
+        $this->authorizeTeacherAssignment($request, $assignment);
+
+        return response()->json([
+            'id' => $assignment->id,
+            'subject_id' => $assignment->subject_id,
+            'staff_id' => $assignment->staff_id,
+            'school_class_id' => $assignment->school_class_id,
+            'class_arm_id' => $assignment->class_arm_id,
+            'class_section_id' => $assignment->class_section_id,
+            'session_id' => $assignment->session_id,
+            'term_id' => $assignment->term_id,
+            'subject' => optional($assignment->subject)->only(['id','name','code']),
+            'staff' => optional($assignment->staff)->only(['id','full_name','email','phone','role']),
+            'school_class' => optional($assignment->school_class)->only(['id','name']),
+            'class_arm' => optional($assignment->class_arm)->only(['id','name']),
+            'class_section' => optional($assignment->class_section)->only(['id','name']),
+            'session' => optional($assignment->session)->only(['id','name']),
+            'term' => optional($assignment->term)->only(['id','name']),
+        ]);
+    }
+
     public function update(Request $request, SubjectTeacherAssignment $assignment)
     {
         $this->authorizeTeacherAssignment($request, $assignment);
@@ -160,8 +176,8 @@ class SubjectTeacherAssignmentController extends Controller
         $validated = $request->validate([
             'subject_id' => ['sometimes', 'required', 'uuid'],
             'staff_id' => ['sometimes', 'required', 'uuid'],
-            'school_class_id' => ['sometimes', 'required', 'uuid'],
-            'class_arm_id' => ['sometimes', 'required', 'uuid'],
+            'school_class_id' => ['nullable', 'uuid'],
+            'class_arm_id' => ['nullable', 'uuid'],
             'class_section_id' => ['nullable', 'uuid'],
             'session_id' => ['sometimes', 'required', 'uuid'],
             'term_id' => ['sometimes', 'required', 'uuid'],
@@ -187,17 +203,11 @@ class SubjectTeacherAssignmentController extends Controller
             ], 422);
         }
 
-        if (! $this->subjectAssignmentExists($entities['subject']->id, $entities['class']->id, $entities['class_arm']->id, $entities['class_section']?->id)) {
-            return response()->json([
-                'message' => 'Assign the subject to the class arm/section before assigning a teacher.',
-            ], 422);
-        }
-
         $assignment->fill([
             'subject_id' => $entities['subject']->id,
             'staff_id' => $entities['staff']->id,
-            'school_class_id' => $entities['class']->id,
-            'class_arm_id' => $entities['class_arm']->id,
+            'school_class_id' => $entities['class']?->id,
+            'class_arm_id' => $entities['class_arm']?->id,
             'class_section_id' => $entities['class_section']?->id,
             'session_id' => $entities['session']->id,
             'term_id' => $entities['term']->id,
@@ -241,27 +251,41 @@ class SubjectTeacherAssignmentController extends Controller
             abort(404, 'Subject not found for the authenticated school.');
         }
 
-        $class = SchoolClass::where('id', $payload['school_class_id'])
-            ->where('school_id', $schoolId)
-            ->first();
+        $class = null;
+        if (! empty($payload['school_class_id'])) {
+            $class = SchoolClass::where('id', $payload['school_class_id'])
+                ->where('school_id', $schoolId)
+                ->first();
 
-        if (! $class) {
-            abort(404, 'Class not found for the authenticated school.');
+            if (! $class) {
+                abort(404, 'Class not found for the authenticated school.');
+            }
         }
 
-        $classArm = ClassArm::where('id', $payload['class_arm_id'])
-            ->where('school_class_id', $class->id)
-            ->first();
+        $classArm = null;
+        if (! empty($payload['class_arm_id'])) {
+            $armQuery = ClassArm::where('id', $payload['class_arm_id']);
 
-        if (! $classArm) {
-            abort(404, 'Class arm not found or does not belong to the selected class.');
+            if ($class) {
+                $armQuery->where('school_class_id', $class->id);
+            }
+
+            $classArm = $armQuery->first();
+
+            if (! $classArm) {
+                abort(404, 'Class arm not found or does not belong to the selected class.');
+            }
         }
 
         $classSection = null;
         if (! empty($payload['class_section_id'])) {
-            $classSection = ClassSection::where('id', $payload['class_section_id'])
-                ->where('class_arm_id', $classArm->id)
-                ->first();
+            $sectionQuery = ClassSection::where('id', $payload['class_section_id']);
+
+            if ($classArm) {
+                $sectionQuery->where('class_arm_id', $classArm->id);
+            }
+
+            $classSection = $sectionQuery->first();
 
             if (! $classSection) {
                 abort(404, 'Class section not found or does not belong to the selected class arm.');
@@ -311,26 +335,14 @@ class SubjectTeacherAssignmentController extends Controller
         ];
     }
 
-    private function subjectAssignmentExists(string $subjectId, string $classId, string $classArmId, ?string $classSectionId): bool
-    {
-        return SubjectAssignment::query()
-            ->where('subject_id', $subjectId)
-            ->where('school_class_id', $classId)
-            ->where('class_arm_id', $classArmId)
-            ->when($classSectionId, fn (Builder $builder) => $builder->where('class_section_id', $classSectionId))
-            ->when(! $classSectionId, fn (Builder $builder) => $builder->whereNull('class_section_id'))
-            ->exists();
-    }
-
     private function teacherAssignmentExists(array $entities, ?string $ignoreId): bool
     {
         $query = SubjectTeacherAssignment::query()
             ->where('subject_id', $entities['subject']->id)
             ->where('staff_id', $entities['staff']->id)
-            ->where('school_class_id', $entities['class']->id)
-            ->where('class_arm_id', $entities['class_arm']->id)
-            ->when($entities['class_section'], fn (Builder $builder, ClassSection $section) => $builder->where('class_section_id', $section->id))
-            ->when(! $entities['class_section'], fn (Builder $builder) => $builder->whereNull('class_section_id'))
+            ->when($entities['class'], fn (Builder $builder, SchoolClass $class) => $builder->where('school_class_id', $class->id), fn (Builder $builder) => $builder->whereNull('school_class_id'))
+            ->when($entities['class_arm'], fn (Builder $builder, ClassArm $arm) => $builder->where('class_arm_id', $arm->id), fn (Builder $builder) => $builder->whereNull('class_arm_id'))
+            ->when($entities['class_section'], fn (Builder $builder, ClassSection $section) => $builder->where('class_section_id', $section->id), fn (Builder $builder) => $builder->whereNull('class_section_id'))
             ->where('session_id', $entities['session']->id)
             ->where('term_id', $entities['term']->id);
 
