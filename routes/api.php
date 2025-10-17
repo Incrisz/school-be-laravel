@@ -81,7 +81,9 @@ Route::prefix('api/v1')->group(function () {
             Route::apiResource('subject-teacher-assignments', SubjectTeacherAssignmentController::class)
                 ->parameters(['subject-teacher-assignments' => 'assignment'])
                 ->except(['create', 'edit']);
-            Route::apiResource('class-teachers', ClassTeacherAssignmentController::class)->except(['create', 'edit']);
+            Route::apiResource('class-teachers', ClassTeacherAssignmentController::class)
+                ->parameters(['class-teachers' => 'classTeacher'])
+                ->except(['create', 'edit']);
         });
     });
 });

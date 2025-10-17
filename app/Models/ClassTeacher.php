@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -36,10 +37,14 @@ class ClassTeacher extends Model
 
 	protected $keyType = 'string';
 
+	use HasUuids;
+
 	protected $fillable = [
+		'id',
 		'staff_id',
 		'school_class_id',
 		'class_arm_id',
+		'class_section_id',
 		'session_id',
 		'term_id'
 	];
@@ -52,6 +57,11 @@ class ClassTeacher extends Model
 	public function class_arm()
 	{
 		return $this->belongsTo(ClassArm::class);
+	}
+
+	public function class_section()
+	{
+		return $this->belongsTo(ClassSection::class);
 	}
 
 	public function session()
