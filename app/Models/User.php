@@ -8,9 +8,10 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 
 /**
@@ -41,6 +42,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable
 {
+	use HasFactory;
 	use HasApiTokens;
 	protected $table = 'users';
 	public $incrementing = false;
@@ -112,4 +114,12 @@ class User extends Authenticatable
 					->withTimestamps();
 	}
 
+	protected static function booted()
+	{
+		static::creating(function (self $model) {
+			if (empty($model->id)) {
+				$model->id = (string) Str::uuid();
+			}
+		});
+	}
 }

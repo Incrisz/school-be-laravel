@@ -35,6 +35,7 @@ class GradingScale extends Model
 	protected $keyType = 'string';
 
 	protected $fillable = [
+		'id',
 		'school_id',
 		'session_id',
 		'name',

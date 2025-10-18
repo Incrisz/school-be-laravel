@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\SubjectController;
 use App\Http\Controllers\Api\V1\SubjectAssignmentController;
 use App\Http\Controllers\Api\V1\SubjectTeacherAssignmentController;
 use App\Http\Controllers\Api\V1\ClassTeacherAssignmentController;
+use App\Http\Controllers\Api\V1\GradeScaleController;
 use App\Http\Controllers\Api\V1\AssessmentComponentController;
 use App\Http\Controllers\Api\V1\ResultController;
 
@@ -93,6 +94,13 @@ Route::prefix('api/v1')->group(function () {
             Route::apiResource('class-teachers', ClassTeacherAssignmentController::class)
                 ->parameters(['class-teachers' => 'classTeacher'])
                 ->except(['create', 'edit']);
+        });
+
+        Route::prefix('grades')->group(function () {
+            Route::get('scales', [GradeScaleController::class, 'index']);
+            Route::get('scales/{gradingScale}', [GradeScaleController::class, 'show'])->whereUuid('gradingScale');
+            Route::put('scales/{gradingScale}/ranges', [GradeScaleController::class, 'updateRanges'])->whereUuid('gradingScale');
+            Route::delete('ranges/{gradeRange}', [GradeScaleController::class, 'destroyRange'])->whereUuid('gradeRange');
         });
     });
 });

@@ -8,7 +8,9 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * Class School
@@ -45,6 +47,17 @@ use Illuminate\Database\Eloquent\Model;
  */
 class School extends Model
 {
+	use HasFactory;
+
+	protected static function booted()
+	{
+		static::creating(function (self $model) {
+			if (empty($model->id)) {
+				$model->id = (string) Str::uuid();
+			}
+		});
+	}
+
 	protected $table = 'schools';
 	public $incrementing = false;
 	protected $keyType = 'string';

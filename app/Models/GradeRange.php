@@ -42,6 +42,7 @@ class GradeRange extends Model
 	];
 
 	protected $fillable = [
+		'id',
 		'grading_scale_id',
 		'min_score',
 		'max_score',
