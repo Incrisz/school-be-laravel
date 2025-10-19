@@ -41,6 +41,7 @@ class SkillType extends Model
 	];
 
 	protected $fillable = [
+		'id',
 		'skill_category_id',
 		'school_id',
 		'name',

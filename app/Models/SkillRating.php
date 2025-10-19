@@ -40,6 +40,7 @@ class SkillRating extends Model
 	];
 
 	protected $fillable = [
+		'id',
 		'student_id',
 		'term_id',
 		'session_id',

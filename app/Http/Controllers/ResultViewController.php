@@ -95,21 +95,37 @@ class ResultViewController extends Controller
             ->when($term, fn ($query) => $query->where('term_id', $term->id))
             ->first();
 
-        $skillRatings = SkillRating::query()
+        $skillRatingsByCategory = SkillRating::query()
             ->where('student_id', $student->id)
             ->when($session, fn ($query) => $query->where('session_id', $session->id))
             ->when($term, fn ($query) => $query->where('term_id', $term->id))
-            ->with('skill_type:id,name')
+            ->with([
+                'skill_type:id,name,skill_category_id',
+                'skill_type.skill_category:id,name',
+            ])
             ->get()
-            ->sortBy(fn (SkillRating $rating) => Str::lower($rating->skill_type->name ?? ''), SORT_NATURAL, false)
-            ->values()
-            ->map(function (SkillRating $rating) {
+            ->filter(fn (SkillRating $rating) => $rating->skill_type !== null)
+            ->sortBy(fn (SkillRating $rating) => Str::lower(optional($rating->skill_type->skill_category)->name ?? ''), SORT_NATURAL, false)
+            ->groupBy(function (SkillRating $rating) {
+                return optional($rating->skill_type->skill_category)->name ?? 'Other Skills';
+            })
+            ->map(function ($items, $category) {
                 return [
-                    'skill' => $rating->skill_type->name ?? null,
-                    'value' => $rating->rating_value,
+                    'category' => $category,
+                    'skills' => $items
+                        ->sortBy(fn (SkillRating $rating) => Str::lower($rating->skill_type->name ?? ''), SORT_NATURAL, false)
+                        ->map(function (SkillRating $rating) {
+                            return [
+                                'skill' => $rating->skill_type->name ?? null,
+                                'value' => $rating->rating_value,
+                            ];
+                        })
+                        ->filter(fn (array $entry) => ! empty($entry['skill']))
+                        ->values()
+                        ->all(),
                 ];
             })
-            ->filter(fn (array $entry) => ! empty($entry['skill']))
+            ->filter(fn (array $entry) => ! empty($entry['skills']))
             ->values()
             ->all();
 
@@ -188,7 +204,7 @@ class ResultViewController extends Controller
                 })
                 ->values()
                 ->all(),
-            'skillRatings' => $skillRatings,
+            'skillRatingsByCategory' => $skillRatingsByCategory,
             'classTeacherName' => $classTeacher?->staff?->full_name,
             'principalName' => optional($student->school)->owner_name,
             'principalSignatureUrl' => optional($student->school)->signature_url,

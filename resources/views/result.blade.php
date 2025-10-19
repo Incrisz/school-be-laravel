@@ -171,6 +171,45 @@
             height: auto;
         }
 
+        .info-box {
+            border: 1px solid #d0d5dd;
+            border-radius: 6px;
+            padding: 12px 16px;
+            background: #fdfdfd;
+            margin-top: 12px;
+        }
+
+        .skill-category {
+            margin-bottom: 12px;
+        }
+
+        .skill-category-name {
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.4px;
+        }
+
+        .skill-table td {
+            border: none;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .skill-table td:first-child {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .rating-key {
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
         @media print {
             body {
                 padding: 0;
@@ -292,38 +331,53 @@
         <div class="flex-row">
             <div class="flex-col">
                 <div class="section-title">Grading System</div>
-                <table class="table-three">
-                    @if(!empty($gradeRanges))
-                        @foreach($gradeRanges as $range)
+                <div class="info-box">
+                    <table class="table-three">
+                        @if(!empty($gradeRanges))
+                            @foreach($gradeRanges as $range)
+                                <tr>
+                                    <td>{{ $range['label'] }}</td>
+                                    <td>{{ number_format($range['min'], 0) }} - {{ number_format($range['max'], 0) }}</td>
+                                    <td>{{ $range['description'] }}</td>
+                                </tr>
+                            @endforeach
+                        @else
                             <tr>
-                                <td>{{ $range['label'] }}</td>
-                                <td>{{ number_format($range['min'], 0) }} - {{ number_format($range['max'], 0) }}</td>
-                                <td>{{ $range['description'] }}</td>
+                                <td colspan="3">No grading scale configured.</td>
                             </tr>
-                        @endforeach
-                    @else
-                        <tr>
-                            <td colspan="3">No grading scale configured.</td>
-                        </tr>
-                    @endif
-                </table>
+                        @endif
+                    </table>
+                </div>
             </div>
             <div class="flex-col">
                 <div class="section-title">Skills &amp; Behaviour</div>
-                <table class="table-three">
-                    @if(!empty($skillRatings))
-                        @foreach($skillRatings as $rating)
-                            <tr>
-                                <td>{{ $rating['skill'] }}</td>
-                                <td width="80" align="center">{{ $rating['value'] }}</td>
-                            </tr>
+                <div class="info-box">
+                    @if(!empty($skillRatingsByCategory))
+                        @foreach($skillRatingsByCategory as $category)
+                            <div class="skill-category">
+                                <div class="skill-category-name">{{ $category['category'] }}</div>
+                                <table class="skill-table">
+                                    @foreach($category['skills'] as $skill)
+                                        <tr>
+                                            <td>{{ $skill['skill'] }}</td>
+                                            <td width="80" align="center">{{ $skill['value'] !== null ? number_format($skill['value'], 0) : '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </table>
+                            </div>
                         @endforeach
                     @else
-                        <tr>
-                            <td colspan="2">No skill ratings recorded.</td>
-                        </tr>
+                        <p style="margin:0;">No skill ratings recorded.</p>
                     @endif
-                </table>
+                    <div class="rating-key">
+                        <strong>Key to Ratings:</strong><br>
+                        5 – Excellent Degree of Observable Trait<br>
+                        4 – Good Level of Observable Trait<br>
+                        3 – Fair But Acceptable Level of Observable Trait<br>
+                        2 – Poor Level of Observable Trait<br>
+                        1 – No Observable Trait
+                    </div>
+                </div>
             </div>
         </div>
 
