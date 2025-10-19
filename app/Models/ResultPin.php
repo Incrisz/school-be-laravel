@@ -8,20 +8,30 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Session;
+use App\Models\Term;
+use App\Models\User;
 
 /**
  * Class ResultPin
  *
  * @property string $id
  * @property string $student_id
+ * @property string $session_id
+ * @property string $term_id
  * @property string $pin_code
  * @property string $status
- * @property Carbon|null $expiry_date
+ * @property Carbon|null $expires_at
+ * @property Carbon|null $revoked_at
+ * @property string|null $created_by
  * @property int $use_count
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
  * @property Student $student
+ * @property Session $session
+ * @property Term $term
+ * @property User|null $creator
  *
  * @package App\Models
  */
@@ -32,21 +42,51 @@ class ResultPin extends Model
 
 	protected $keyType = 'string';
 
-	protected $casts = [
-		'expiry_date' => 'datetime',
-		'use_count' => 'int'
-	];
+    protected $casts = [
+        'expires_at' => 'datetime',
+        'revoked_at' => 'datetime',
+        'use_count' => 'int',
+    ];
 
-	protected $fillable = [
-		'student_id',
-		'pin_code',
-		'status',
-		'expiry_date',
-		'use_count'
-	];
+    protected $fillable = [
+        'id',
+        'student_id',
+        'session_id',
+        'term_id',
+        'pin_code',
+        'status',
+        'expires_at',
+        'revoked_at',
+        'created_by',
+        'use_count',
+    ];
 
-	public function student()
-	{
-		return $this->belongsTo(Student::class);
-	}
+    protected static function booted(): void
+    {
+        static::creating(function (self $pin): void {
+            if (empty($pin->id)) {
+                $pin->id = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function session()
+    {
+        return $this->belongsTo(Session::class);
+    }
+
+    public function term()
+    {
+        return $this->belongsTo(Term::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

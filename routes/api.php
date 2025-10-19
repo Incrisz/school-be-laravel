@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\AssessmentComponentController;
 use App\Http\Controllers\Api\V1\ResultController;
 use App\Http\Controllers\Api\V1\StudentSkillRatingController;
+use App\Http\Controllers\Api\V1\ResultPinController;
 use App\Http\Controllers\Api\V1\StudentTermSummaryController;
 use App\Http\Controllers\Api\V1\SkillCategoryController;
 use App\Http\Controllers\Api\V1\SkillTypeController;
@@ -98,7 +99,21 @@ Route::prefix('api/v1')->group(function () {
                     ->name('students.term-summary.show');
                 Route::put('term-summary', [StudentTermSummaryController::class, 'update'])
                     ->name('students.term-summary.update');
+                Route::get('result-pins', [ResultPinController::class, 'index'])
+                    ->name('students.result-pins.index');
+                Route::post('result-pins', [ResultPinController::class, 'store'])
+                    ->name('students.result-pins.store');
             });
+
+        Route::prefix('result-pins')->group(function () {
+            Route::get('/', [ResultPinController::class, 'indexAll'])
+                ->name('result-pins.index');
+            Route::post('bulk', [ResultPinController::class, 'bulkGenerate'])
+                ->name('result-pins.bulk-generate');
+            Route::put('{resultPin}/invalidate', [ResultPinController::class, 'invalidate'])
+                ->whereUuid('resultPin')
+                ->name('result-pins.invalidate');
+        });
 
         // Staff Routes
         Route::apiResource('staff', \App\Http\Controllers\Api\V1\StaffController::class);
