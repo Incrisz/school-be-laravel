@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -209,6 +210,8 @@ class StudentController extends Controller
             'parent_id' => 'required|exists:parents,id',
             'admission_date' => 'required|date',
             'photo_url' => 'nullable|string|max:255',
+            'photo' => 'nullable|image|max:4096',
+            'photo' => 'nullable|image|max:4096',
             'status' => ['required', Rule::in(['active', 'inactive', 'graduated', 'withdrawn'])],
         ]);
 
@@ -225,7 +228,10 @@ class StudentController extends Controller
             $studentData['class_section_id'] = null;
         }
 
-        if (array_key_exists('photo_url', $studentData) && ! $studentData['photo_url']) {
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('students/photos', 'public');
+            $studentData['photo_url'] = $this->formatStoredFileUrl($photoPath);
+        } elseif (array_key_exists('photo_url', $studentData) && ! $studentData['photo_url']) {
             $studentData['photo_url'] = null;
         }
 
@@ -390,7 +396,16 @@ class StudentController extends Controller
             $validated['class_section_id'] = null;
         }
 
-        if (array_key_exists('photo_url', $validated) && ! $validated['photo_url']) {
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('students/photos', 'public');
+            if ($student->photo_url) {
+                $this->deletePublicFile($student->photo_url);
+            }
+            $validated['photo_url'] = $this->formatStoredFileUrl($photoPath);
+        } elseif (array_key_exists('photo_url', $validated) && ! $validated['photo_url']) {
+            if ($student->photo_url) {
+                $this->deletePublicFile($student->photo_url);
+            }
             $validated['photo_url'] = null;
         }
 
@@ -453,6 +468,10 @@ class StudentController extends Controller
             return response()->json(['message' => 'Cannot delete student with dependent records.'], 409);
         }
 
+        if ($student->photo_url) {
+            $this->deletePublicFile($student->photo_url);
+        }
+
         $student->delete();
 
         return response()->json(null, 204);
@@ -485,6 +504,33 @@ class StudentController extends Controller
             } else {
                 $request->merge([$field => (string) $value]);
             }
+        }
+    }
+
+    private function formatStoredFileUrl(string $path): string
+    {
+        return Storage::disk('public')->url($path); // returns value like /storage/...
+    }
+
+    private function deletePublicFile(?string $url): void
+    {
+        if (! $url) {
+            return;
+        }
+
+        $appUrl = rtrim(config('app.url'), '/');
+        if (str_starts_with($url, $appUrl)) {
+            $url = substr($url, strlen($appUrl));
+        }
+
+        $prefix = '/storage/';
+        if (str_starts_with($url, $prefix)) {
+            $path = substr($url, strlen($prefix));
+            if ($path !== '') {
+                Storage::disk('public')->delete($path);
+            }
+        } elseif (! str_contains($url, '://')) {
+            Storage::disk('public')->delete(ltrim($url, '/'));
         }
     }
 }

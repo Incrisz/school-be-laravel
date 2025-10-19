@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Models\BloodGroup;
 
 /**
@@ -142,26 +143,45 @@ class Student extends Model
         };
     }
 
-    public function setGenderAttribute($value): void
-    {
-        if ($value === null) {
-            $this->attributes['gender'] = null;
-            return;
-        }
+	public function setGenderAttribute($value): void
+	{
+		if ($value === null) {
+			$this->attributes['gender'] = null;
+			return;
+		}
 
-        $normalized = strtolower((string) $value);
-        $map = [
-            'male' => 'M',
-            'm' => 'M',
-            'female' => 'F',
-            'f' => 'F',
-            'other' => 'O',
-            'others' => 'O',
-            'o' => 'O',
-        ];
+		$normalized = strtolower((string) $value);
+		$map = [
+			'male' => 'M',
+			'm' => 'M',
+			'female' => 'F',
+			'f' => 'F',
+			'other' => 'O',
+			'others' => 'O',
+			'o' => 'O',
+		];
 
-        $this->attributes['gender'] = $map[$normalized] ?? $value;
-    }
+		$this->attributes['gender'] = $map[$normalized] ?? $value;
+	}
+
+	public function getPhotoUrlAttribute($value)
+	{
+		if ($value === null || $value === '') {
+			return null;
+		}
+
+		if (Str::startsWith($value, ['http://', 'https://'])) {
+			return $value;
+		}
+
+		$appUrl = rtrim(config('app.url'), '/');
+
+		if (Str::startsWith($value, '/storage/')) {
+			return $appUrl . $value;
+		}
+
+		return $appUrl . Storage::url($value);
+	}
 
     protected function normalizeNullableUuid($value): ?string
     {

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class School
@@ -115,6 +116,25 @@ class School extends Model
 	public function users()
 	{
 		return $this->hasMany(User::class);
+	}
+
+	public function getLogoUrlAttribute($value)
+	{
+		if ($value === null || $value === '') {
+			return null;
+		}
+
+		if (Str::startsWith($value, ['http://', 'https://'])) {
+			return $value;
+		}
+
+		$appUrl = rtrim(config('app.url'), '/');
+
+		if (Str::startsWith($value, '/storage/')) {
+			return $appUrl . $value;
+		}
+
+		return $appUrl . Storage::url($value);
 	}
 
 	public function currentSession()

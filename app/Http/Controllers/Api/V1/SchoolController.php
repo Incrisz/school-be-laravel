@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\Session;
 use App\Models\Term;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -240,6 +241,7 @@ class SchoolController extends Controller
             'email' => 'string|email|max:255',
             'phone' => 'string|max:50',
             'logo_url' => 'string|max:512',
+            'logo' => 'nullable|image|max:4096',
             'established_at' => 'date',
             'owner_name' => 'string|max:255',
             'current_session_id' => 'nullable|uuid',
@@ -251,6 +253,19 @@ class SchoolController extends Controller
         }
 
         $data = $validator->validated();
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('schools/logos', 'public');
+            if (! empty($school->logo_url)) {
+                $this->deletePublicFile($school->logo_url);
+            }
+            $data['logo_url'] = $this->formatStoredFileUrl($logoPath);
+        } elseif (array_key_exists('logo_url', $data) && ! $data['logo_url']) {
+            if (! empty($school->logo_url)) {
+                $this->deletePublicFile($school->logo_url);
+            }
+            $data['logo_url'] = null;
+        }
 
         $sessionId = $data['current_session_id'] ?? null;
         $termId = $data['current_term_id'] ?? null;
@@ -413,12 +428,30 @@ class SchoolController extends Controller
             ]);
         }
 
+    private function formatStoredFileUrl(string $path): string
+    {
+        return Storage::disk('public')->url($path);
+    }
 
+    private function deletePublicFile(?string $url): void
+    {
+        if (! $url) {
+            return;
+        }
 
+        $appUrl = rtrim(config('app.url'), '/');
+        if (str_starts_with($url, $appUrl)) {
+            $url = substr($url, strlen($appUrl));
+        }
 
-
-
-
-
-
+        $prefix = '/storage/';
+        if (str_starts_with($url, $prefix)) {
+            $path = substr($url, strlen($prefix));
+            if ($path !== '') {
+                Storage::disk('public')->delete($path);
+            }
+        } elseif (! str_contains($url, '://')) {
+            Storage::disk('public')->delete(ltrim($url, '/'));
+        }
+    }
 }
