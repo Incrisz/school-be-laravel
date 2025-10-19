@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\SkillCategoryController;
 use App\Http\Controllers\Api\V1\SkillTypeController;
 use App\Http\Controllers\Api\V1\PromotionController;
 use App\Http\Controllers\Api\V1\StudentBulkUploadController;
+use App\Http\Controllers\Api\V1\AcademicAnalyticsController;
 use App\Http\Controllers\Api\V1\StaffAttendanceController;
 use App\Http\Controllers\Api\V1\StudentAttendanceController;
 use App\Http\Controllers\ResultViewController;
@@ -85,9 +86,9 @@ Route::prefix('api/v1')->group(function () {
         Route::prefix('students/bulk')->group(function () {
             Route::get('template', [StudentBulkUploadController::class, 'template'])->name('students.bulk.template');
             Route::post('preview', [StudentBulkUploadController::class, 'preview'])->name('students.bulk.preview');
-            Route::post('{batch}/commit', [StudentBulkUploadController::class, 'commit'])
-                ->whereUuid('batch')
-                ->name('students.bulk.commit');
+        Route::post('{batch}/commit', [StudentBulkUploadController::class, 'commit'])
+            ->whereUuid('batch')
+            ->name('students.bulk.commit');
         });
         Route::get('students/{student}/results/print', [ResultViewController::class, 'show'])
             ->whereUuid('student');
@@ -134,6 +135,9 @@ Route::prefix('api/v1')->group(function () {
             Route::get('history/export.pdf', [PromotionController::class, 'exportPdf'])
                 ->name('promotions.history.export.pdf');
         });
+
+        Route::get('analytics/academics', [AcademicAnalyticsController::class, 'overview'])
+            ->name('analytics.academics');
 
         Route::prefix('attendance')->group(function () {
             Route::get('students', [StudentAttendanceController::class, 'index'])
