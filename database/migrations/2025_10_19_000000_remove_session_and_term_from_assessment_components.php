@@ -10,6 +10,17 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
 
+        // Drop unique indexes if they exist
+        Schema::table('assessment_components', function (Blueprint $table) {
+            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context_no_subject')) {
+                $table->dropUnique('assessment_components_unique_per_context_no_subject');
+            }
+
+            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
+                $table->dropUnique('assessment_components_unique_per_context');
+            }
+        });
+
         // Drop Foreign Keys and Indexes if Columns exist
         Schema::table('assessment_components', function (Blueprint $table) {
             $tableName = Schema::getConnection()->getTablePrefix() . 'assessment_components';
@@ -44,17 +55,6 @@ return new class extends Migration
                         $table->dropIndex($indexName);
                     }
                 }
-            }
-        });
-
-        // Drop unique indexes if they exist
-        Schema::table('assessment_components', function (Blueprint $table) {
-            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context_no_subject')) {
-                $table->dropUnique('assessment_components_unique_per_context_no_subject');
-            }
-
-            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
-                $table->dropUnique('assessment_components_unique_per_context');
             }
         });
 
