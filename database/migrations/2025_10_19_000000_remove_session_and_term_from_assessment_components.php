@@ -3,16 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
         Schema::disableForeignKeyConstraints();
-
-        // First, find and drop foreign keys from OTHER tables that reference this unique index
-        $this->dropReferencingForeignKeys();
 
         // Drop foreign keys on the assessment_components table itself
         Schema::table('assessment_components', function (Blueprint $table) {
@@ -33,22 +29,7 @@ return new class extends Migration
             }
         });
 
-        // Now drop unique indexes
-        Schema::table('assessment_components', function (Blueprint $table) {
-            try {
-                $table->dropUnique('assessment_components_unique_per_context_no_subject');
-            } catch (\Exception $e) {
-                // ignore if index doesn't exist
-            }
-
-            try {
-                $table->dropUnique('assessment_components_unique_per_context');
-            } catch (\Exception $e) {
-                // ignore if index doesn't exist
-            }
-        });
-
-        // Finally, drop the columns
+        // Drop the columns (indexes will be automatically dropped with the columns)
         Schema::table('assessment_components', function (Blueprint $table) {
             $columnsToDrop = [];
             
@@ -108,7 +89,7 @@ return new class extends Migration
             }
         });
 
-        // Recreate unique indexes
+        // Recreate unique index
         Schema::table('assessment_components', function (Blueprint $table) {
             try {
                 $table->unique(
@@ -120,40 +101,6 @@ return new class extends Migration
             }
         });
 
-        // Note: We cannot recreate foreign keys from other tables here
-        // as we don't know which tables they came from. This should be
-        // handled in separate migrations for those tables.
-
         Schema::enableForeignKeyConstraints();
-    }
-
-    /**
-     * Find and drop foreign keys from other tables that reference assessment_components
-     */
-    private function dropReferencingForeignKeys(): void
-    {
-        $schema = Schema::getConnection()->getDatabaseName();
-        
-        // Find all foreign keys that reference assessment_components table
-        $foreignKeys = DB::select("
-            SELECT 
-                TABLE_NAME,
-                CONSTRAINT_NAME
-            FROM information_schema.KEY_COLUMN_USAGE
-            WHERE REFERENCED_TABLE_SCHEMA = ?
-              AND REFERENCED_TABLE_NAME = 'assessment_components'
-              AND TABLE_NAME != 'assessment_components'
-        ", [$schema]);
-
-        // Drop each foreign key found
-        foreach ($foreignKeys as $fk) {
-            try {
-                Schema::table($fk->TABLE_NAME, function (Blueprint $table) use ($fk) {
-                    $table->dropForeign($fk->CONSTRAINT_NAME);
-                });
-            } catch (\Exception $e) {
-                // Continue even if we can't drop a foreign key
-            }
-        }
     }
 };
