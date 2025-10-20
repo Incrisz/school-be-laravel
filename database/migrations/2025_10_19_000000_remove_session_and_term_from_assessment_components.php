@@ -17,19 +17,15 @@ return new class extends Migration
             // Check and drop foreign keys for session_id
             if (Schema::hasColumn('assessment_components', 'session_id')) {
                 foreach ($this->foreignKeysForColumn($tableName, 'session_id') as $foreignName) {
-                    try {
+                    if ($this->hasForeignKey($tableName, $foreignName)) {
                         $table->dropForeign($foreignName);
-                    } catch (\Exception $e) {
-                        // ignore if constraint doesn't exist
                     }
                 }
                 
                 // Check and drop indexes for session_id
                 foreach ($this->indexesForColumn($tableName, 'session_id') as $indexName) {
-                    try {
+                    if ($this->hasIndex($tableName, $indexName)) {
                         $table->dropIndex($indexName);
-                    } catch (\Exception $e) {
-                        // ignore if index doesn't exist
                     }
                 }
             }
@@ -37,19 +33,15 @@ return new class extends Migration
             // Check and drop foreign keys for term_id
             if (Schema::hasColumn('assessment_components', 'term_id')) {
                 foreach ($this->foreignKeysForColumn($tableName, 'term_id') as $foreignName) {
-                    try {
+                    if ($this->hasForeignKey($tableName, $foreignName)) {
                         $table->dropForeign($foreignName);
-                    } catch (\Exception $e) {
-                        // ignore if constraint doesn't exist
                     }
                 }
 
                 // Check and drop indexes for term_id
                 foreach ($this->indexesForColumn($tableName, 'term_id') as $indexName) {
-                    try {
+                    if ($this->hasIndex($tableName, $indexName)) {
                         $table->dropIndex($indexName);
-                    } catch (\Exception $e) {
-                        // ignore if index doesn't exist
                     }
                 }
             }
@@ -138,6 +130,22 @@ return new class extends Migration
         );
 
         return ! empty($rows);
+    }
+
+    private function hasForeignKey(string $table, string $keyName): bool
+    {
+        $schema = Schema::getConnection()->getDatabaseName();
+
+        $result = Schema::getConnection()->selectOne('
+            SELECT 1
+            FROM information_schema.KEY_COLUMN_USAGE
+            WHERE TABLE_SCHEMA = ?
+              AND TABLE_NAME = ?
+              AND CONSTRAINT_NAME = ?
+            LIMIT 1
+        ', [$schema, $table, $keyName]);
+
+        return $result !== null;
     }
 
     private function foreignKeysForColumn(string $table, string $column): array
