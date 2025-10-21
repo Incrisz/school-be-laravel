@@ -8,76 +8,99 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
+
+        // Drop foreign keys on the assessment_components table itself
         Schema::table('assessment_components', function (Blueprint $table) {
-            if (! Schema::hasColumn('assessment_components', 'subject_id')) {
-                $table->uuid('subject_id')->nullable()->after('term_id');
-                $table->foreign('subject_id')
-                    ->references('id')
-                    ->on('subjects')
-                    ->nullOnDelete();
+            if (Schema::hasColumn('assessment_components', 'session_id')) {
+                try {
+                    $table->dropForeign(['session_id']);
+                } catch (\Exception $e) {
+                    // ignore if constraint doesn't exist
+                }
             }
 
-            if (! Schema::hasColumn('assessment_components', 'order')) {
-                $table->integer('order')->default(0);
+            if (Schema::hasColumn('assessment_components', 'term_id')) {
+                try {
+                    $table->dropForeign(['term_id']);
+                } catch (\Exception $e) {
+                    // ignore if constraint doesn't exist
+                }
             }
         });
 
+        // Drop the columns (indexes will be automatically dropped with the columns)
         Schema::table('assessment_components', function (Blueprint $table) {
-            $table->unique([
-                'school_id',
-                'session_id',
-                'term_id',
-                'subject_id',
-                'name',
-            ], 'assessment_components_unique_per_context');
+            $columnsToDrop = [];
+            
+            if (Schema::hasColumn('assessment_components', 'session_id')) {
+                $columnsToDrop[] = 'session_id';
+            }
+
+            if (Schema::hasColumn('assessment_components', 'term_id')) {
+                $columnsToDrop[] = 'term_id';
+            }
+
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
+
+        // Add columns session_id and term_id back
         Schema::table('assessment_components', function (Blueprint $table) {
-            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
-                $table->dropUnique('assessment_components_unique_per_context');
+            if (!Schema::hasColumn('assessment_components', 'session_id')) {
+                $table->uuid('session_id')->nullable()->after('school_id');
             }
 
-            if (Schema::hasColumn('assessment_components', 'subject_id')) {
-                if ($this->hasForeignKey('assessment_components', 'assessment_components_subject_id_foreign')) {
-                    $table->dropForeign(['subject_id']);
-                }
-                $table->dropColumn('subject_id');
+            if (!Schema::hasColumn('assessment_components', 'term_id')) {
+                $table->uuid('term_id')->nullable()->after('session_id');
             }
         });
-    }
 
-    private function hasForeignKey(string $table, string $keyName): bool
-    {
-        $schema = Schema::getConnection()->getDatabaseName();
+        // Add foreign keys for session_id and term_id
+        Schema::table('assessment_components', function (Blueprint $table) {
+            if (Schema::hasColumn('assessment_components', 'session_id')) {
+                try {
+                    $table->foreign('session_id')
+                        ->references('id')
+                        ->on('sessions')
+                        ->nullOnDelete();
+                } catch (\Exception $e) {
+                    // ignore if foreign key already exists
+                }
+            }
 
-        $result = Schema::getConnection()->selectOne('
-            SELECT 1
-            FROM information_schema.KEY_COLUMN_USAGE
-            WHERE TABLE_SCHEMA = ?
-              AND TABLE_NAME = ?
-              AND CONSTRAINT_NAME = ?
-            LIMIT 1
-        ', [$schema, $table, $keyName]);
+            if (Schema::hasColumn('assessment_components', 'term_id')) {
+                try {
+                    $table->foreign('term_id')
+                        ->references('id')
+                        ->on('terms')
+                        ->nullOnDelete();
+                } catch (\Exception $e) {
+                    // ignore if foreign key already exists
+                }
+            }
+        });
 
-        return $result !== null;
-    }
+        // Recreate unique index
+        Schema::table('assessment_components', function (Blueprint $table) {
+            try {
+                $table->unique(
+                    ['school_id', 'session_id', 'term_id', 'name'],
+                    'assessment_components_unique_per_context_no_subject'
+                );
+            } catch (\Exception $e) {
+                // ignore if index already exists
+            }
+        });
 
-    private function hasIndex(string $table, string $index): bool
-    {
-        $schema = Schema::getConnection()->getDatabaseName();
-
-        $result = Schema::getConnection()->selectOne('
-            SELECT 1
-            FROM information_schema.statistics
-            WHERE table_schema = ?
-              AND table_name = ?
-              AND index_name = ?
-            LIMIT 1
-        ', [$schema, $table, $index]);
-
-        return $result !== null;
+        Schema::enableForeignKeyConstraints();
     }
 };
