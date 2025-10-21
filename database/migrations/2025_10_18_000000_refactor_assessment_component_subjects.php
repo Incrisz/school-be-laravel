@@ -56,17 +56,13 @@ return new class extends Migration
 
         // Drop the dependent foreign key from the 'results' table first.
         Schema::table('results', function (Blueprint $table) {
-            if ($this->hasForeignKey('results', 'results_assessment_component_id_foreign')) {
-                $table->dropForeign(['assessment_component_id']);
-            }
+            $table->dropForeign(['assessment_component_id']);
         });
         
         $this->dropAssessmentComponentSubjectForeignKey();
         
         Schema::table('assessment_components', function (Blueprint $table) {
-            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
-                $table->dropUnique('assessment_components_unique_per_context');
-            }
+            $table->dropUnique('assessment_components_unique_per_context');
         });
 
         if ($hasSubjectColumn) {
@@ -77,6 +73,10 @@ return new class extends Migration
 
         Schema::table('assessment_components', function (Blueprint $table) {
             $table->unique(['school_id', 'session_id', 'term_id', 'name'], 'assessment_components_unique_per_context_no_subject');
+        });
+
+        Schema::table('results', function (Blueprint $table) {
+            $table->foreign('assessment_component_id')->references('id')->on('assessment_components')->cascadeOnDelete();
         });
 
         Schema::enableForeignKeyConstraints();
@@ -91,6 +91,10 @@ return new class extends Migration
                 $table->dropUnique('assessment_components_unique_per_context_no_subject');
             });
         }
+
+        Schema::table('results', function (Blueprint $table) {
+            $table->foreign('assessment_component_id')->references('id')->on('assessment_components')->cascadeOnDelete();
+        });
 
         Schema::table('assessment_components', function (Blueprint $table) {
             $table->uuid('subject_id')->nullable()->after('term_id');

@@ -68,15 +68,25 @@ return new class extends Migration
      */
     public function down(): void
     {
+        try {
+            DB::statement('ALTER TABLE `attendances` DROP FOREIGN KEY `attendances_school_class_id_foreign`;');
+            DB::statement('ALTER TABLE `attendances` DROP FOREIGN KEY `attendances_class_arm_id_foreign`;');
+            DB::statement('ALTER TABLE `attendances` DROP FOREIGN KEY `attendances_class_section_id_foreign`;');
+            DB::statement('ALTER TABLE `attendances` DROP FOREIGN KEY `attendances_recorded_by_foreign`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
+
+        try {
+            Schema::table('attendances', function (Blueprint $table) {
+                $table->dropIndex('attendances_date_class_index');
+                $table->dropUnique('attendances_student_date_unique');
+            });
+        } catch (\Exception $e) {
+            // Do nothing
+        }
+
         Schema::table('attendances', function (Blueprint $table) {
-            $table->dropForeign(['school_class_id']);
-            $table->dropForeign(['class_arm_id']);
-            $table->dropForeign(['class_section_id']);
-            $table->dropForeign(['recorded_by']);
-
-            $table->dropIndex('attendances_date_class_index');
-            $table->dropUnique('attendances_student_date_unique');
-
             $table->dropColumn([
                 'school_class_id',
                 'class_arm_id',

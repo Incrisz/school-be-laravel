@@ -40,20 +40,19 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $indexName = 'results_unique_score_per_context';
-            $indexes = $this->listIndexes('results');
+        try {
+            DB::statement('ALTER TABLE `results` DROP INDEX `results_unique_score_per_context`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
 
-            if (in_array($indexName, $indexes, true)) {
-                $table->dropUnique($indexName);
-            }
-        });
-
-        Schema::table('results', function (Blueprint $table) {
-            if (Schema::hasColumn('results', 'component_slot')) {
+        try {
+            Schema::table('results', function (Blueprint $table) {
                 $table->dropColumn('component_slot');
-            }
-        });
+            });
+        } catch (\Exception $e) {
+            // Do nothing
+        }
     }
 
     private function listIndexes(string $table): array

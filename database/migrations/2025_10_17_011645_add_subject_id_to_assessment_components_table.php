@@ -35,19 +35,20 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('assessment_components', function (Blueprint $table) {
-            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
-                $table->dropUnique('assessment_components_unique_per_context');
-            }
+        try {
+            DB::statement('ALTER TABLE `assessment_components` DROP INDEX `assessment_components_unique_per_context`;');
+            DB::statement('ALTER TABLE `assessment_components` DROP FOREIGN KEY `assessment_components_subject_id_foreign`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
 
-            if (Schema::hasColumn('assessment_components', 'subject_id')) {
-                $tableName = 'assessment_components';
-                foreach ($this->foreignKeysForColumn($tableName, 'subject_id') as $foreignKey) {
-                    $table->dropForeign($foreignKey);
-                }
+        try {
+            Schema::table('assessment_components', function (Blueprint $table) {
                 $table->dropColumn('subject_id');
-            }
-        });
+            });
+        } catch (\Exception $e) {
+            // Do nothing
+        }
     }
 
     private function hasIndex(string $table, string $index): bool

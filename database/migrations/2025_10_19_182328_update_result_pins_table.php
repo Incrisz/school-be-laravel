@@ -70,45 +70,27 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('result_pins', function (Blueprint $table) {
-            if (Schema::hasColumn('result_pins', 'pin_code')) {
-                $table->dropUnique('result_pins_pin_code_unique');
-            }
-            if (Schema::hasColumn('result_pins', 'session_id') && Schema::hasColumn('result_pins', 'term_id')) {
-                $table->dropUnique('result_pins_unique_student_term');
-            }
-            if (Schema::hasColumn('result_pins', 'session_id')) {
-                try {
-                $table->dropForeign(['session_id']);
-            } catch (\Exception $e) {
-                // ignore if constraint doesn't exist
-            }
-            }
-            if (Schema::hasColumn('result_pins', 'term_id')) {
-                $table->dropForeign(['term_id']);
-            }
-            if (Schema::hasColumn('result_pins', 'created_by')) {
-                $table->dropForeign(['created_by']);
-            }
-        });
+        try {
+            DB::statement('ALTER TABLE `result_pins` DROP FOREIGN KEY `result_pins_session_id_foreign`;');
+            DB::statement('ALTER TABLE `result_pins` DROP FOREIGN KEY `result_pins_term_id_foreign`;');
+            DB::statement('ALTER TABLE `result_pins` DROP FOREIGN KEY `result_pins_created_by_foreign`;');
+            DB::statement('ALTER TABLE `result_pins` DROP INDEX `result_pins_pin_code_unique`;');
+            DB::statement('ALTER TABLE `result_pins` DROP INDEX `result_pins_unique_student_term`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
 
-        Schema::table('result_pins', function (Blueprint $table) {
-            if (Schema::hasColumn('result_pins', 'revoked_at')) {
+        try {
+            Schema::table('result_pins', function (Blueprint $table) {
                 $table->dropColumn('revoked_at');
-            }
-            if (Schema::hasColumn('result_pins', 'expires_at')) {
                 $table->dropColumn('expires_at');
-            }
-            if (Schema::hasColumn('result_pins', 'created_by')) {
                 $table->dropColumn('created_by');
-            }
-            if (Schema::hasColumn('result_pins', 'term_id')) {
                 $table->dropColumn('term_id');
-            }
-            if (Schema::hasColumn('result_pins', 'session_id')) {
                 $table->dropColumn('session_id');
-            }
-        });
+            });
+        } catch (\Exception $e) {
+            // Do nothing
+        }
 
         DB::statement("ALTER TABLE result_pins MODIFY status ENUM('unused','used','expired') NOT NULL DEFAULT 'unused'");
 

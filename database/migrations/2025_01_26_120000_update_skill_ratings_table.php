@@ -24,8 +24,10 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('skill_ratings', function (Blueprint $table) {
-            $table->dropUnique('skill_ratings_unique_student_term_skill');
-        });
+        try {
+            DB::statement('ALTER TABLE `skill_ratings` DROP INDEX `skill_ratings_unique_student_term_skill`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
     }
 };
