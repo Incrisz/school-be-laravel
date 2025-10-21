@@ -22,10 +22,15 @@ return new class extends Migration
 
     public function down(): void
     {
+        try {
+            DB::statement('ALTER TABLE `results` DROP FOREIGN KEY `results_assessment_component_id_foreign`;');
+            DB::statement('ALTER TABLE `results` DROP INDEX `results_assessment_component_id_index`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
+
         Schema::table('results', function (Blueprint $table) {
             if (Schema::hasColumn('results', 'assessment_component_id')) {
-                $table->dropForeign(['assessment_component_id']);
-                $table->dropIndex('results_assessment_component_id_index');
                 $table->dropColumn('assessment_component_id');
             }
         });
