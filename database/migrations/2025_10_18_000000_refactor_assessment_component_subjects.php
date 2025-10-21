@@ -90,6 +90,12 @@ return new class extends Migration
 
         $this->dropAssessmentComponentSubjectForeignKey();
 
+        Schema::table('assessment_components', function (Blueprint $table) {
+            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
+                $table->dropUnique('assessment_components_unique_per_context');
+            }
+        });
+
         if ($hasSubjectColumn) {
             try {
                 Schema::table('assessment_components', function (Blueprint $table) {
