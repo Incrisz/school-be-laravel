@@ -35,6 +35,15 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sessions');
+        try {
+            DB::statement('ALTER TABLE `terms` DROP FOREIGN KEY `terms_session_id_foreign`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
+        try {
+            Schema::dropIfExists('sessions');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
     }
 };

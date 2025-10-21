@@ -54,22 +54,19 @@ return new class extends Migration
             }
         }
 
-        // Drop the dependent foreign key from the 'results' table first.
-        Schema::table('results', function (Blueprint $table) {
-            if ($this->hasForeignKey('results', 'results_assessment_component_id_foreign')) {
-                $table->dropForeign(['assessment_component_id']);
-            }
-        });
-        
-        $this->dropAssessmentComponentSubjectForeignKey();
-        
-        Schema::table('assessment_components', function (Blueprint $table) {
-            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
-                $table->dropUnique('assessment_components_unique_per_context');
-            }
-        });
+        try {
+            DB::statement('ALTER TABLE `results` DROP FOREIGN KEY `results_assessment_component_id_foreign`;');
+            DB::statement('ALTER TABLE `assessment_components` DROP INDEX `assessment_components_unique_per_context`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
 
         if ($hasSubjectColumn) {
+            try {
+                DB::statement('ALTER TABLE `assessment_components` DROP FOREIGN KEY `assessment_components_subject_id_foreign`;');
+            } catch (\Exception $e) {
+                // Do nothing
+            }
             Schema::table('assessment_components', function (Blueprint $table) {
                 $table->dropColumn('subject_id');
             });

@@ -37,6 +37,15 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('assessment_components');
+        try {
+            DB::statement('ALTER TABLE `results` DROP FOREIGN KEY `results_assessment_component_id_foreign`;');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
+        try {
+            Schema::dropIfExists('assessment_components');
+        } catch (\Exception $e) {
+            // Do nothing
+        }
     }
 };
