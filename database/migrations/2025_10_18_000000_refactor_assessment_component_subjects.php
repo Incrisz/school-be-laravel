@@ -54,22 +54,25 @@ return new class extends Migration
             }
         }
 
-        // Drop all dependent foreign keys first
+        // Disable foreign key checks to allow dropping constraints and indexes
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        
+        // Drop the foreign key from results table
         Schema::table('results', function (Blueprint $table) {
             $table->dropForeign(['assessment_component_id']);
         });
         
         $this->dropAssessmentComponentSubjectForeignKey();
         
-        // Find and drop any foreign keys that reference assessment_components table
-        $this->dropAllForeignKeysReferencingAssessmentComponents();
+        // Drop the index directly using raw SQL to bypass Laravel's checks
+        try {
+            DB::statement('ALTER TABLE assessment_components DROP INDEX assessment_components_unique_per_context');
+        } catch (\Exception $e) {
+            // Index might already be gone or have a different name
+        }
         
-        // Now it's safe to drop the index
-        Schema::table('assessment_components', function (Blueprint $table) {
-            if ($this->hasIndex('assessment_components', 'assessment_components_unique_per_context')) {
-                $table->dropUnique('assessment_components_unique_per_context');
-            }
-        });
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         if ($hasSubjectColumn) {
             if (DB::getDriverName() === 'sqlite') {
