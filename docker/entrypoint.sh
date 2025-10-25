@@ -46,8 +46,8 @@ php artisan storage:link || echo "Storage already linked"
 echo "🛠 Running migrations..."
 php artisan migrate --force || echo "Migration failed (likely already run)"
 
-# echo "🌱 Running seeders..."
-# php artisan db:seed --force || echo "Seeding skipped or failed"
+echo "🌱 Running seeders..."
+php artisan db:seed --force || echo "Seeding skipped or failed"
 
 echo "📚 Generating Swagger docs..."
 php artisan l5-swagger:generate || echo "Swagger skipped"
