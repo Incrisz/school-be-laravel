@@ -186,15 +186,17 @@ Route::prefix('api/v1')->group(function () {
                 ->except(['create', 'edit']);
             
             // Fee Structures
+            Route::get('structures/by-session-term', [FeeStructureController::class, 'getBySessionTerm'])
+                ->name('fee-structures.by-session-term');
+
             Route::apiResource('structures', FeeStructureController::class)
                 ->parameters(['structures' => 'feeStructure'])
                 ->except(['create', 'edit']);
+
             Route::post('structures/copy', [FeeStructureController::class, 'copy'])
                 ->name('fee-structures.copy');
             Route::get('structures/total', [FeeStructureController::class, 'getTotal'])
                 ->name('fee-structures.total');
-            Route::get('structures/by-session-term', [FeeStructureController::class, 'getBySessionTerm'])
-                ->name('fee-structures.by-session-term');
             
             // Bank Details
             Route::apiResource('bank-details', BankDetailController::class)

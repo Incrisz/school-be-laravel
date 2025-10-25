@@ -248,11 +248,23 @@ class StudentSkillRatingController extends Controller
 
     private function isTermClosed(Term $term): bool
     {
+        $status = strtolower((string) $term->status);
+        if (in_array($status, ['closed', 'archived'], true)) {
+            return true;
+        }
+
         if (! $term->end_date) {
             return false;
         }
 
-        return Carbon::now()->greaterThan($term->end_date->copy()->endOfDay());
+        $graceDays = (int) config('school.skill_rating_grace_days', 14);
+        if ($graceDays < 0) {
+            $graceDays = 0;
+        }
+
+        $cutoff = $term->end_date->copy()->addDays($graceDays)->endOfDay();
+
+        return Carbon::now()->greaterThan($cutoff);
     }
 
     private function transformSkillRating(SkillRating $skillRating): array
