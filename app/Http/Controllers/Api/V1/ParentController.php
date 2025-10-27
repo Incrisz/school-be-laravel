@@ -7,6 +7,7 @@ use App\Models\SchoolParent;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * @OA\Tag(
@@ -142,9 +143,11 @@ class ParentController extends Controller
             ]
         );
 
-        if (! $user->hasRole($parentRole)) {
-            $user->assignRole($parentRole);
-        }
+        $this->withTeamContext($request->user()->school_id, function () use ($user, $parentRole) {
+            if (! $user->hasRole($parentRole)) {
+                $user->assignRole($parentRole);
+            }
+        });
 
         $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
 
@@ -327,5 +330,30 @@ class ParentController extends Controller
         $parent->user()->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Execute callbacks with the Spatie permission team context scoped to the given school.
+     *
+     * @template TReturn
+     *
+     * @param  callable():TReturn  $callback
+     * @return TReturn
+     */
+    private function withTeamContext(string $schoolId, callable $callback)
+    {
+        /** @var PermissionRegistrar $registrar */
+        $registrar = app(PermissionRegistrar::class);
+        $previousTeam = method_exists($registrar, 'getPermissionsTeamId')
+            ? $registrar->getPermissionsTeamId()
+            : null;
+
+        $registrar->setPermissionsTeamId($schoolId);
+
+        try {
+            return $callback();
+        } finally {
+            $registrar->setPermissionsTeamId($previousTeam);
+        }
     }
 }

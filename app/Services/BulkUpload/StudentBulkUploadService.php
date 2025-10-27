@@ -19,6 +19,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\PermissionRegistrar;
 
 class StudentBulkUploadService
 {
@@ -956,9 +957,11 @@ class StudentBulkUploadService
             ]
         );
 
-        if (! $user->hasRole($parentRole)) {
-            $user->assignRole($parentRole);
-        }
+        $this->withTeamContext($school->id, function () use ($user, $parentRole) {
+            if (! $user->hasRole($parentRole)) {
+                $user->assignRole($parentRole);
+            }
+        });
 
         $parent = SchoolParent::create([
             'id' => (string) Str::uuid(),
@@ -993,5 +996,22 @@ class StudentBulkUploadService
     private function writeReferenceRow($handle, string $label, string $value): void
     {
         fputcsv($handle, ["# {$label}", $value]);
+    }
+
+    private function withTeamContext(string $schoolId, callable $callback)
+    {
+        /** @var PermissionRegistrar $registrar */
+        $registrar = app(PermissionRegistrar::class);
+        $previousTeam = method_exists($registrar, 'getPermissionsTeamId')
+            ? $registrar->getPermissionsTeamId()
+            : null;
+
+        $registrar->setPermissionsTeamId($schoolId);
+
+        try {
+            return $callback();
+        } finally {
+            $registrar->setPermissionsTeamId($previousTeam);
+        }
     }
 }

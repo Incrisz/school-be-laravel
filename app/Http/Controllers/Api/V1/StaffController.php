@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\PermissionRegistrar;
 
 class StaffController extends Controller
 {
@@ -91,9 +92,11 @@ class StaffController extends Controller
             ]
         );
 
-        if (! $user->hasRole($staffRole)) {
-            $user->assignRole($staffRole);
-        }
+        $this->withTeamContext($school->id, function () use ($user, $staffRole) {
+            if (! $user->hasRole($staffRole)) {
+                $user->assignRole($staffRole);
+            }
+        });
 
         $photoUrl = null;
         if ($request->hasFile('photo')) {
@@ -247,5 +250,30 @@ class StaffController extends Controller
     protected function authorizeStaffAccess(Request $request, Staff $staff): void
     {
         abort_unless($staff->school_id === $request->user()->school_id, 404);
+    }
+
+    /**
+     * Execute a callback with the Spatie permission team context scoped to the given school.
+     *
+     * @template TReturn
+     *
+     * @param  callable():TReturn  $callback
+     * @return TReturn
+     */
+    private function withTeamContext(string $schoolId, callable $callback)
+    {
+        /** @var PermissionRegistrar $registrar */
+        $registrar = app(PermissionRegistrar::class);
+        $previousTeam = method_exists($registrar, 'getPermissionsTeamId')
+            ? $registrar->getPermissionsTeamId()
+            : null;
+
+        $registrar->setPermissionsTeamId($schoolId);
+
+        try {
+            return $callback();
+        } finally {
+            $registrar->setPermissionsTeamId($previousTeam);
+        }
     }
 }
