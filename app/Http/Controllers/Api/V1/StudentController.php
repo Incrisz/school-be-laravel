@@ -367,7 +367,14 @@ class StudentController extends Controller
         $this->prepareRelationshipInput($request);
 
         $validated = $request->validate([
-            'admission_no' => ['sometimes', 'string', 'max:255', Rule::unique('students', 'admission_no')->ignore($student->id)],
+            'admission_no' => [
+                'sometimes',
+                'string',
+                'max:255',
+                Rule::unique('students', 'admission_no')
+                    ->ignore($student->id)
+                    ->where(fn ($query) => $query->where('school_id', $student->school_id)),
+            ],
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
