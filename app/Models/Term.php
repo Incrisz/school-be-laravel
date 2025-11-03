@@ -43,6 +43,7 @@ class Term extends Model
 {
 	protected $table = 'terms';
 	public $incrementing = false;
+	protected $keyType = 'string';
 
 	protected $casts = [
 		'start_date' => 'datetime',
@@ -50,6 +51,7 @@ class Term extends Model
 	];
 
 	protected $fillable = [
+		'id',
 		'school_id',
 		'session_id',
 		'name',

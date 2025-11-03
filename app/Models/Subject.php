@@ -34,7 +34,10 @@ class Subject extends Model
 	protected $table = 'subjects';
 	public $incrementing = false;
 
+	protected $keyType = 'string';
+
 	protected $fillable = [
+		'id',
 		'school_id',
 		'name',
 		'code',
@@ -56,10 +59,15 @@ class Subject extends Model
 		return $this->hasMany(Result::class);
 	}
 
-	public function classes()
+	public function assignments()
 	{
-		return $this->belongsToMany(Class::class, 'subject_class_assignments')
-					->withPivot('id')
+		return $this->hasMany(SubjectAssignment::class);
+	}
+
+	public function school_classes()
+	{
+		return $this->belongsToMany(SchoolClass::class, 'subject_school_class_assignments', 'subject_id', 'school_class_id')
+					->withPivot(['id', 'class_arm_id', 'class_section_id'])
 					->withTimestamps();
 	}
 

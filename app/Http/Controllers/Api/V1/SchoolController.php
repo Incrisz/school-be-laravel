@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\School;
+use App\Models\Session;
+use App\Models\Term;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\Rbac\RbacService;
 
 /**
  * @OA\Info(
@@ -76,7 +81,7 @@ class SchoolController extends Controller
      *      )
      * )
      */
-    public function register(Request $request)
+    public function register(Request $request, RbacService $rbacService)
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
@@ -86,25 +91,38 @@ class SchoolController extends Controller
             'subdomain' => 'required|string|max:255|unique:schools',
         ]);
 
-        $school = School::create([
-            'id' => Str::uuid(),
-            'name' => $validatedData['name'],
-            'slug' => Str::slug($validatedData['name']),
-            'subdomain' => $validatedData['subdomain'],
-            'address' => $validatedData['address'],
-            'email' => $validatedData['email'],
-            'phone' => '1234567890', // Add a dummy phone number
-        ]);
+        [$school, $user] = DB::transaction(function () use ($validatedData, $rbacService) {
+            $acronym = $this->generateSchoolAcronym($validatedData['name']);
+            $nextCode = (int) School::query()->lockForUpdate()->max('code_sequence');
+            $nextCode = $nextCode > 0 ? $nextCode + 1 : 1;
 
-        $user = User::create([
-            'id' => Str::uuid(),
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-            'role' => 'admin',
-            'school_id' => $school->id,
-            'status' => 'active',
-        ]);
+            $school = School::create([
+                'id' => Str::uuid(),
+                'name' => $validatedData['name'],
+                'acronym' => $acronym,
+                'code_sequence' => $nextCode,
+                'slug' => Str::slug($validatedData['name']),
+                'subdomain' => $validatedData['subdomain'],
+                'address' => $validatedData['address'],
+                'email' => $validatedData['email'],
+                'phone' => '1234567890', // Add a dummy phone number
+            ]);
+
+            $user = User::create([
+                'id' => Str::uuid(),
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => Hash::make($validatedData['password']),
+                'role' => 'admin',
+                'school_id' => $school->id,
+                'status' => 'active',
+            ]);
+
+            $rbacService->bootstrapForSchool($school, $user);
+            $user->load('roles');
+
+            return [$school, $user];
+        });
 
         $loginUrl = str_replace('://', '://' . $school->subdomain . '.', config('app.url'));
 
@@ -161,7 +179,24 @@ class SchoolController extends Controller
             ]);
         }
 
-        if ($user->role !== 'staff' && $user->role !== 'admin') {
+        if (in_array($user->role, ['admin', 'super_admin'], true) && $user->school) {
+            /** @var \App\Services\Rbac\RbacService $rbac */
+            $rbac = app(RbacService::class);
+            $rbac->bootstrapForSchool($user->school, $user);
+        }
+
+        $registrar = app(\Spatie\Permission\PermissionRegistrar::class);
+        $previousTeamId = method_exists($registrar, 'getPermissionsTeamId')
+            ? $registrar->getPermissionsTeamId()
+            : null;
+
+        $registrar->setPermissionsTeamId($user->school_id);
+
+        $hasAllowedRole = $user->hasAnyRole(['admin', 'staff', 'super_admin']);
+
+        $registrar->setPermissionsTeamId($previousTeamId);
+
+        if (! $hasAllowedRole) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -169,7 +204,7 @@ class SchoolController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => $user,
+            'user' => $user->load('roles'),
         ]);
     }
 
@@ -238,54 +273,249 @@ class SchoolController extends Controller
             'email' => 'string|email|max:255',
             'phone' => 'string|max:50',
             'logo_url' => 'string|max:512',
+            'signature_url' => 'string|max:512',
+            'logo' => 'nullable|image|max:4096',
+            'signature' => 'nullable|image|max:4096',
             'established_at' => 'date',
             'owner_name' => 'string|max:255',
+            'current_session_id' => 'nullable|uuid',
+            'current_term_id' => 'nullable|uuid',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $school->update($request->all());
+        $data = $validator->validated();
 
-        return response()->json(['message' => 'School profile updated successfully', 'school' => $school]);
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('schools/logos', 'public');
+            if (! empty($school->logo_url)) {
+                $this->deletePublicFile($school->logo_url);
+            }
+            $data['logo_url'] = $this->formatStoredFileUrl($logoPath);
+        } elseif (array_key_exists('logo_url', $data) && ! $data['logo_url']) {
+            if (! empty($school->logo_url)) {
+                $this->deletePublicFile($school->logo_url);
+            }
+            $data['logo_url'] = null;
+        }
+
+        if ($request->hasFile('signature')) {
+            $signaturePath = $request->file('signature')->store('schools/signatures', 'public');
+            if (! empty($school->signature_url)) {
+                $this->deletePublicFile($school->signature_url);
+            }
+            $data['signature_url'] = $this->formatStoredFileUrl($signaturePath);
+        } elseif (array_key_exists('signature_url', $data) && ! $data['signature_url']) {
+            if (! empty($school->signature_url)) {
+                $this->deletePublicFile($school->signature_url);
+            }
+            $data['signature_url'] = null;
+        }
+
+        $sessionId = $data['current_session_id'] ?? null;
+        $termId = $data['current_term_id'] ?? null;
+
+        if (array_key_exists('current_session_id', $data) && $sessionId !== null) {
+            $session = Session::where('id', $sessionId)
+                ->where('school_id', $school->id)
+                ->first();
+
+            if (! $session) {
+                return response()->json(['message' => 'Selected session was not found for this school.'], 404);
+            }
+        }
+
+        if (array_key_exists('current_term_id', $data) && $termId !== null) {
+            $term = Term::where('id', $termId)
+                ->where('school_id', $school->id)
+                ->first();
+
+            if (! $term) {
+                return response()->json(['message' => 'Selected term was not found for this school.'], 404);
+            }
+
+            if ($sessionId !== null && $term->session_id !== $sessionId) {
+                return response()->json(['message' => 'The selected term does not belong to the chosen session.'], 422);
+            }
+
+            if ($sessionId === null) {
+                $sessionId = $term->session_id;
+                $data['current_session_id'] = $sessionId;
+            }
+        }
+
+        if ($sessionId === null && array_key_exists('current_term_id', $data) && $termId === null && ! array_key_exists('current_session_id', $data)) {
+            // When only term is being cleared ensure session remains untouched.
+            unset($data['current_session_id']);
+        }
+
+        $school->fill($data);
+
+        if ($school->isDirty()) {
+            $school->save();
+        }
+
+        return response()->json([
+            'message' => 'School profile updated successfully',
+            'school' => $school->fresh([
+                'currentSession:id,name,slug,start_date,end_date,status',
+                'currentTerm:id,name,session_id,start_date,end_date,status',
+            ]),
+        ]);
     }
 
     /**
      * @OA\Put(
      *     path="/v1/user",
-     *     summary="Update user profile",
+     *     summary="Update School Admin profile",
      *     tags={"school-v1.0"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 @OA\Property(property="name", type="string"),
-     *                 @OA\Property(property="email", type="string"),
-     *             )
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="old_password", type="string", example="currentPassword123"),
+     *             @OA\Property(property="password", type="string", example="newPassword456"),
+     *             @OA\Property(property="password_confirmation", type="string", example="newPassword456")
      *         )
      *     ),
-     *     @OA\Response(response=200, description="User profile updated successfully"),
+     *     @OA\Response(response=200, description="School Admin profile updated successfully"),
      *     @OA\Response(response=401, description="Unauthenticated"),
      *     @OA\Response(response=422, description="Validation error")
      * )
      */
-    public function updatePersonalProfile(Request $request)
-    {
-        $user = Auth::user();
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'string|max:255',
-            'email' => 'string|email|max:255|unique:users,email,' . $user->id,
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+    public function updateSchoolAdminProfile(Request $request)
+        {
+            $user = Auth::user();
+        
+            $rules = [
+                'name' => 'string|max:255',
+                'email' => 'string|email|max:255|unique:users,email,' . $user->id,
+            ];
+        
+            // If user is trying to change password, add password + old_password rules
+            if ($request->filled('password')) {
+                $rules['password'] = 'required|string|min:8|confirmed';
+                $rules['old_password'] = 'required|string';
+            }
+        
+            $validator = Validator::make($request->all(), $rules);
+        
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+        
+            // Check old password
+            if ($request->filled('password') && !Hash::check($request->old_password, $user->password)) {
+                return response()->json(['old_password' => ['Old password is incorrect']], 422);
+            }
+        
+            $data = $request->only(['name', 'email']);
+        
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
+            }
+        
+            $user->update($data);
+        
+            return response()->json([
+                'message' => 'User profile updated successfully',
+                'user' => $user
+            ]);
         }
 
-        $user->update($request->all());
+    /**
+     * @OA\Get(
+     *     path="/v1/user",
+     *     summary="Get the authenticated School Admin's profile",
+     *     tags={"school-v1.0"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="User profile returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
+    public function showSchoolAdminProfile(Request $request)
+        {
+            $user = $request->user();            // same as Auth::user()
+            $school = $user->school;             // eager-load if you want
 
-        return response()->json(['message' => 'User profile updated successfully', 'user' => $user]);
+            return response()->json([
+                'user'   => $user->loadMissing([
+                    'school.currentSession:id,name,slug,start_date,end_date,status',
+                    'school.currentTerm:id,name,session_id,start_date,end_date,status',
+                ]),
+            ]);
+        }
+
+
+    /**
+     * @OA\Get(
+     *     path="/v1/school",
+     *     summary="Get the authenticated school's profile",
+     *     tags={"school-v1.0"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="School profile returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
+    public function showSchoolProfile(Request $request)
+        {
+            $user = $request->user();            // same as Auth::user()
+            $school = $user->school;             // eager-load if you want
+
+            return response()->json([
+                'school' => $school->loadMissing([
+                    'currentSession:id,name,slug,start_date,end_date,status',
+                    'currentTerm:id,name,session_id,start_date,end_date,status',
+                ]),
+            ]);
+        }
+
+    private function formatStoredFileUrl(string $path): string
+    {
+        return Storage::disk('public')->url($path);
+    }
+
+    private function deletePublicFile(?string $url): void
+    {
+        if (! $url) {
+            return;
+        }
+
+        $appUrl = rtrim(config('app.url'), '/');
+        if (str_starts_with($url, $appUrl)) {
+            $url = substr($url, strlen($appUrl));
+        }
+
+        $prefix = '/storage/';
+        if (str_starts_with($url, $prefix)) {
+            $path = substr($url, strlen($prefix));
+            if ($path !== '') {
+                Storage::disk('public')->delete($path);
+            }
+        } elseif (! str_contains($url, '://')) {
+            Storage::disk('public')->delete(ltrim($url, '/'));
+        }
+    }
+
+    private function generateSchoolAcronym(string $name): string
+    {
+        $words = collect(preg_split('/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY));
+
+        $acronym = $words
+            ->map(fn (string $word) => mb_substr($word, 0, 1))
+            ->implode('');
+
+        $acronym = Str::upper(Str::of($acronym)->replaceMatches('/[^A-Z]/', ''));
+
+        if ($acronym === '') {
+            $acronym = Str::upper(mb_substr($name, 0, 3));
+        }
+
+        return Str::limit($acronym ?: 'SCH', 5, '');
     }
 }

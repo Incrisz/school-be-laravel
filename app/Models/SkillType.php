@@ -34,11 +34,14 @@ class SkillType extends Model
 	protected $table = 'skill_types';
 	public $incrementing = false;
 
+	protected $keyType = 'string';
+
 	protected $casts = [
 		'weight' => 'float'
 	];
 
 	protected $fillable = [
+		'id',
 		'skill_category_id',
 		'school_id',
 		'name',

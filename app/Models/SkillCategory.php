@@ -31,7 +31,10 @@ class SkillCategory extends Model
 	protected $table = 'skill_categories';
 	public $incrementing = false;
 
+	protected $keyType = 'string';
+
 	protected $fillable = [
+		'id',
 		'school_id',
 		'name',
 		'description'

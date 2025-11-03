@@ -33,8 +33,10 @@ class ClassSection extends Model
 {
 	protected $table = 'class_sections';
 	public $incrementing = false;
+	protected $keyType = 'string';
 
 	protected $fillable = [
+		'id',
 		'class_arm_id',
 		'name',
 		'slug',

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Parent
+ * Class SchoolParent
  *
  * @property string $id
  * @property string $school_id
@@ -34,12 +34,14 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Parent extends Model
+class SchoolParent extends Model
 {
 	protected $table = 'parents';
 	public $incrementing = false;
+	protected $keyType = 'string';
 
 	protected $fillable = [
+		'id',
 		'school_id',
 		'user_id',
 		'first_name',
@@ -65,6 +67,6 @@ class Parent extends Model
 
 	public function students()
 	{
-		return $this->hasMany(Student::class);
+		return $this->hasMany(Student::class, 'parent_id');
 	}
 }

@@ -31,17 +31,20 @@ class ClassArm extends Model
 {
 	protected $table = 'class_arms';
 	public $incrementing = false;
+	protected $keyType = 'string';
 
 	protected $fillable = [
-		'class_id',
+		'id',
+		'school_class_id',
 		'name',
 		'slug',
-		'description'
+		'description',
+		'color'
 	];
 
-	public function class()
+	public function school_class()
 	{
-		return $this->belongsTo(Class::class);
+		return $this->belongsTo(SchoolClass::class, 'school_class_id');
 	}
 
 	public function class_sections()
@@ -52,5 +55,17 @@ class ClassArm extends Model
 	public function students()
 	{
 		return $this->hasMany(Student::class);
+	}
+
+	public function assignments()
+	{
+		return $this->hasMany(SubjectAssignment::class, 'class_arm_id');
+	}
+
+	public function subjects()
+	{
+		return $this->belongsToMany(Subject::class, 'subject_school_class_assignments', 'class_arm_id', 'subject_id')
+			->withPivot(['id', 'school_class_id', 'class_section_id'])
+			->withTimestamps();
 	}
 }

@@ -32,7 +32,10 @@ class GradingScale extends Model
 	protected $table = 'grading_scales';
 	public $incrementing = false;
 
+	protected $keyType = 'string';
+
 	protected $fillable = [
+		'id',
 		'school_id',
 		'session_id',
 		'name',

@@ -25,25 +25,25 @@ services:
       - DB_USERNAME=school
       - DB_PASSWORD=school
     ports:
-      - "8000:80"
+      - "8001:80"
 
 
-  caddy:
-    image: caddy:2
-    container_name: school_caddy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ./docker/caddy/data:/data
-      - ./docker/caddy/config:/config
-      # - ./:/var/www/html
-    networks:
-      - school
-    depends_on:
-      - school-be
+  # caddy:
+  #   image: caddy:2
+  #   container_name: school_caddy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+  #     - ./docker/caddy/data:/data
+  #     - ./docker/caddy/config:/config
+  #     # - ./:/var/www/html
+  #   networks:
+  #     - school
+  #   depends_on:
+  #     - school-be
 
   db:
     image: mysql:8
@@ -76,17 +76,17 @@ services:
     depends_on:
       - db
 
-  portainer:
-    image: portainer/portainer-ce
-    container_name: school_portainer
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    networks:
-      - school
+  # portainer:
+  #   image: portainer/portainer-ce
+  #   container_name: school_portainer
+  #   restart: unless-stopped
+  #   ports:
+  #     - "9000:9000"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - portainer_data:/data
+  #   networks:
+  #     - school
 
 volumes:
   db_data:

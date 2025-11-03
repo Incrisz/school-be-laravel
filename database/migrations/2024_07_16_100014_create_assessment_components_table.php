@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('assessment_components', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('school_id');
-            $table->uuid('session_id');
-            $table->uuid('term_id');
+            $table->uuid('session_id')->nullable();
+            $table->uuid('term_id')->nullable();
             $table->string('name');
             $table->decimal('weight', 5, 2);
             $table->integer('order');

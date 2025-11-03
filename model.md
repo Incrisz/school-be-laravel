@@ -62,7 +62,7 @@ The following Eloquent models are available in the `app/Models` directory:
 *   **GradingScale**: Corresponds to the `grading_scales` table.
 *   **MessageThread**: Corresponds to the `message_threads` table.
 *   **Message**: Corresponds to the `messages` table.
-*   **Parents**: Corresponds to the `parents` table.
+*   **SchoolParent**: Corresponds to the `parents` table.
 *   **PerformanceReport**: Corresponds to the `performance_reports` table.
 *   **Permission**: Corresponds to the `permissions` table.
 *   **ResultPin**: Corresponds to the `result_pins` table.

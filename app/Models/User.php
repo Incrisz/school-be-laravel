@@ -8,9 +8,11 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
 
 
 /**
@@ -33,7 +35,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property Collection|AuditLog[] $audit_logs
  * @property Collection|MessageThread[] $message_threads
  * @property Collection|Message[] $messages
- * @property Collection|Parent[] $parents
+ * @property Collection|SchoolParent[] $parents
  * @property Collection|School[] $schools
  * @property Collection|Staff[] $staff
  *
@@ -41,9 +43,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable
 {
+	use HasFactory;
 	use HasApiTokens;
+	use HasRoles;
+
+	/**
+	 * Guard name used by spatie/laravel-permission.
+	 *
+	 * @var string
+	 */
+	protected $guard_name = 'sanctum';
 	protected $table = 'users';
 	public $incrementing = false;
+	protected $keyType = 'string';
 
 	protected $casts = [
 		'last_login' => 'datetime',
@@ -65,12 +77,23 @@ class User extends Authenticatable
 		'status',
 		'last_login',
 		'email_verified_at',
-		'remember_token'
+		'remember_token',
+		'phone',
+		'address',
+		'occupation',
+		'nationality',
+		'state_of_origin',
+		'local_government_area',
 	];
 
 	public function school()
 	{
 		return $this->belongsTo(School::class);
+	}
+
+	public function staff()
+	{
+		return $this->hasOne(Staff::class);
 	}
 
 	public function audit_logs()
@@ -90,7 +113,7 @@ class User extends Authenticatable
 
 	public function parents()
 	{
-		return $this->hasMany(Parent::class);
+		return $this->hasMany(SchoolParent::class);
 	}
 
 	public function schools()
@@ -100,8 +123,23 @@ class User extends Authenticatable
 					->withTimestamps();
 	}
 
-	public function staff()
+	protected static function booted()
 	{
-		return $this->hasMany(Staff::class);
+		static::creating(function (self $model) {
+			if (empty($model->id)) {
+				$model->id = (string) Str::uuid();
+			}
+		});
+	}
+
+	public function getRoleAttribute($value)
+	{
+		if ($value !== null) {
+			return $value;
+		}
+
+		return $this->roles
+			->firstWhere('guard_name', config('permission.default_guard', 'sanctum'))
+			?->name ?? null;
 	}
 }

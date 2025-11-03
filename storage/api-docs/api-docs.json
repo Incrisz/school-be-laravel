@@ -11,6 +11,1131 @@
         }
     ],
     "paths": {
+        "/v1/sessions": {
+            "get": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Get list of sessions",
+                "description": "Returns list of sessions",
+                "operationId": "getSessionsList",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Store new session",
+                "description": "Returns session data",
+                "operationId": "storeSession",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "2025/2026"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-09-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-31"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/v1/sessions/{id}": {
+            "get": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Get session information",
+                "description": "Returns session data",
+                "operationId": "getSessionById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Session id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": 123
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Update existing session",
+                "description": "Returns updated session data",
+                "operationId": "updateSession",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Session id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "start_date",
+                                    "end_date"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "2025/2026"
+                                    },
+                                    "slug": {
+                                        "type": "string",
+                                        "example": "2025/2026"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-09-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-31"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Delete existing session",
+                "description": "Deletes a record and returns no content",
+                "operationId": "deleteSession",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Session id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/v1/sessions/{id}/terms": {
+            "get": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Get list of terms for a session",
+                "description": "Returns list of terms for a session",
+                "operationId": "getTermsForSession",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Session id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Store new term",
+                "description": "Returns term data",
+                "operationId": "storeTerm",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Session id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "1st"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-09-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-31"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/v1/terms/{id}": {
+            "put": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Update existing term",
+                "description": "Returns updated term data",
+                "operationId": "updateTerm",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Term id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "2nd"
+                                    },
+                                    "slug": {
+                                        "type": "string",
+                                        "example": "2nd"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-09-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-31"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.1"
+                ],
+                "summary": "Delete existing term",
+                "description": "Deletes a record and returns no content",
+                "operationId": "deleteTerm",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Term id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/v1/classes": {
+            "get": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Get list of classes",
+                "description": "Returns list of classes",
+                "operationId": "getClassesList",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Store new class",
+                "description": "Stores a new class and returns the created class",
+                "operationId": "storeClass",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "school_id"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "JSS1"
+                                    },
+                                    "school_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "9a7a7b0e-0b1c-4f0e-8c1a-0b1c4f0e8c1a"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/v1/classes/{id}": {
+            "get": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Get session information",
+                "description": "Returns class data",
+                "operationId": "getClassById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Update existing class",
+                "description": "Updates a class and returns the updated class",
+                "operationId": "updateClass",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "JSS1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Delete existing class",
+                "description": "Deletes a class and returns no content",
+                "operationId": "deleteClass",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/v1/classes/{classId}/arms": {
+            "get": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Get list of class arms",
+                "description": "Returns list of class arms for a given class",
+                "operationId": "getClassArmsList",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Store new class arm",
+                "description": "Stores a new class arm and returns the created class arm",
+                "operationId": "storeClassArm",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "A"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/v1/classes/{classId}/arms/{armId}": {
+            "get": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Get class arm information",
+                "description": "Returns class arm data",
+                "operationId": "getClassArmById",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Update existing class arm",
+                "description": "Updates a class arm and returns the updated class arm",
+                "operationId": "updateClassArm",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "A"
+                                    },
+                                    "color": {
+                                        "type": "string",
+                                        "example": "Blue"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Delete existing class arm",
+                "description": "Deletes a class arm and returns no content",
+                "operationId": "deleteClassArm",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/v1/classes/{classId}/arms/{armId}/sections": {
+            "get": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Get list of class arm sections",
+                "description": "Returns list of class arm sections for a given class arm",
+                "operationId": "getClassArmSectionsList",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Store new class arm section",
+                "description": "Stores a new class arm section and returns the created class arm section",
+                "operationId": "storeClassArmSection",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Science"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/v1/classes/{classId}/arms/{armId}/sections/{sectionId}": {
+            "get": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Get class arm section information",
+                "description": "Returns class arm section data",
+                "operationId": "getClassArmSectionById",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sectionId",
+                        "in": "path",
+                        "description": "Class Arm Section id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Update existing class arm section",
+                "description": "Updates a class arm section and returns the updated class arm section",
+                "operationId": "updateClassArmSection",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sectionId",
+                        "in": "path",
+                        "description": "Class Arm Section id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Science"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.2"
+                ],
+                "summary": "Delete existing class arm section",
+                "description": "Deletes a class arm section and returns no content",
+                "operationId": "deleteClassArmSection",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Class id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "armId",
+                        "in": "path",
+                        "description": "Class Arm id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sectionId",
+                        "in": "path",
+                        "description": "Class Arm Section id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/v1/parents": {
+            "get": {
+                "tags": [
+                    "school-v1.3"
+                ],
+                "summary": "Get list of parents",
+                "description": "Returns list of parents",
+                "operationId": "getParentsList",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by name or phone",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.3"
+                ],
+                "summary": "Store new parent",
+                "description": "Returns parent data",
+                "operationId": "storeParent",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "occupation": {
+                                        "type": "string",
+                                        "example": "Engineer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            }
+        },
+        "/v1/parents/{id}": {
+            "get": {
+                "tags": [
+                    "school-v1.3"
+                ],
+                "summary": "Get parent information",
+                "description": "Returns parent data",
+                "operationId": "getParentById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Parent id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v1.3"
+                ],
+                "summary": "Update existing parent",
+                "description": "Returns updated parent data",
+                "operationId": "updateParent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Parent id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "occupation": {
+                                        "type": "string",
+                                        "example": "Engineer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.3"
+                ],
+                "summary": "Delete existing parent",
+                "description": "Deletes a record and returns no content",
+                "operationId": "deleteParent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Parent id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
         "/v1/register-school": {
             "post": {
                 "tags": [
@@ -279,6 +1404,26 @@
             }
         },
         "/v1/school": {
+            "get": {
+                "tags": [
+                    "school-v1.0"
+                ],
+                "summary": "Get the authenticated school's profile",
+                "operationId": "9b804cbf107ffc421fc6ed5068edf802",
+                "responses": {
+                    "200": {
+                        "description": "School profile returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "school-v1.0"
@@ -337,22 +1482,58 @@
             }
         },
         "/v1/user": {
+            "get": {
+                "tags": [
+                    "school-v1.0"
+                ],
+                "summary": "Get the authenticated School Admin's profile",
+                "operationId": "1361145f662b9723cff15438ab9d4c18",
+                "responses": {
+                    "200": {
+                        "description": "User profile returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "school-v1.0"
                 ],
-                "summary": "Update user profile",
-                "operationId": "2fe2c5c7466f0e20b3e41e35750fd84a",
+                "summary": "Update School Admin profile",
+                "operationId": "dc8fa0fcbec90acdeb7034fba4f980bc",
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "properties": {
                                     "name": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Jane Doe"
                                     },
                                     "email": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jane@example.com"
+                                    },
+                                    "old_password": {
+                                        "type": "string",
+                                        "example": "currentPassword123"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "newPassword456"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "newPassword456"
                                     }
                                 },
                                 "type": "object"
@@ -362,7 +1543,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "User profile updated successfully"
+                        "description": "School Admin profile updated successfully"
                     },
                     "401": {
                         "description": "Unauthenticated"
@@ -377,9 +1558,371 @@
                     }
                 ]
             }
+        },
+        "/v1/students": {
+            "get": {
+                "tags": [
+                    "school-v1.4"
+                ],
+                "summary": "Get list of students",
+                "description": "Returns list of students",
+                "operationId": "getStudentsList",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by name or admission number",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "school_class_id",
+                        "in": "query",
+                        "description": "Filter by class",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "parent_id",
+                        "in": "query",
+                        "description": "Filter by parent",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.4"
+                ],
+                "summary": "Store new student",
+                "description": "Returns student data",
+                "operationId": "storeStudent",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "admission_no": {
+                                        "type": "string",
+                                        "example": "2023/123"
+                                    },
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "middle_name": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "example": "male"
+                                    },
+                                    "date_of_birth": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2010-01-01"
+                                    },
+                                    "nationality": {
+                                        "type": "string",
+                                        "example": "Nigerian"
+                                    },
+                                    "state_of_origin": {
+                                        "type": "string",
+                                        "example": "Lagos"
+                                    },
+                                    "lga_of_origin": {
+                                        "type": "string",
+                                        "example": "Ikeja"
+                                    },
+                                    "house": {
+                                        "type": "string",
+                                        "example": "Green"
+                                    },
+                                    "club": {
+                                        "type": "string",
+                                        "example": "Debate"
+                                    },
+                                    "current_session_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "current_term_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "parent_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "admission_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-09-01"
+                                    },
+                                    "photo_url": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            }
+        },
+        "/v1/students/{id}": {
+            "get": {
+                "tags": [
+                    "school-v1.4"
+                ],
+                "summary": "Get student information",
+                "description": "Returns student data",
+                "operationId": "getStudentById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Student id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v1.4"
+                ],
+                "summary": "Update existing student",
+                "description": "Returns updated student data",
+                "operationId": "updateStudent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Student id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "admission_no": {
+                                        "type": "string",
+                                        "example": "2023/123"
+                                    },
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "middle_name": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "example": "male"
+                                    },
+                                    "date_of_birth": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2010-01-01"
+                                    },
+                                    "nationality": {
+                                        "type": "string",
+                                        "example": "Nigerian"
+                                    },
+                                    "state_of_origin": {
+                                        "type": "string",
+                                        "example": "Lagos"
+                                    },
+                                    "lga_of_origin": {
+                                        "type": "string",
+                                        "example": "Ikeja"
+                                    },
+                                    "house": {
+                                        "type": "string",
+                                        "example": "Green"
+                                    },
+                                    "club": {
+                                        "type": "string",
+                                        "example": "Debate"
+                                    },
+                                    "current_session_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "current_term_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "parent_id": {
+                                        "type": "string",
+                                        "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    },
+                                    "admission_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-09-01"
+                                    },
+                                    "photo_url": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.4"
+                ],
+                "summary": "Delete existing student",
+                "description": "Deletes a record and returns no content",
+                "operationId": "deleteStudent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Student id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
         }
     },
     "tags": [
+        {
+            "name": "school-v1.1",
+            "description": "Academic Session & Term Management"
+        },
+        {
+            "name": "school-v1.2",
+            "description": "Class & Arm Setup"
+        },
+        {
+            "name": "school-v1.3",
+            "description": "API for Parent Management "
+        },
+        {
+            "name": "school-v1.4",
+            "description": "student Management"
+        },
         {
             "name": "school-v1.0",
             "description": "school-v1.0"
