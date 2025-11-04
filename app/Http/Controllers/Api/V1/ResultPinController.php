@@ -39,17 +39,24 @@ class ResultPinController extends Controller
             'term_id' => ['required', 'uuid'],
             'expires_at' => ['nullable', 'date'],
             'regenerate' => ['sometimes', 'boolean'],
+            'max_usage' => ['nullable', 'integer', 'min:1'],
         ]);
+
+        $options = [
+            'expires_at' => $validated['expires_at'] ?? null,
+            'regenerate' => (bool) ($validated['regenerate'] ?? false),
+        ];
+
+        if ($request->exists('max_usage')) {
+            $options['max_usage'] = $validated['max_usage'];
+        }
 
         $pin = $this->service->generateForStudent(
             $student,
             $validated['session_id'],
             $validated['term_id'],
             $request->user()->id,
-            [
-                'expires_at' => $validated['expires_at'] ?? null,
-                'regenerate' => (bool) ($validated['regenerate'] ?? false),
-            ]
+            $options
         );
 
         return response()->json([
@@ -69,6 +76,7 @@ class ResultPinController extends Controller
             'student_ids.*' => ['uuid'],
             'regenerate' => ['sometimes', 'boolean'],
             'expires_at' => ['nullable', 'date'],
+            'max_usage' => ['nullable', 'integer', 'min:1'],
         ]);
 
         $user = $request->user();
@@ -93,16 +101,22 @@ class ResultPinController extends Controller
         }
 
         $pins = [];
+        $options = [
+            'expires_at' => $validated['expires_at'] ?? null,
+            'regenerate' => (bool) ($validated['regenerate'] ?? false),
+        ];
+
+        if ($request->exists('max_usage')) {
+            $options['max_usage'] = $validated['max_usage'];
+        }
+
         foreach ($students as $student) {
             $pins[] = $this->service->generateForStudent(
                 $student,
                 $validated['session_id'],
                 $validated['term_id'],
                 $user->id,
-                [
-                    'expires_at' => $validated['expires_at'] ?? null,
-                    'regenerate' => (bool) ($validated['regenerate'] ?? false),
-                ]
+                $options
             );
         }
 
@@ -244,6 +258,8 @@ class ResultPinController extends Controller
             'revoked_at' => optional($pin->revoked_at)->toISOString(),
             'created_at' => optional($pin->created_at)->toISOString(),
             'updated_at' => optional($pin->updated_at)->toISOString(),
+            'use_count' => $pin->use_count,
+            'max_usage' => $pin->max_usage,
             'student_name' => $studentName,
             'session_name' => $sessionName,
             'term_name' => $termName,

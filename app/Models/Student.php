@@ -29,8 +29,8 @@ use RuntimeException;
  * @property string|null $nationality
  * @property string|null $state_of_origin
  * @property string|null $lga_of_origin
- * @property string $house
- * @property string $club
+ * @property string|null $house
+ * @property string|null $club
  * @property string $current_session_id
  * @property string $current_term_id
  * @property string $school_class_id

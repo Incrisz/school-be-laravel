@@ -230,6 +230,16 @@ class StudentController extends Controller
             $studentData['class_section_id'] = null;
         }
 
+        foreach (['house', 'club'] as $field) {
+            if (array_key_exists($field, $studentData)) {
+                $value = $studentData[$field];
+                if (is_string($value)) {
+                    $value = trim($value);
+                }
+                $studentData[$field] = $value === '' ? null : $value;
+            }
+        }
+
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('students/photos', 'public');
             $studentData['photo_url'] = $this->formatStoredFileUrl($photoPath);
@@ -411,6 +421,16 @@ class StudentController extends Controller
 
         if (array_key_exists('parent_id', $validated) && ! $validated['parent_id']) {
             $validated['parent_id'] = null;
+        }
+
+        foreach (['house', 'club'] as $field) {
+            if (array_key_exists($field, $validated)) {
+                $value = $validated[$field];
+                if (is_string($value)) {
+                    $value = trim($value);
+                }
+                $validated[$field] = $value === '' ? null : $value;
+            }
         }
 
         if ($request->hasFile('photo')) {

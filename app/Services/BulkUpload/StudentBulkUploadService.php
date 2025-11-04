@@ -686,8 +686,15 @@ class StudentBulkUploadService
         $studentData['nationality'] = $getValue('student.nationality');
         $studentData['state_of_origin'] = $getValue('student.state_of_origin');
         $studentData['lga_of_origin'] = $getValue('student.lga_of_origin');
-        $studentData['house'] = $getValue('student.house');
-        $studentData['club'] = $getValue('student.club');
+        $houseValue = $getValue('student.house');
+        $studentData['house'] = ($houseValue !== null && trim((string) $houseValue) !== '')
+            ? trim((string) $houseValue)
+            : null;
+
+        $clubValue = $getValue('student.club');
+        $studentData['club'] = ($clubValue !== null && trim((string) $clubValue) !== '')
+            ? trim((string) $clubValue)
+            : null;
         $studentData['address'] = $getValue('student.address');
         $studentData['medical_information'] = $getValue('student.medical_information');
 
