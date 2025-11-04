@@ -95,13 +95,14 @@ class SchoolController extends Controller
             $acronym = $this->generateSchoolAcronym($validatedData['name']);
             $nextCode = (int) School::query()->lockForUpdate()->max('code_sequence');
             $nextCode = $nextCode > 0 ? $nextCode + 1 : 1;
+            $slug = $this->generateUniqueSchoolSlug($validatedData['name']);
 
             $school = School::create([
                 'id' => Str::uuid(),
                 'name' => $validatedData['name'],
                 'acronym' => $acronym,
                 'code_sequence' => $nextCode,
-                'slug' => Str::slug($validatedData['name']),
+                'slug' => $slug,
                 'subdomain' => $validatedData['subdomain'],
                 'address' => $validatedData['address'],
                 'email' => $validatedData['email'],
@@ -519,6 +520,32 @@ class SchoolController extends Controller
         } elseif (! str_contains($url, '://')) {
             Storage::disk('public')->delete(ltrim($url, '/'));
         }
+    }
+
+    private function generateUniqueSchoolSlug(string $name): string
+    {
+        $baseSlug = Str::slug($name);
+        if ($baseSlug === '') {
+            $baseSlug = 'school';
+        }
+
+        $existingSlugs = School::query()
+            ->where('slug', 'like', $baseSlug.'%')
+            ->lockForUpdate()
+            ->pluck('slug')
+            ->all();
+
+        if (! in_array($baseSlug, $existingSlugs, true)) {
+            return $baseSlug;
+        }
+
+        $suffix = 1;
+        do {
+            $candidate = $baseSlug.'-'.$suffix;
+            $suffix++;
+        } while (in_array($candidate, $existingSlugs, true));
+
+        return $candidate;
     }
 
     private function generateSchoolAcronym(string $name): string
