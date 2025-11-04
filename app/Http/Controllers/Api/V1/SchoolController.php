@@ -443,11 +443,30 @@ class SchoolController extends Controller
             $user = $request->user();            // same as Auth::user()
             $school = $user->school;             // eager-load if you want
 
+            $user->loadMissing([
+                'school.currentSession:id,name,slug,start_date,end_date,status',
+                'school.currentTerm:id,name,session_id,start_date,end_date,status',
+                'parents' => function ($query) {
+                    $query
+                        ->select([
+                            'id',
+                            'user_id',
+                            'school_id',
+                            'first_name',
+                            'last_name',
+                            'phone',
+                        ])
+                        ->withCount('students');
+                },
+            ]);
+
+            $linkedStudentsCount = $user->parents
+                ? $user->parents->sum('students_count')
+                : 0;
+
             return response()->json([
-                'user'   => $user->loadMissing([
-                    'school.currentSession:id,name,slug,start_date,end_date,status',
-                    'school.currentTerm:id,name,session_id,start_date,end_date,status',
-                ]),
+                'user' => $user,
+                'linked_students_count' => $linkedStudentsCount,
             ]);
         }
 

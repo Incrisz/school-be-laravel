@@ -61,7 +61,9 @@ class ParentController extends Controller
     public function all(Request $request)
     {
         $parents = $request->user()->school->parents()
-            ->select('id', 'first_name', 'last_name', 'phone')
+            ->withCount('students')
+            ->with(['user:id,email,school_id'])
+            ->select('id', 'user_id', 'first_name', 'last_name', 'phone')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -118,7 +120,7 @@ class ParentController extends Controller
         ]);
 
         $user = \App\Models\User::create([
-            'id' => str()->uuid(),
+            'id' => (string) Str::uuid(),
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'password' => bcrypt($request->first_name),
@@ -149,7 +151,15 @@ class ParentController extends Controller
             }
         });
 
-        $parent = $request->user()->school->parents()->create(array_merge($request->all(), ['id' => str()->uuid(), 'user_id' => $user->id]));
+        $parent = $request->user()->school->parents()->create(array_merge(
+            $request->all(),
+            [
+                'id' => (string) Str::uuid(),
+                'user_id' => $user->id,
+            ]
+        ));
+
+        $parent->loadMissing('user')->loadCount('students');
 
         return response()->json($parent, 201);
     }
@@ -195,6 +205,9 @@ class ParentController extends Controller
         if ($parent->school_id !== $request->user()->school_id) {
             return response()->json(['message' => 'Not Found'], 404);
         }
+
+        $parent->loadMissing('user')->loadCount('students');
+
         return response()->json($parent);
     }
 
@@ -277,7 +290,9 @@ class ParentController extends Controller
 
         $parent->update($request->all());
 
-        return response()->json($parent);
+        return response()->json(
+            $parent->fresh()->loadMissing('user')->loadCount('students')
+        );
     }
 
     /**

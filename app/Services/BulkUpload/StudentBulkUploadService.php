@@ -208,6 +208,7 @@ class StudentBulkUploadService
                 $class = $classes->firstWhere('id', $row['student']['school_class_id']);
                 $arm = $class?->class_arms->firstWhere('id', $row['student']['class_arm_id']);
                 $section = $arm?->class_sections->firstWhere('id', $row['student']['class_section_id']);
+                $parent = is_array($row['parent'] ?? null) ? $row['parent'] : [];
                 return [
                     'name' => trim("{$row['student']['first_name']} {$row['student']['last_name']}"),
                     'gender' => $row['student']['gender'],
@@ -217,7 +218,7 @@ class StudentBulkUploadService
                     'class' => $class?->name,
                     'class_arm' => $arm?->name,
                     'class_section' => $section?->name,
-                    'parent_email' => $row['parent']['email'],
+                    'parent_email' => $parent['email'] ?? '—',
                 ];
             })
             ->values();
@@ -264,12 +265,15 @@ class StudentBulkUploadService
 
         DB::transaction(function () use (&$createdStudents, &$createdParents, $rows, $school, $user, $batch) {
             foreach ($rows as $row) {
-                $parent = $this->resolveParent($school, $row['parent'], $createdParents);
+                $parent = null;
+                if (is_array($row['parent'] ?? null) && ! empty($row['parent']['email'])) {
+                    $parent = $this->resolveParent($school, $row['parent'], $createdParents);
+                }
 
                 $studentData = $row['student'];
                 $studentData['id'] = (string) Str::uuid();
                 $studentData['school_id'] = $school->id;
-                $studentData['parent_id'] = $parent->id;
+                $studentData['parent_id'] = $parent?->id;
                 $studentData['status'] = strtolower($studentData['status']);
                 $session = Session::findOrFail($studentData['current_session_id']);
                 $studentData['admission_no'] = Student::generateAdmissionNumber($school, $session);
@@ -433,19 +437,19 @@ class StudentBulkUploadService
             [
                 'key' => 'parent.first_name',
                 'header' => 'Parent First Name',
-                'required' => true,
+                'required' => false,
                 'example' => 'Grace',
             ],
             [
                 'key' => 'parent.last_name',
                 'header' => 'Parent Last Name',
-                'required' => true,
+                'required' => false,
                 'example' => 'Williams',
             ],
             [
                 'key' => 'parent.email',
                 'header' => 'Parent Email',
-                'required' => true,
+                'required' => false,
                 'example' => 'parent@example.com',
             ],
             [
@@ -762,9 +766,9 @@ class StudentBulkUploadService
             $studentData['class_section_id'] = null;
         }
 
-        $parentData['first_name'] = $getValue('parent.first_name', true);
-        $parentData['last_name'] = $getValue('parent.last_name', true);
-        $parentData['email'] = $getValue('parent.email', true);
+        $parentData['first_name'] = $getValue('parent.first_name');
+        $parentData['last_name'] = $getValue('parent.last_name');
+        $parentData['email'] = $getValue('parent.email');
         $parentData['phone'] = $getValue('parent.phone');
         $parentData['address'] = $getValue('parent.address');
         $parentData['occupation'] = $getValue('parent.occupation');
@@ -772,40 +776,60 @@ class StudentBulkUploadService
         $parentData['state_of_origin'] = $getValue('parent.state_of_origin');
         $parentData['local_government_area'] = $getValue('parent.local_government_area');
 
-        if ($parentData['email'] && ! filter_var($parentData['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = [
-                'row' => $rowNumber,
-                'column' => $columns['parent.email']['header'],
-                'message' => 'Invalid email address.',
-            ];
-        }
+        $parentFieldsProvided = collect($parentData)->filter(function ($value) {
+            return $value !== null && $value !== '';
+        })->isNotEmpty();
 
-        if ($parentData['email']) {
-            $existingParent = SchoolParent::query()
-                ->where('school_id', $school->id)
-                ->whereHas('user', fn ($query) => $query->where('email', $parentData['email']))
-                ->first();
+        if ($parentFieldsProvided) {
+            foreach (['first_name', 'last_name', 'email'] as $requiredParentField) {
+                if (! ($parentData[$requiredParentField] ?? null)) {
+                    $errors[] = [
+                        'row' => $rowNumber,
+                        'column' => $columns["parent.{$requiredParentField}"]['header'] ?? $requiredParentField,
+                        'message' => 'This field is required when linking a parent.',
+                    ];
+                }
+            }
 
-            if (! $existingParent) {
-                $existingUser = User::query()
-                    ->where('email', $parentData['email'])
-                    ->first();
+            if ($parentData['email']) {
+                if (! filter_var($parentData['email'], FILTER_VALIDATE_EMAIL)) {
+                    $errors[] = [
+                        'row' => $rowNumber,
+                        'column' => $columns['parent.email']['header'],
+                        'message' => 'Invalid email address.',
+                    ];
+                } else {
+                    $existingParent = SchoolParent::query()
+                        ->where('school_id', $school->id)
+                        ->whereHas('user', fn ($query) => $query->where('email', $parentData['email']))
+                        ->first();
 
-                if ($existingUser) {
-                    if ($existingUser->school_id !== $school->id) {
-                        $errors[] = [
-                            'row' => $rowNumber,
-                            'column' => $columns['parent.email']['header'],
-                            'message' => 'Email already exists in another school.',
-                        ];
-                    } elseif (! $existingUser->hasRole('parent') && $existingUser->role !== 'parent') {
-                        $errors[] = [
-                            'row' => $rowNumber,
-                            'column' => $columns['parent.email']['header'],
-                            'message' => 'Email already in use by a non-parent account.',
-                        ];
+                    if (! $existingParent) {
+                        $existingUser = User::query()
+                            ->where('email', $parentData['email'])
+                            ->first();
+
+                        if ($existingUser) {
+                            if ($existingUser->school_id !== $school->id) {
+                                $errors[] = [
+                                    'row' => $rowNumber,
+                                    'column' => $columns['parent.email']['header'],
+                                    'message' => 'Email already exists in another school.',
+                                ];
+                            } elseif (! $existingUser->hasRole('parent') && $existingUser->role !== 'parent') {
+                                $errors[] = [
+                                    'row' => $rowNumber,
+                                    'column' => $columns['parent.email']['header'],
+                                    'message' => 'Email already in use by a non-parent account.',
+                                ];
+                            }
+                        }
                     }
                 }
+            }
+        } else {
+            foreach ($parentData as $key => $value) {
+                $parentData[$key] = null;
             }
         }
 
@@ -823,7 +847,7 @@ class StudentBulkUploadService
         return [
             [
                 'student' => $studentData,
-                'parent' => $parentData,
+                'parent' => $parentFieldsProvided ? $parentData : null,
                 'source_row' => $rowNumber,
             ],
             $errors,

@@ -142,6 +142,12 @@ class StaffController extends Controller
     {
         $this->authorizeStaffAccess($request, $staff);
 
+        foreach (['full_name', 'email', 'phone', 'role', 'gender', 'address', 'qualifications', 'employment_start_date'] as $field) {
+            if ($request->has($field) && $request->input($field) === '') {
+                $request->merge([$field => null]);
+            }
+        }
+
         $validated = $request->validate([
             'full_name' => 'sometimes|required|string|max:255',
             'email' => [

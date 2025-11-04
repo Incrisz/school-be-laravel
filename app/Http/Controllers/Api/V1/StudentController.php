@@ -208,7 +208,7 @@ class StudentController extends Controller
             'school_class_id' => 'required|exists:classes,id',
             'class_arm_id' => 'required|exists:class_arms,id',
             'class_section_id' => 'nullable|exists:class_sections,id',
-            'parent_id' => 'required|exists:parents,id',
+            'parent_id' => 'nullable|exists:parents,id',
             'admission_date' => 'required|date',
             'photo_url' => 'nullable|string|max:255',
             'photo' => 'nullable|image|max:4096',
@@ -222,6 +222,9 @@ class StudentController extends Controller
         $studentData['id'] = (string) Str::uuid();
         $studentData['school_id'] = $school->id;
         $studentData['status'] = strtolower($studentData['status']);
+        if (! array_key_exists('parent_id', $studentData) || ! $studentData['parent_id']) {
+            $studentData['parent_id'] = null;
+        }
 
         if (array_key_exists('class_section_id', $studentData) && ! $studentData['class_section_id']) {
             $studentData['class_section_id'] = null;
@@ -396,7 +399,7 @@ class StudentController extends Controller
             'school_class_id' => 'required|exists:classes,id',
             'class_arm_id' => 'required|exists:class_arms,id',
             'class_section_id' => 'nullable|exists:class_sections,id',
-            'parent_id' => 'required|exists:parents,id',
+            'parent_id' => 'nullable|exists:parents,id',
             'admission_date' => 'required|date',
             'photo_url' => 'nullable|string|max:255',
             'status' => ['required', Rule::in(['active', 'inactive', 'graduated', 'withdrawn'])],
@@ -404,6 +407,10 @@ class StudentController extends Controller
 
         if (array_key_exists('class_section_id', $validated) && ! $validated['class_section_id']) {
             $validated['class_section_id'] = null;
+        }
+
+        if (array_key_exists('parent_id', $validated) && ! $validated['parent_id']) {
+            $validated['parent_id'] = null;
         }
 
         if ($request->hasFile('photo')) {

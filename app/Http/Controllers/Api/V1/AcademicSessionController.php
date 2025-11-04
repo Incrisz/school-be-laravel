@@ -342,7 +342,44 @@ class AcademicSessionController extends Controller
         $term = $session->terms()->create($validated);
         return response()->json(['message' => 'Term created successfully', 'data' => $term], 201);
     }
-    
+
+    /**
+     * @OA\Get(
+     *      path="/v1/terms/{id}",
+     *      operationId="getTermById",
+     *      tags={"school-v1.1"},
+     *      summary="Get term information",
+     *      description="Returns term data",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Term id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation"
+     *       ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Resource Not Found"
+     *      )
+     * )
+     */
+    public function showTerm(Request $request, Term $term)
+    {
+        if ($term->school_id !== $request->user()->school_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
+        return response()->json(
+            $term->loadMissing('session:id,name')
+        );
+    }
+
 
     /**
      * @OA\Put(
