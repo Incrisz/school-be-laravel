@@ -205,7 +205,15 @@ class SchoolController extends Controller
         }
 
         $hasAllowedRole = $this->withTeamContext($user->school_id, function () use ($user) {
-            return $user->hasAnyRole(['admin', 'staff', 'super_admin', 'teacher', 'accountant']);
+            $guard = config('permission.default_guard', 'sanctum');
+            return $user->roles()
+                ->where('roles.guard_name', $guard)
+                ->where(function ($query) use ($user) {
+                    return $query
+                        ->whereNull('roles.school_id')
+                        ->orWhere('roles.school_id', $user->school_id);
+                })
+                ->exists();
         });
 
         if (! $hasAllowedRole) {
