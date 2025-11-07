@@ -31,6 +31,8 @@ use App\Http\Controllers\Api\V1\PermissionController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\UserRoleController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\StaffSelfController;
+use App\Http\Controllers\Api\V1\TeacherDashboardController;
 use App\Http\Controllers\ResultViewController;
 
 $host = parse_url(config('app.url'), PHP_URL_HOST);
@@ -253,6 +255,13 @@ Route::prefix('api/v1')->group(function () {
             Route::get('bank-details/default/get', [BankDetailController::class, 'getDefault'])
                 ->name('bank-details.get-default');
         });
+
+        Route::get('staff/me', [StaffSelfController::class, 'show'])
+            ->name('staff.me.show');
+        Route::put('staff/me', [StaffSelfController::class, 'update'])
+            ->name('staff.me.update');
+        Route::get('staff/dashboard', [TeacherDashboardController::class, 'show'])
+            ->name('staff.dashboard');
 
         // Staff Routes
         Route::apiResource('staff', \App\Http\Controllers\Api\V1\StaffController::class);

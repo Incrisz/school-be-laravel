@@ -20,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\Rbac\RbacService;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * @OA\Info(
@@ -183,37 +184,47 @@ class SchoolController extends Controller
             ]);
         }
 
+        $rbac = app(RbacService::class);
+
         if (in_array($user->role, ['admin', 'super_admin'], true) && $user->school) {
             $guard = config('permission.default_guard', 'sanctum');
-            $hasSchoolRole = $user->roles()
-                ->where('roles.guard_name', $guard)
-                ->where(function ($query) use ($user) {
-                    return $query
-                        ->whereNull('roles.school_id')
-                        ->orWhere('roles.school_id', $user->school_id);
-                })
-                ->exists();
+            $hasSchoolRole = $this->withTeamContext($user->school_id, function () use ($user, $guard) {
+                return $user->roles()
+                    ->where('roles.guard_name', $guard)
+                    ->where(function ($query) use ($user) {
+                        return $query
+                            ->whereNull('roles.school_id')
+                            ->orWhere('roles.school_id', $user->school_id);
+                    })
+                    ->exists();
+            });
 
             if (! $hasSchoolRole) {
-                /** @var \App\Services\Rbac\RbacService $rbac */
-                $rbac = app(RbacService::class);
                 $rbac->bootstrapForSchool($user->school, $user);
             }
         }
 
-        $registrar = app(\Spatie\Permission\PermissionRegistrar::class);
-        $previousTeamId = method_exists($registrar, 'getPermissionsTeamId')
-            ? $registrar->getPermissionsTeamId()
-            : null;
-
-        $registrar->setPermissionsTeamId($user->school_id);
-
-        $hasAllowedRole = $user->hasAnyRole(['admin', 'staff', 'super_admin']);
-
-        $registrar->setPermissionsTeamId($previousTeamId);
+        $hasAllowedRole = $this->withTeamContext($user->school_id, function () use ($user) {
+            return $user->hasAnyRole(['admin', 'staff', 'super_admin', 'teacher', 'accountant']);
+        });
 
         if (! $hasAllowedRole) {
             return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        if ($user->school) {
+            $this->withTeamContext($user->school_id, function () use ($user, $rbac) {
+                $rbac->syncCorePermissions($user->school);
+                $rbac->ensureOperationalRoles($user->school);
+
+                if ($user->hasRole('admin')) {
+                    $rbac->syncAdminPermissions($user->school);
+                }
+
+                if ($user->hasRole('super_admin')) {
+                    $rbac->syncSuperAdminPermissions($user->school);
+                }
+            });
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -455,64 +466,95 @@ class SchoolController extends Controller
      * )
      */
     public function showSchoolAdminProfile(Request $request)
-        {
-            $user = $request->user();            // same as Auth::user()
-            $school = $user->school;             // eager-load if you want
+    {
+        $user = $request->user();
+        $schoolId = optional($user->school)->id ?? $user->school_id;
 
-            $user->loadMissing([
-                'school.currentSession:id,name,slug,start_date,end_date,status',
-                'school.currentTerm:id,name,session_id,start_date,end_date,status',
-                'parents' => function ($query) {
-                    $query
-                        ->select([
-                            'id',
-                            'user_id',
-                            'school_id',
-                            'first_name',
-                            'last_name',
-                            'phone',
-                        ])
-                        ->withCount('students');
-                },
-            ]);
-
-            $linkedStudentsCount = $user->parents
-                ? $user->parents->sum('students_count')
-                : 0;
-
-            $schoolId = optional($user->school)->id ?? $user->school_id;
-
-            $studentCount = $schoolId
-                ? Student::query()->where('school_id', $schoolId)->count()
-                : 0;
-
-            $parentCount = $schoolId
-                ? SchoolParent::query()->where('school_id', $schoolId)->count()
-                : 0;
-
-            $teacherCount = 0;
-            if ($schoolId) {
-                $teacherQuery = Staff::query()->where('school_id', $schoolId);
-                $teacherCount = (clone $teacherQuery)
-                    ->where(function ($query) {
-                        $query->whereNull('role')
-                            ->orWhereRaw('LOWER(role) LIKE ?', ['%teacher%']);
+        $user->loadMissing([
+            'school.currentSession:id,name,slug,start_date,end_date,status',
+            'school.currentTerm:id,name,session_id,start_date,end_date,status',
+            'parents' => function ($query) {
+                $query
+                    ->select([
+                        'id',
+                        'user_id',
+                        'school_id',
+                        'first_name',
+                        'last_name',
+                        'phone',
+                    ])
+                    ->withCount('students');
+            },
+            'staff:id,school_id,user_id,full_name,phone,role,gender,address,qualifications,employment_start_date,photo_url',
+            'roles' => function ($relation) use ($schoolId) {
+                $relation
+                    ->where('roles.guard_name', config('permission.default_guard', 'sanctum'))
+                    ->when($schoolId, function ($query) use ($schoolId) {
+                        $query
+                            ->whereNull('roles.school_id')
+                            ->orWhere('roles.school_id', $schoolId);
                     })
-                    ->count();
+                    ->with(['permissions' => function ($permissions) use ($schoolId) {
+                        $permissions
+                            ->where('permissions.guard_name', config('permission.default_guard', 'sanctum'))
+                            ->when($schoolId, function ($query) use ($schoolId) {
+                                $query
+                                    ->whereNull('permissions.school_id')
+                                    ->orWhere('permissions.school_id', $schoolId);
+                            });
+                    }]);
+            },
+        ]);
 
-                if ($teacherCount === 0) {
-                    $teacherCount = $teacherQuery->count();
-                }
+        $linkedStudentsCount = $user->parents
+            ? $user->parents->sum('students_count')
+            : 0;
+
+        $studentCount = $schoolId
+            ? Student::query()->where('school_id', $schoolId)->count()
+            : 0;
+
+        $parentCount = $schoolId
+            ? SchoolParent::query()->where('school_id', $schoolId)->count()
+            : 0;
+
+        $teacherCount = 0;
+        if ($schoolId) {
+            $teacherQuery = Staff::query()->where('school_id', $schoolId);
+            $teacherCount = (clone $teacherQuery)
+                ->where(function ($query) {
+                    $query->whereNull('role')
+                        ->orWhereRaw('LOWER(role) LIKE ?', ['%teacher%']);
+                })
+                ->count();
+
+            if ($teacherCount === 0) {
+                $teacherCount = $teacherQuery->count();
             }
-
-            return response()->json([
-                'user' => $user,
-                'linked_students_count' => $linkedStudentsCount,
-                'student_count' => $studentCount,
-                'parent_count' => $parentCount,
-                'teacher_count' => $teacherCount,
-            ]);
         }
+
+        $permissionNames = $schoolId
+            ? $this->withTeamContext($schoolId, function () use ($user) {
+                return $user->getAllPermissions()
+                    ->pluck('name')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+            })
+            : [];
+
+        $userData = $user->toArray();
+        $userData['permissions'] = $permissionNames;
+
+        return response()->json([
+            'user' => $userData,
+            'linked_students_count' => $linkedStudentsCount,
+            'student_count' => $studentCount,
+            'parent_count' => $parentCount,
+            'teacher_count' => $teacherCount,
+        ]);
+    }
 
 
     /**
@@ -606,5 +648,34 @@ class SchoolController extends Controller
         }
 
         return Str::limit($acronym ?: 'SCH', 5, '');
+    }
+
+    /**
+     * Execute a callback within the context of the authenticated school for permission checks.
+     *
+     * @template TReturn
+     *
+     * @param  callable():TReturn  $callback
+     * @return TReturn
+     */
+    private function withTeamContext(?string $schoolId, callable $callback)
+    {
+        if (! $schoolId) {
+            return $callback();
+        }
+
+        /** @var PermissionRegistrar $registrar */
+        $registrar = app(PermissionRegistrar::class);
+        $previousTeamId = method_exists($registrar, 'getPermissionsTeamId')
+            ? $registrar->getPermissionsTeamId()
+            : null;
+
+        $registrar->setPermissionsTeamId($schoolId);
+
+        try {
+            return $callback();
+        } finally {
+            $registrar->setPermissionsTeamId($previousTeamId);
+        }
     }
 }

@@ -40,6 +40,9 @@ class RbacService
         ['name' => 'classes.manage', 'description' => 'Manage classes and arms'],
         ['name' => 'subjects.manage', 'description' => 'Manage subjects'],
         ['name' => 'subject.assignments', 'description' => 'Assign subjects to classes and staff'],
+        ['name' => 'results.view', 'description' => 'View student results'],
+        ['name' => 'results.enter', 'description' => 'Enter or update student results'],
+        ['name' => 'results.delete', 'description' => 'Delete student result entries'],
 
         ['name' => 'sessions.manage', 'description' => 'Manage academic sessions and terms'],
         ['name' => 'assessment.manage', 'description' => 'Configure assessment components'],
@@ -63,6 +66,33 @@ class RbacService
         ['name' => 'roles.view', 'description' => 'View roles'],
         ['name' => 'roles.manage', 'description' => 'Create, update and delete roles'],
         ['name' => 'users.assignRoles', 'description' => 'Assign roles to users'],
+    ];
+
+    /**
+     * Default permission presets for selected built-in roles.
+     *
+     * @var array<string, string[]>
+     */
+    private array $rolePermissionPresets = [
+        'teacher' => [
+            'dashboard.view',
+            'profile.view',
+            'profile.edit',
+            'profile.password',
+            'students.view',
+            'students.update',
+            'attendance.students',
+        ],
+        'accountant' => [
+            'dashboard.view',
+            'profile.view',
+            'profile.edit',
+            'fees.items',
+            'fees.structures',
+            'fees.bank-details',
+            'students.view',
+            'parents.view',
+        ],
     ];
 
     public function bootstrapForSchool(School $school, User $admin): void
@@ -116,6 +146,8 @@ class RbacService
                 'description' => 'Parent or guardian',
             ]
         );
+
+        $this->ensureOperationalRoles($school);
 
         if (! $admin->hasRole($adminRole)) {
             $admin->assignRole($adminRole);
@@ -193,6 +225,52 @@ class RbacService
                 'description' => 'Platform super administrator',
             ]
         );
+    }
+
+    public function ensureOperationalRoles(School $school): void
+    {
+        $this->ensurePresetRole($school, 'teacher', 'Teacher');
+        $this->ensurePresetRole($school, 'accountant', 'Accountant');
+    }
+
+    private function ensurePresetRole(School $school, string $roleName, ?string $description = null): Role
+    {
+        $guard = config('permission.default_guard', 'sanctum');
+
+        $role = Role::query()->firstOrNew([
+            'school_id' => $school->id,
+            'name' => $roleName,
+        ]);
+
+        $wasRecentlyCreated = ! $role->exists;
+
+        $role->guard_name = $guard;
+
+        if ($description) {
+            $role->description = $description;
+        }
+
+        if (! $role->exists || $role->isDirty()) {
+            $role->save();
+        }
+
+        if ($wasRecentlyCreated) {
+            $preset = $this->rolePermissionPresets[$roleName] ?? [];
+
+            if (! empty($preset)) {
+                $permissions = Permission::query()
+                    ->where('school_id', $school->id)
+                    ->where('guard_name', $guard)
+                    ->whereIn('name', $preset)
+                    ->get();
+
+                if ($permissions->isNotEmpty()) {
+                    $role->syncPermissions($permissions);
+                }
+            }
+        }
+
+        return $role->fresh();
     }
 
     public function syncAdminPermissions(School $school): void

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Services\Teachers\TeacherAccessService;
 
 /**
  * @OA\Tag(
@@ -18,6 +19,10 @@ use Illuminate\Validation\Rule;
  */
 class StudentController extends Controller
 {
+    public function __construct(private TeacherAccessService $teacherAccess)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -60,10 +65,11 @@ class StudentController extends Controller
      */
     public function index(Request $request)
     {
+        $this->ensurePermission($request, 'students.view');
         Student::fixLegacyForeignKeys();
         $perPage = max((int) $request->input('per_page', 10), 1);
 
-        $students = $request->user()->school->students()
+        $query = $request->user()->school->students()
             ->with($this->studentRelations())
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->input('search');
@@ -116,9 +122,12 @@ class StudentController extends Controller
                     $direction = strtolower($request->input('sortDirection', 'asc')) === 'desc' ? 'desc' : 'asc';
                     $query->orderBy($column, $direction);
                 }
-            })
-            ->paginate($perPage)
-            ->withQueryString();
+            });
+
+        $scope = $this->teacherAccess->forUser($request->user());
+        $scope->restrictStudentQuery($query);
+
+        $students = $query->paginate($perPage)->withQueryString();
 
         return response()->json($students);
     }
@@ -178,6 +187,7 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
+        $this->ensurePermission($request, 'students.create');
         Student::fixLegacyForeignKeys();
         $school = $request->user()->school;
 
@@ -215,6 +225,12 @@ class StudentController extends Controller
             'photo' => 'nullable|image|max:4096',
             'status' => ['required', Rule::in(['active', 'inactive', 'graduated', 'withdrawn'])],
         ]);
+
+        $scope = $this->teacherAccess->forUser($request->user());
+
+        if ($scope->isTeacher()) {
+            abort(403, 'Teachers cannot create student records.');
+        }
 
         $session = \App\Models\Session::findOrFail($validated['current_session_id']);
 
@@ -297,9 +313,16 @@ class StudentController extends Controller
      */
     public function show(Request $request, Student $student)
     {
+        $this->ensurePermission($request, 'students.view');
         Student::fixLegacyForeignKeys();
         if ($student->school_id !== $request->user()->school_id) {
             return response()->json(['message' => 'Not Found'], 404);
+        }
+
+        $scope = $this->teacherAccess->forUser($request->user());
+
+        if ($scope->isTeacher() && ! $scope->allowsStudent($student)) {
+            abort(403, 'You are not allowed to view this student.');
         }
 
         return response()->json([
@@ -376,9 +399,16 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
+        $this->ensurePermission($request, 'students.update');
         Student::fixLegacyForeignKeys();
         if ($student->school_id !== $request->user()->school_id) {
             return response()->json(['message' => 'Not Found'], 404);
+        }
+
+        $scope = $this->teacherAccess->forUser($request->user());
+
+        if ($scope->isTeacher() && ! $scope->allowsStudent($student)) {
+            abort(403, 'You are not allowed to update this student.');
         }
 
         $this->prepareRelationshipInput($request);
@@ -497,8 +527,16 @@ class StudentController extends Controller
      */
     public function destroy(Request $request, Student $student)
     {
+        $this->ensurePermission($request, 'students.delete');
+        Student::fixLegacyForeignKeys();
         if ($student->school_id !== $request->user()->school_id) {
             return response()->json(['message' => 'Not Found'], 404);
+        }
+
+        $scope = $this->teacherAccess->forUser($request->user());
+
+        if ($scope->isTeacher() && ! $scope->allowsStudent($student)) {
+            abort(403, 'You are not allowed to delete this student.');
         }
 
         if ($student->results()->exists() || $student->attendances()->exists() || $student->fee_payments()->exists()) {

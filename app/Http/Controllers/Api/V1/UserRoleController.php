@@ -58,7 +58,7 @@ class UserRoleController extends Controller
         });
 
         $primaryRole = $roleModels->pluck('name')->filter()->sort()->first();
-        $enumRoles = collect(['staff', 'parent', 'super_admin', 'accountant', 'admin']);
+        $enumRoles = collect(['staff', 'parent', 'super_admin', 'accountant', 'admin', 'teacher']);
 
         if (! $primaryRole || ! $enumRoles->contains($primaryRole)) {
             $primaryRole = $roleModels
