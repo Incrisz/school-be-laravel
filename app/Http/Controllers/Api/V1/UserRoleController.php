@@ -46,6 +46,31 @@ class UserRoleController extends Controller
             ],
         ]);
 
+        // Check if user currently has teacher role
+        $userCurrentRoles = $this->withTeamContext($schoolId, function () use ($user, $schoolId) {
+            return $user->roles()
+                ->where('roles.school_id', $schoolId)
+                ->where('roles.guard_name', config('permission.default_guard', 'sanctum'))
+                ->get();
+        });
+
+        $hasTeacherRole = $userCurrentRoles->contains(function ($role) {
+            return strtolower($role->name) === 'teacher';
+        });
+
+        // If user has teacher role, ensure it's included in the new roles
+        if ($hasTeacherRole) {
+            $teacherRole = Role::query()
+                ->where('roles.school_id', $schoolId)
+                ->where('roles.guard_name', config('permission.default_guard', 'sanctum'))
+                ->where('name', 'teacher')
+                ->first();
+
+            if ($teacherRole && !in_array($teacherRole->id, $validated['roles'])) {
+                $validated['roles'][] = $teacherRole->id;
+            }
+        }
+
         $roleModels = Role::query()
             ->where('roles.school_id', $schoolId)
             ->where('roles.guard_name', config('permission.default_guard', 'sanctum'))
