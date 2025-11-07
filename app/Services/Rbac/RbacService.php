@@ -279,21 +279,7 @@ class RbacService
             $role->save();
         }
 
-        if ($wasRecentlyCreated) {
-            $preset = $this->rolePermissionPresets[$roleName] ?? [];
-
-            if (! empty($preset)) {
-                $permissions = Permission::query()
-                    ->where('school_id', $school->id)
-                    ->where('guard_name', $guard)
-                    ->whereIn('name', $preset)
-                    ->get();
-
-                if ($permissions->isNotEmpty()) {
-                    $role->syncPermissions($permissions);
-                }
-            }
-        }
+        $this->syncPresetPermissionsForRole($role, $roleName);
 
         return $role->fresh();
     }
@@ -324,5 +310,48 @@ class RbacService
             ->get();
 
         $superAdminRole->syncPermissions($permissions);
+    }
+
+    private function syncPresetPermissionsForRole(Role $role, string $roleName): void
+    {
+        $preset = $this->rolePermissionPresets[$roleName] ?? [];
+
+        if (empty($preset)) {
+            return;
+        }
+
+        $guard = config('permission.default_guard', 'sanctum');
+
+        $permissions = Permission::query()
+            ->where('school_id', $role->school_id)
+            ->where('guard_name', $guard)
+            ->whereIn('name', $preset)
+            ->get();
+
+        if ($permissions->isEmpty()) {
+            return;
+        }
+
+        /** @var PermissionRegistrar $registrar */
+        $registrar = app(PermissionRegistrar::class);
+        $previousTeam = method_exists($registrar, 'getPermissionsTeamId')
+            ? $registrar->getPermissionsTeamId()
+            : null;
+
+        if (method_exists($registrar, 'setPermissionsTeamId')) {
+            $registrar->setPermissionsTeamId($role->school_id);
+        }
+
+        try {
+            foreach ($permissions as $permission) {
+                $role->givePermissionTo($permission);
+            }
+        } finally {
+            if (method_exists($registrar, 'setPermissionsTeamId')) {
+                $registrar->setPermissionsTeamId($previousTeam);
+            }
+
+            $registrar->forgetCachedPermissions();
+        }
     }
 }
