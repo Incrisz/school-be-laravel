@@ -30,11 +30,25 @@ class Controller extends BaseController
             return;
         }
 
+        /** @var \Spatie\Permission\PermissionRegistrar $registrar */
+        $registrar = app(\Spatie\Permission\PermissionRegistrar::class);
+        $previousTeamId = method_exists($registrar, 'getPermissionsTeamId')
+            ? $registrar->getPermissionsTeamId()
+            : null;
+
+        if (! empty($user->school_id)) {
+            $registrar->setPermissionsTeamId($user->school_id);
+        }
+
         $permissions = (array) $permission;
-        foreach ($permissions as $entry) {
-            if ($entry !== '' && $user->can($entry)) {
-                return;
+        try {
+            foreach ($permissions as $entry) {
+                if ($entry !== '' && $user->can($entry)) {
+                    return;
+                }
             }
+        } finally {
+            $registrar->setPermissionsTeamId($previousTeamId);
         }
 
         abort(403, 'You do not have permission to perform this action.');
