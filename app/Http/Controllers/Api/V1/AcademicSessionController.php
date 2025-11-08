@@ -31,14 +31,14 @@ class AcademicSessionController extends Controller
      *       )
      *     )
      */
-    public function index()
+    public function index(Request $request)
     {
-    $schoolId = auth()->user()->school_id;
-    $sessions = Session::where('school_id', $schoolId)->get();
+        $this->ensurePermission($request, 'sessions.manage');
+        $schoolId = $request->user()->school_id;
+        $sessions = Session::where('school_id', $schoolId)->get();
 
-    return response()->json($sessions);   
-    
-}
+        return response()->json($sessions);
+    }
 
     /**
      * @OA\Post(
@@ -68,7 +68,8 @@ class AcademicSessionController extends Controller
      */
     public function store(Request $request)
     {
-        $schoolId = auth()->user()->school_id;
+        $this->ensurePermission($request, 'sessions.manage');
+        $schoolId = $request->user()->school_id;
     
         $validator = Validator::make($request->all(), [
             'name' => [
@@ -128,8 +129,15 @@ class AcademicSessionController extends Controller
  * )
  */
 
-    public function show(Session $session)
+    public function show(Request $request, Session $session)
     {
+        $this->ensurePermission($request, 'sessions.manage');
+        
+        // Verify session belongs to user's school
+        if ($session->school_id !== $request->user()->school_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+        
         return response()->json($session);
     }
 
@@ -170,7 +178,15 @@ class AcademicSessionController extends Controller
 
      public function update(Request $request, Session $session)
      {
-         $schoolId = auth()->user()->school_id;
+         $this->ensurePermission($request, 'sessions.manage');
+         
+         $user = $request->user();
+         $schoolId = $user->school_id;
+         
+         // Verify session belongs to user's school
+         if ($session->school_id !== $schoolId) {
+             return response()->json(['message' => 'Not Found'], 404);
+         }
      
          $validator = Validator::make($request->all(), [
              'name' => [
@@ -236,8 +252,15 @@ class AcademicSessionController extends Controller
      *      )
      * )
      */
-    public function destroy(Session $session)
+    public function destroy(Request $request, Session $session)
     {
+        $this->ensurePermission($request, 'sessions.manage');
+        
+        // Verify session belongs to user's school
+        if ($session->school_id !== $request->user()->school_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+        
         if ($session->terms()->exists()) {
             return response()->json(['error' => 'Cannot delete session with linked terms.'], 400);
         }

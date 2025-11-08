@@ -255,6 +255,36 @@ class TeacherAssignmentScope
             ->values();
     }
 
+    /**
+     * Get unique class IDs that the teacher is assigned to (either as class teacher or subject teacher).
+     *
+     * @return Collection<int, string>
+     */
+    public function allowedClassIds(): Collection
+    {
+        if (! $this->isTeacher) {
+            return collect();
+        }
+
+        $classIds = collect();
+
+        // Get class IDs from class teacher assignments
+        $this->classAssignments->each(function ($assignment) use (&$classIds) {
+            if ($assignment->school_class_id) {
+                $classIds->push($assignment->school_class_id);
+            }
+        });
+
+        // Get class IDs from subject teacher assignments
+        $this->subjectAssignments->each(function ($assignment) use (&$classIds) {
+            if ($assignment->school_class_id) {
+                $classIds->push($assignment->school_class_id);
+            }
+        });
+
+        return $classIds->unique()->values();
+    }
+
     private function studentContexts(): Collection
     {
         $contexts = collect();

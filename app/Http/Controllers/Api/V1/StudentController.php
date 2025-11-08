@@ -400,7 +400,7 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        $this->ensurePermission($request, 'students.update');
+        $this->ensurePermission($request, ['students.update', 'students.edit']);
         Student::fixLegacyForeignKeys();
         if ($student->school_id !== $request->user()->school_id) {
             return response()->json(['message' => 'Not Found'], 404);
