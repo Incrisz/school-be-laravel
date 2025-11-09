@@ -146,6 +146,7 @@ class TeacherAssignmentScope
         string $subjectId,
         ?string $sessionId = null,
         ?string $termId = null,
+        ?string $assessmentComponentId = null
     ): bool {
         if (! $this->isTeacher) {
             return true;
@@ -156,6 +157,7 @@ class TeacherAssignmentScope
             $subjectId,
             $sessionId,
             $termId,
+            $assessmentComponentId
         ) {
             if ($assignment->subject_id !== $subjectId) {
                 return false;
@@ -178,6 +180,10 @@ class TeacherAssignmentScope
             }
 
             if ($assignment->term_id && $termId && $assignment->term_id !== $termId) {
+                return false;
+            }
+
+            if ($assignment->assessment_component_id && $assessmentComponentId && $assignment->assessment_component_id !== $assessmentComponentId) {
                 return false;
             }
 

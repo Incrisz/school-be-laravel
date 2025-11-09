@@ -227,8 +227,9 @@ class ResultController extends Controller
                 $student = $students->get($entry['student_id']);
                 $entrySession = $entry['session_id'] ?? $defaultSessionId ?? $student->current_session_id;
                 $entryTerm = $entry['term_id'] ?? $defaultTermId ?? $student->current_term_id;
+                $entryComponentId = $entry['assessment_component_id'] ?? $defaultComponentId;
 
-                if (! $scope->allowsStudentSubject($student, $entry['subject_id'], $entrySession, $entryTerm)) {
+                if (! $scope->allowsStudentSubject($student, $entry['subject_id'], $entrySession, $entryTerm, $entryComponentId)) {
                     abort(403, 'You are not allowed to record results for one or more students or subjects.');
                 }
             }
