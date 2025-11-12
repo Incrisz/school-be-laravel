@@ -60,7 +60,7 @@ class ClassController extends Controller
             $query->whereIn('id', $allowedClassIds->toArray());
         }
         
-        $classes = $query->get();
+        $classes = $query->orderBy('order')->get();
 
         return response()->json($classes);
     }
@@ -106,6 +106,7 @@ class ClassController extends Controller
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'school_id' => $request->school_id,
+            'order' => SchoolClass::where('school_id', $request->school_id)->count(),
         ]);
 
         return response()->json($class, 201);

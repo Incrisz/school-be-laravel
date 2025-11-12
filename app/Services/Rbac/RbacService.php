@@ -23,7 +23,7 @@ class RbacService
         ['name' => 'students.view', 'description' => 'List and view students'],
         ['name' => 'students.create', 'description' => 'Create students'],
         ['name' => 'students.update', 'description' => 'Update students'],
-        ['name' => 'students.edit', 'description' => 'Edit students'],
+        ['name' => 'students.edit', 'description' => 'Edit student records', 'children' => ['sessions.manage']],
         ['name' => 'students.delete', 'description' => 'Delete students'],
         ['name' => 'students.import', 'description' => 'Bulk import students'],
         ['name' => 'students.promote', 'description' => 'Promote students'],
@@ -41,7 +41,7 @@ class RbacService
         ['name' => 'staff.delete', 'description' => 'Delete staff'],
         ['name' => 'staff.attendance', 'description' => 'Manage staff attendance'],
 
-        ['name' => 'classes.manage', 'description' => 'Manage classes and arms'],
+        ['name' => 'classes.manage', 'description' => 'Manage classes and class groups', 'children' => ['students.manage']],
         ['name' => 'classes.create', 'description' => 'Create classes'],
         ['name' => 'classes.update', 'description' => 'Update classes'],
         ['name' => 'classes.delete', 'description' => 'Delete classes'],
@@ -60,7 +60,8 @@ class RbacService
         ['name' => 'results.enter', 'description' => 'Enter or update student results'],
         ['name' => 'results.delete', 'description' => 'Delete student result entries'],
 
-        ['name' => 'sessions.manage', 'description' => 'Manage academic sessions and terms'],
+        ['name' => 'sessions.manage', 'description' => 'Manage academic sessions', 'children' => ['terms.manage']],
+        ['name' => 'terms.manage', 'description' => 'Manage academic terms', 'children' => ['classes.manage']],
         ['name' => 'assessment.manage', 'description' => 'Configure assessment components'],
         ['name' => 'skills.manage', 'description' => 'Manage skill categories and ratings'],
         ['name' => 'settings.manage', 'description' => 'Manage school settings'],
@@ -209,7 +210,19 @@ class RbacService
     {
         $guard = config('permission.default_guard', 'sanctum');
 
-        return collect($this->corePermissions)->map(fn (array $attributes) => Permission::query()->updateOrCreate(
+        $permissions = collect($this->corePermissions);
+
+        $allPermissions = $permissions->reduce(function ($carry, $permission) {
+            $carry[] = $permission;
+            if (isset($permission['children'])) {
+                foreach ($permission['children'] as $childPermissionName) {
+                    $carry[] = ['name' => $childPermissionName, 'description' => 'Child permission for ' . $permission['name']];
+                }
+            }
+            return $carry;
+        }, []);
+
+        return collect($allPermissions)->map(fn (array $attributes) => Permission::query()->updateOrCreate(
             [
                 'school_id' => $school->id,
                 'name' => $attributes['name'],
@@ -294,7 +307,40 @@ class RbacService
             ->where('guard_name', config('permission.default_guard', 'sanctum'))
             ->get();
 
-        $adminRole->syncPermissions($permissions);
+        $allPermissions = $this->getAllPermissionsWithChildren($permissions);
+
+        $adminRole->syncPermissions($allPermissions);
+    }
+
+    public function getCorePermissionsWithChildren()
+    {
+        return $this->corePermissions;
+    }
+
+    private function getAllPermissionsWithChildren(Collection $permissions): Collection
+    {
+        $allPermissions = new Collection();
+
+        foreach ($permissions as $permission) {
+            $allPermissions->push($permission);
+
+            $corePermission = collect($this->corePermissions)->firstWhere('name', $permission->name);
+
+            if (isset($corePermission['children'])) {
+                foreach ($corePermission['children'] as $childPermissionName) {
+                    $childPermission = Permission::query()
+                        ->where('name', $childPermissionName)
+                        ->where('school_id', $permission->school_id)
+                        ->first();
+
+                    if ($childPermission) {
+                        $allPermissions->push($childPermission);
+                    }
+                }
+            }
+        }
+
+        return $allPermissions->unique('id');
     }
 
     public function syncSuperAdminPermissions(School $school): void
@@ -333,6 +379,8 @@ class RbacService
             return;
         }
 
+        $allPermissions = $this->getAllPermissionsWithChildren($permissions);
+
         /** @var PermissionRegistrar $registrar */
         $registrar = app(PermissionRegistrar::class);
         $previousTeam = method_exists($registrar, 'getPermissionsTeamId')
@@ -344,7 +392,7 @@ class RbacService
         }
 
         try {
-            foreach ($permissions as $permission) {
+            foreach ($allPermissions as $permission) {
                 $role->givePermissionTo($permission);
             }
         } finally {

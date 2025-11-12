@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\StudentAttendanceController;
 use App\Http\Controllers\Api\V1\FeeItemController;
 use App\Http\Controllers\Api\V1\FeeStructureController;
 use App\Http\Controllers\Api\V1\BankDetailController;
+use App\Http\Controllers\Api\V1\PermissionHierarchyController;
 use App\Http\Controllers\Api\V1\PermissionController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\UserRoleController;
@@ -69,6 +70,9 @@ Route::prefix('api/v1')->group(function () {
         Route::delete('permissions/{permission}', [PermissionController::class, 'destroy'])
             ->whereNumber('permission')
             ->name('permissions.destroy');
+
+        Route::get('permissions/hierarchy', [PermissionHierarchyController::class, 'index'])
+            ->name('permissions.hierarchy.index');
 
         // RBAC - Roles
         Route::get('roles', [RoleController::class, 'index'])
