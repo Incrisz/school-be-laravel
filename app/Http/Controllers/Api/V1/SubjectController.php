@@ -50,8 +50,24 @@ class SubjectController extends Controller
 
         // For teachers, filter to only show subjects they're assigned to
         if ($isTeacher) {
+            $allowedSubjectIds = collect();
+
+            // Get subjects from direct subject teacher assignments
             $subjectAssignments = $scope->subjectAssignments();
-            $allowedSubjectIds = $subjectAssignments->pluck('subject_id')->unique()->filter();
+            $directSubjectIds = $subjectAssignments->pluck('subject_id')->unique()->filter();
+            $allowedSubjectIds = $allowedSubjectIds->merge($directSubjectIds);
+
+            // Get subjects from class teacher assignments (all subjects in those classes)
+            $classAssignments = $scope->classAssignments();
+            foreach ($classAssignments as $classAssignment) {
+                if ($classAssignment->school_class_id) {
+                    $classSubjects = \App\Models\SchoolClass::find($classAssignment->school_class_id)?->subjects ?? collect();
+                    $classSubjectIds = $classSubjects->pluck('id')->filter();
+                    $allowedSubjectIds = $allowedSubjectIds->merge($classSubjectIds);
+                }
+            }
+
+            $allowedSubjectIds = $allowedSubjectIds->unique()->filter();
 
             if ($allowedSubjectIds->isEmpty()) {
                 // Teacher has no subject assignments, return empty result
