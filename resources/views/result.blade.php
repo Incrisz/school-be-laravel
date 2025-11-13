@@ -15,6 +15,8 @@
             font-family: "Segoe UI", Arial, Helvetica, sans-serif;
             background: #f5f6f8;
             color: #212529;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .page {
@@ -23,6 +25,9 @@
             background: #ffffff;
             padding: 24px 32px;
             box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .print-actions {
@@ -129,6 +134,7 @@
             font-size: 12px;
             letter-spacing: 0.3px;
             text-align: center;
+            font-weight: bold;
         }
 
         .table-two td {
@@ -146,7 +152,7 @@
         }
 
         .section-title {
-            font-weight: 600;
+            font-weight: bold;
             margin-bottom: 8px;
             text-transform: uppercase;
             font-size: 13px;
@@ -201,7 +207,7 @@
             font-size: 12px;
             letter-spacing: 0.4px;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: bold;
         }
 
         .skill-table {
@@ -223,7 +229,7 @@
         .grade-line {
             font-size: 13px;
             color: #0f172a;
-            font-weight: 600;
+            font-weight: bold;
             text-transform: uppercase;
         }
 
@@ -251,7 +257,7 @@
         .rating-key-table td:first-child {
             width: 18%;
             text-align: center;
-            font-weight: 600;
+            font-weight: bold;
         }
 
         .rating-key-table tr:first-child td:first-child {
@@ -262,14 +268,99 @@
             body {
                 padding: 0;
                 background: #ffffff;
+                height: auto;
+                overflow: visible;
             }
 
             .page {
                 box-shadow: none;
+                max-height: none;
+                overflow: visible;
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                /* Scale content to fit on one page */
+                transform-origin: top left;
             }
 
             #print-button {
                 display: none;
+            }
+
+            /* Force content to fit on one page */
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+
+            /* Prevent page breaks inside elements */
+            * {
+                page-break-inside: avoid !important;
+                page-break-before: avoid !important;
+                page-break-after: avoid !important;
+            }
+
+            html, body {
+                height: 100% !important;
+                overflow: visible !important;
+            }
+
+            /* Reduce all spacing to fit content */
+            table {
+                margin-bottom: 8px;
+                font-size: 11px;
+            }
+
+            .table-two th {
+                padding: 4px 6px;
+                font-weight: bold !important;
+                font-size: 10px;
+            }
+
+            .table-two td {
+                padding: 4px 6px;
+            }
+
+            .section-title,
+            .skill-card-title,
+            .grade-line,
+            .rating-key-table td:first-child {
+                font-weight: bold !important;
+            }
+
+            .school-heading {
+                margin-bottom: 6px;
+            }
+
+            .school-heading h1 {
+                font-size: 22px;
+            }
+
+            .school-heading p {
+                font-size: 12px;
+            }
+
+            .info-box {
+                margin-top: 6px;
+                margin-bottom: 6px;
+            }
+
+            .skill-grid {
+                gap: 8px;
+            }
+
+            .flex-row {
+                gap: 12px;
+            }
+
+            /* Reduce padding in cells */
+            .table-one td {
+                padding: 4px 6px;
+                font-size: 12px;
+            }
+
+            .table-three td {
+                padding: 4px 6px;
+                font-size: 11px;
             }
         }
     </style>
@@ -403,7 +494,7 @@
                 </div>
                    <table class="rating-key-table">
                         <tr>
-                            <td colspan="2" style="font-weight:600;text-transform:uppercase;text-align:center;background:#0f172a;color:#ffffff;">Key to Ratings</td>
+                            <td colspan="2" style="font-weight:bold;text-transform:uppercase;text-align:center;background:#0f172a;color:#ffffff;">Key to Ratings</td>
                         </tr>
                         <tr>
                             <td>5</td>

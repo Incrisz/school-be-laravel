@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::table('classes', function (Blueprint $table) {
             $table->integer('order')->default(0);
+
+            // Add composite index for school_id and order for efficient sorting
+            $table->index(['school_id', 'order'], 'classes_school_order_index');
         });
     }
 
@@ -26,6 +29,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('classes', function (Blueprint $table) {
+            $table->dropIndex('classes_school_order_index');
             $table->dropColumn('order');
         });
     }
