@@ -15,6 +15,8 @@
             font-family: "Segoe UI", Arial, Helvetica, sans-serif;
             background: #f5f6f8;
             color: #212529;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .page {
@@ -23,6 +25,9 @@
             background: #ffffff;
             padding: 24px 32px;
             box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .print-actions {
@@ -262,14 +267,46 @@
             body {
                 padding: 0;
                 background: #ffffff;
+                height: auto;
+                overflow: visible;
             }
 
             .page {
                 box-shadow: none;
+                max-height: none;
+                overflow: visible;
+                page-break-after: avoid;
             }
 
             #print-button {
                 display: none;
+            }
+
+            /* Ensure content fits on one page */
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            /* Reduce spacing for print to fit content */
+            table {
+                margin-bottom: 12px;
+            }
+
+            .school-heading {
+                margin-bottom: 10px;
+            }
+
+            .info-box {
+                margin-top: 8px;
+            }
+
+            .skill-grid {
+                gap: 12px;
+            }
+
+            .flex-row {
+                gap: 16px;
             }
         }
     </style>
