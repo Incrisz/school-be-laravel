@@ -276,37 +276,78 @@
                 max-height: none;
                 overflow: visible;
                 page-break-after: avoid;
+                page-break-inside: avoid;
+                /* Scale content to fit on one page */
+                transform-origin: top left;
             }
 
             #print-button {
                 display: none;
             }
 
-            /* Ensure content fits on one page */
+            /* Force content to fit on one page */
             @page {
-                size: A4;
-                margin: 10mm;
+                size: A4 portrait;
+                margin: 8mm;
             }
 
-            /* Reduce spacing for print to fit content */
+            /* Prevent page breaks inside elements */
+            * {
+                page-break-inside: avoid !important;
+                page-break-before: avoid !important;
+                page-break-after: avoid !important;
+            }
+
+            html, body {
+                height: 100% !important;
+                overflow: visible !important;
+            }
+
+            /* Reduce all spacing to fit content */
             table {
-                margin-bottom: 12px;
+                margin-bottom: 8px;
+                font-size: 11px;
+            }
+
+            .table-two th,
+            .table-two td {
+                padding: 4px 6px;
             }
 
             .school-heading {
-                margin-bottom: 10px;
+                margin-bottom: 6px;
+            }
+
+            .school-heading h1 {
+                font-size: 22px;
+            }
+
+            .school-heading p {
+                font-size: 12px;
             }
 
             .info-box {
-                margin-top: 8px;
+                margin-top: 6px;
+                margin-bottom: 6px;
             }
 
             .skill-grid {
-                gap: 12px;
+                gap: 8px;
             }
 
             .flex-row {
-                gap: 16px;
+                gap: 12px;
+            }
+
+            /* Reduce padding in cells */
+            .table-one td {
+                padding: 4px 6px;
+                font-size: 12px;
+            }
+
+            .table-three td {
+                padding: 4px 6px;
+                font-size: 11px;
             }
         }
     </style>
