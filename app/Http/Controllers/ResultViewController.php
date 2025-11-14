@@ -152,7 +152,7 @@ class ResultViewController extends Controller
         ]);
     }
 
-    private function buildResultPageData(
+    public function buildResultPageData(
         Student $student,
         ?string $requestedSessionId = null,
         ?string $requestedTermId = null,
