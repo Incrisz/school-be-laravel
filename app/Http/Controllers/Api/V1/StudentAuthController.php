@@ -25,6 +25,8 @@ class StudentAuthController extends Controller
                 'class_arm:id,name',
                 'session:id,name',
                 'term:id,name',
+                'parent:id,first_name,last_name,middle_name,phone',
+                'blood_group:id,name',
             ])
             ->where('admission_no', $credentials['admission_no'])
             ->first();
@@ -65,6 +67,8 @@ class StudentAuthController extends Controller
             'class_arm:id,name',
             'session:id,name',
             'term:id,name',
+            'parent:id,first_name,last_name,middle_name,phone',
+            'blood_group:id,name',
         ]);
 
         return response()->json([
@@ -114,7 +118,21 @@ class StudentAuthController extends Controller
             'middle_name' => $student->middle_name,
             'last_name' => $student->last_name,
             'gender' => $student->gender,
-            'school' => $student->school?->only(['id', 'name', 'logo_url']),
+            'date_of_birth' => optional($student->date_of_birth)?->toDateString(),
+            'state_of_origin' => $student->state_of_origin,
+            'nationality' => $student->nationality,
+            'address' => $student->address,
+            'house' => $student->house,
+            'club' => $student->club,
+            'lga_of_origin' => $student->lga_of_origin,
+            'blood_group' => $student->blood_group?->only(['id', 'name']),
+            'medical_information' => $student->medical_information,
+            'parent' => $student->parent ? [
+                'id' => $student->parent->id,
+                'name' => trim(collect([$student->parent->first_name, $student->parent->middle_name, $student->parent->last_name])->filter()->implode(' ')),
+                'phone' => $student->parent->phone,
+            ] : null,
+            'school' => $student->school?->only(['id', 'name', 'logo_url', 'address', 'phone']),
             'current_session' => $student->session?->only(['id', 'name']),
             'current_term' => $student->term?->only(['id', 'name']),
             'school_class' => $student->school_class?->only(['id', 'name']),
