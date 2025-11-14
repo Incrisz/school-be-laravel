@@ -152,6 +152,38 @@ class TeacherAssignmentScope
             return true;
         }
 
+        // If the teacher is assigned as class teacher for this student's context,
+        // allow recording results for any subject in that class.
+        $isClassTeacherForStudent = $this->classAssignments->contains(
+            function (ClassTeacher $assignment) use ($student, $sessionId, $termId): bool {
+                if ($assignment->school_class_id && $assignment->school_class_id !== $student->school_class_id) {
+                    return false;
+                }
+
+                if ($assignment->class_arm_id && $assignment->class_arm_id !== $student->class_arm_id) {
+                    return false;
+                }
+
+                if ($assignment->class_section_id && $assignment->class_section_id !== $student->class_section_id) {
+                    return false;
+                }
+
+                if ($assignment->session_id && $sessionId && $assignment->session_id !== $sessionId) {
+                    return false;
+                }
+
+                if ($assignment->term_id && $termId && $assignment->term_id !== $termId) {
+                    return false;
+                }
+
+                return true;
+            }
+        );
+
+        if ($isClassTeacherForStudent) {
+            return true;
+        }
+
         return $this->subjectAssignments->contains(function (SubjectTeacherAssignment $assignment) use (
             $student,
             $subjectId,
