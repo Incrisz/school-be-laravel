@@ -146,6 +146,8 @@ Route::prefix('api/v1')->group(function () {
         });
         Route::get('students/{student}/results/print', [ResultViewController::class, 'show'])
             ->whereUuid('student');
+        Route::get('results/bulk/print', [ResultViewController::class, 'bulkPrint'])
+            ->name('results.bulk.print');
         Route::prefix('students/{student}')
             ->whereUuid('student')
             ->group(function () {
@@ -179,6 +181,8 @@ Route::prefix('api/v1')->group(function () {
             Route::put('{resultPin}/invalidate', [ResultPinController::class, 'invalidate'])
                 ->whereUuid('resultPin')
                 ->name('result-pins.invalidate');
+            Route::get('cards/print', [ResultPinController::class, 'printCards'])
+                ->name('result-pins.cards.print');
         });
 
         Route::prefix('promotions')->group(function () {
