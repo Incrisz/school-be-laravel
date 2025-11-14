@@ -58,6 +58,7 @@ Route::prefix('api/v1')->group(function () {
                 Route::get('profile', [StudentAuthController::class, 'profile']);
                 Route::get('sessions', [StudentAuthController::class, 'sessions']);
                 Route::post('results/preview', [StudentAuthController::class, 'previewResult']);
+                Route::get('results/download', [StudentAuthController::class, 'downloadResult']);
             });
         });
 

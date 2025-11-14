@@ -8,9 +8,12 @@ use App\Models\Student;
 use App\Models\Term;
 use App\Models\ResultPin;
 use App\Models\Result;
+use App\Http\Controllers\ResultViewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
 
 class StudentAuthController extends Controller
 {
@@ -176,6 +179,68 @@ class StudentAuthController extends Controller
             'student' => $this->transformStudent($student),
             'results' => $results,
         ]);
+    }
+
+    public function downloadResult(Request $request)
+    {
+        $student = $this->resolveStudentUser($request);
+
+        $validated = $request->validate([
+            'session_id' => ['required', 'uuid'],
+            'term_id' => ['required', 'uuid'],
+        ]);
+
+        $pinExists = ResultPin::query()
+            ->where('student_id', $student->id)
+            ->where('session_id', $validated['session_id'])
+            ->where('term_id', $validated['term_id'])
+            ->where('status', 'active')
+            ->exists();
+
+        if (! $pinExists) {
+            abort(403, 'No PIN found for this session/term. Generate one from the school portal.');
+        }
+
+        $results = Result::query()
+            ->where('student_id', $student->id)
+            ->where('session_id', $validated['session_id'])
+            ->where('term_id', $validated['term_id'])
+            ->with([
+                'subject:id,name,code',
+                'assessment_component:id,name,label,order',
+                'grade_range:id,grade_label,description,min_score,max_score',
+            ])
+            ->get();
+
+        if ($results->isEmpty()) {
+            abort(404, 'No results found for the selected session/term.');
+        }
+
+        $pages = collect([
+            app(ResultViewController::class)->buildResultPageData(
+                $student,
+                $validated['session_id'],
+                $validated['term_id'],
+                $student->school_id
+            ),
+        ]);
+
+        $view = View::make('result-bulk', [
+            'pages' => $pages,
+            'filters' => [
+                'session' => optional($student->session()->find($validated['session_id']))?->name,
+                'term' => optional($student->term()->find($validated['term_id']))?->name,
+                'class' => optional($student->school_class)->name,
+                'class_arm' => optional($student->class_arm)->name,
+                'class_section' => optional($student->class_section)->name,
+                'student_count' => 1,
+                'total_students' => 1,
+            ],
+            'generatedAt' => now()->format('jS F Y, h:i A'),
+        ]);
+
+        return response($view->render())
+            ->header('Content-Type', 'text/html; charset=utf-8');
     }
 
     private function resolveStudentUser(Request $request): Student
