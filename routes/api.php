@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SchoolRegistrationController;
+use App\Http\Controllers\Api\V1\EmailVerificationController;
 use App\Http\Controllers\Api\V1\AcademicSessionController;
 use App\Http\Controllers\Api\V1\ClassController;
 use App\Http\Controllers\Api\V1\SubjectController;
@@ -49,6 +50,8 @@ Route::get('/migrate', [\App\Http\Controllers\MigrateController::class, 'migrate
 Route::prefix('api/v1')->group(function () {
     Route::post('/register-school', [SchoolController::class, 'register']);
     Route::post('/login', [SchoolController::class, 'login']);
+    Route::get('/email/verify', [EmailVerificationController::class, 'verify'])
+        ->name('api.v1.email.verify');
 
         Route::prefix('student')->group(function () {
             Route::post('login', [StudentAuthController::class, 'login']);

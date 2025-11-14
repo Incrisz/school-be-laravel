@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Mail\VerifyEmail;
+use App\Models\EmailVerificationToken;
 use App\Models\School;
 use App\Models\Session;
 use App\Models\Term;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
@@ -21,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\Rbac\RbacService;
 use Spatie\Permission\PermissionRegistrar;
+use Throwable;
 
 /**
  * @OA\Info(
@@ -129,12 +133,13 @@ class SchoolController extends Controller
             return [$school, $user];
         });
 
-        $loginUrl = str_replace('://', '://' . $school->subdomain . '.', config('app.url'));
+        $this->handleEmailVerification($user);
 
         return response()->json([
             'message' => 'School registered successfully.',
             'school' => $school,
             'user' => $user,
+            'verification_required' => config('features.email_verification'),
         ], 201);
     }
 
@@ -181,6 +186,12 @@ class SchoolController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are not correct.'],
+            ]);
+        }
+
+        if (config('features.email_verification') && ! $user->email_verified_at) {
+            throw ValidationException::withMessages([
+                'email' => ['Please verify your email address before logging in.'],
             ]);
         }
 
@@ -684,6 +695,40 @@ class SchoolController extends Controller
             return $callback();
         } finally {
             $registrar->setPermissionsTeamId($previousTeamId);
+        }
+    }
+
+    private function handleEmailVerification(User $user): void
+    {
+        if (! config('features.email_verification')) {
+            if (! $user->email_verified_at) {
+                $user->forceFill([
+                    'email_verified_at' => now(),
+                ])->save();
+            }
+
+            return;
+        }
+
+        $tokenValue = Str::random(64);
+        $hashedToken = hash('sha256', $tokenValue);
+        $ttlMinutes = max((int) config('features.email_verification_ttl_minutes', 1440), 5);
+        $expiresAt = now()->addMinutes($ttlMinutes);
+
+        EmailVerificationToken::where('user_id', $user->id)->delete();
+
+        EmailVerificationToken::create([
+            'user_id' => $user->id,
+            'token' => $hashedToken,
+            'expires_at' => $expiresAt,
+        ]);
+
+        $verificationUrl = url('/api/v1/email/verify?token=' . $tokenValue);
+
+        try {
+            Mail::to($user->email)->send(new VerifyEmail($user, $verificationUrl, $expiresAt));
+        } catch (Throwable $exception) {
+            report($exception);
         }
     }
 }
