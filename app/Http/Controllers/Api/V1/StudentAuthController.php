@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Session;
 use App\Models\Student;
+use App\Models\Term;
+use App\Models\ResultPin;
+use App\Models\Result;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -84,18 +87,95 @@ class StudentAuthController extends Controller
 
         $sessions = Session::query()
             ->where('school_id', $student->school_id)
-            ->when($admissionDate, function ($query) use ($admissionDate) {
-                $query->whereDate('start_date', '>=', $admissionDate->startOfYear());
-            })
-            ->orderBy('start_date')
-            ->get(['id', 'name', 'start_date'])
-            ->map(fn (Session $session) => [
+            ->orderByRaw('COALESCE(start_date, created_at) ASC')
+            ->get(['id', 'name', 'start_date', 'created_at']);
+
+        $sessionPayload = $sessions->map(function (Session $session) use ($student) {
+            $terms = Term::query()
+                ->where('session_id', $session->id)
+                ->where('school_id', $student->school_id)
+                ->orderBy('start_date')
+                ->get(['id', 'name', 'session_id']);
+
+            return [
                 'id' => $session->id,
                 'name' => $session->name,
                 'start_date' => $session->start_date,
+                'terms' => $terms->map(fn (Term $term) => [
+                    'id' => $term->id,
+                    'name' => $term->name,
+                ]),
+            ];
+        });
+
+        return response()->json(['data' => $sessionPayload]);
+    }
+
+    public function previewResult(Request $request)
+    {
+        $student = $this->resolveStudentUser($request);
+
+        $validated = $request->validate([
+            'session_id' => ['required', 'uuid'],
+            'term_id' => ['required', 'uuid'],
+            'pin_code' => ['required', 'string'],
+        ]);
+
+        $normalizedPin = preg_replace('/\s+/', '', $validated['pin_code']);
+
+        $pin = ResultPin::query()
+            ->where('student_id', $student->id)
+            ->where('session_id', $validated['session_id'])
+            ->where('term_id', $validated['term_id'])
+            ->where('status', 'active')
+            ->first();
+
+        if (! $pin) {
+            throw ValidationException::withMessages([
+                'pin_code' => ['Invalid or inactive PIN for the selected session/term.'],
+            ]);
+        }
+
+        $storedPin = preg_replace('/\s+/', '', (string) $pin->pin_code);
+
+        if (! hash_equals($storedPin, $normalizedPin)) {
+            throw ValidationException::withMessages([
+                'pin_code' => ['Invalid PIN.'],
+            ]);
+        }
+
+        if ($pin->expires_at && $pin->expires_at->isPast()) {
+            throw ValidationException::withMessages([
+                'pin_code' => ['This PIN has expired.'],
+            ]);
+        }
+
+        if ($pin->max_usage && $pin->use_count >= $pin->max_usage) {
+            throw ValidationException::withMessages([
+                'pin_code' => ['PIN usage limit reached.'],
+            ]);
+        }
+
+        $pin->increment('use_count');
+
+        $results = Result::query()
+            ->where('student_id', $student->id)
+            ->where('session_id', $validated['session_id'])
+            ->where('term_id', $validated['term_id'])
+            ->with(['subject:id,name,code', 'grade_range:id,grade_label'])
+            ->get()
+            ->map(fn (Result $row) => [
+                'subject' => $row->subject?->name,
+                'code' => $row->subject?->code,
+                'score' => $row->total_score,
+                'grade' => $row->grade_range?->grade_label,
+                'remarks' => $row->remarks,
             ]);
 
-        return response()->json(['data' => $sessions]);
+        return response()->json([
+            'student' => $this->transformStudent($student),
+            'results' => $results,
+        ]);
     }
 
     private function resolveStudentUser(Request $request): Student

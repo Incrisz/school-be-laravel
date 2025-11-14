@@ -50,15 +50,16 @@ Route::prefix('api/v1')->group(function () {
     Route::post('/register-school', [SchoolController::class, 'register']);
     Route::post('/login', [SchoolController::class, 'login']);
 
-    Route::prefix('student')->group(function () {
-        Route::post('login', [StudentAuthController::class, 'login']);
+        Route::prefix('student')->group(function () {
+            Route::post('login', [StudentAuthController::class, 'login']);
 
-        Route::middleware('auth:student')->group(function () {
-            Route::post('logout', [StudentAuthController::class, 'logout']);
-            Route::get('profile', [StudentAuthController::class, 'profile']);
-            Route::get('sessions', [StudentAuthController::class, 'sessions']);
+            Route::middleware('auth:student')->group(function () {
+                Route::post('logout', [StudentAuthController::class, 'logout']);
+                Route::get('profile', [StudentAuthController::class, 'profile']);
+                Route::get('sessions', [StudentAuthController::class, 'sessions']);
+                Route::post('results/preview', [StudentAuthController::class, 'previewResult']);
+            });
         });
-    });
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [SchoolController::class, 'logout']);
