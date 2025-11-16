@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\V1\StaffSelfController;
 use App\Http\Controllers\Api\V1\TeacherDashboardController;
 use App\Http\Controllers\Api\V1\StudentAuthController;
 use App\Http\Controllers\ResultViewController;
+use App\Http\Controllers\Api\V1\PasswordResetController;
 
 $host = parse_url(config('app.url'), PHP_URL_HOST);
 
@@ -52,6 +53,9 @@ Route::prefix('api/v1')->group(function () {
     Route::post('/login', [SchoolController::class, 'login']);
     Route::get('/email/verify', [EmailVerificationController::class, 'verify'])
         ->name('api.v1.email.verify');
+
+    Route::post('/password/forgot', [PasswordResetController::class, 'request']);
+    Route::post('/password/reset', [PasswordResetController::class, 'reset']);
 
         Route::prefix('student')->group(function () {
             Route::post('login', [StudentAuthController::class, 'login']);
