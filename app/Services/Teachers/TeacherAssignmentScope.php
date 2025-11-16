@@ -152,75 +152,16 @@ class TeacherAssignmentScope
             return true;
         }
 
-        // If the teacher is assigned as class teacher for this student's context,
-        // allow recording results for any subject in that class.
-        $isClassTeacherForStudent = $this->classAssignments->contains(
-            function (ClassTeacher $assignment) use ($student, $sessionId, $termId): bool {
-                if ($assignment->school_class_id && $assignment->school_class_id !== $student->school_class_id) {
-                    return false;
-                }
-
-                if ($assignment->class_arm_id && $assignment->class_arm_id !== $student->class_arm_id) {
-                    return false;
-                }
-
-                if ($assignment->class_section_id && $assignment->class_section_id !== $student->class_section_id) {
-                    return false;
-                }
-
-                if ($assignment->session_id && $sessionId && $assignment->session_id !== $sessionId) {
-                    return false;
-                }
-
-                if ($assignment->term_id && $termId && $assignment->term_id !== $termId) {
-                    return false;
-                }
-
-                return true;
-            }
-        );
-
-        if ($isClassTeacherForStudent) {
+        // If the teacher has no recorded subject or class assignments,
+        // do not restrict result entry at all.
+        if ($this->subjectAssignments->isEmpty() && $this->classAssignments->isEmpty()) {
             return true;
         }
 
-        return $this->subjectAssignments->contains(function (SubjectTeacherAssignment $assignment) use (
-            $student,
-            $subjectId,
-            $sessionId,
-            $termId,
-            $assessmentComponentId
-        ) {
-            if ($assignment->subject_id !== $subjectId) {
-                return false;
-            }
-
-            if ($assignment->school_class_id && $assignment->school_class_id !== $student->school_class_id) {
-                return false;
-            }
-
-            if ($assignment->class_arm_id && $assignment->class_arm_id !== $student->class_arm_id) {
-                return false;
-            }
-
-            if ($assignment->class_section_id && $assignment->class_section_id !== $student->class_section_id) {
-                return false;
-            }
-
-            if ($assignment->session_id && $sessionId && $assignment->session_id !== $sessionId) {
-                return false;
-            }
-
-            if ($assignment->term_id && $termId && $assignment->term_id !== $termId) {
-                return false;
-            }
-
-            if ($assignment->assessment_component_id && $assessmentComponentId && $assignment->assessment_component_id !== $assessmentComponentId) {
-                return false;
-            }
-
-            return true;
-        });
+        // Relaxed rule: as long as the teacher is allowed to manage
+        // this student (based on class/arm/section context), allow
+        // recording results for any subject/session/term.
+        return $this->allowsStudent($student);
     }
 
     /**

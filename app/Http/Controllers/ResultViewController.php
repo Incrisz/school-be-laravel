@@ -319,6 +319,9 @@ class ResultViewController extends Controller
                 ->first();
         }
 
+        $sessionName = $session?->name ?? optional($student->session)->name;
+        $termName = $term?->name ?? optional($student->term)->name;
+
         $data = [
             'student' => $student,
             'schoolName' => optional($student->school)->name ?? 'School',
@@ -326,8 +329,8 @@ class ResultViewController extends Controller
             'schoolPhone' => optional($student->school)->phone,
             'schoolEmail' => optional($student->school)->email,
             'schoolLogoUrl' => $this->resolveMediaUrl(optional($student->school)->logo_url),
-            'sessionName' => $session?->name,
-            'termName' => $term?->name,
+            'sessionName' => $sessionName,
+            'termName' => $termName,
             'termStart' => $term?->start_date?->format('jS F Y'),
             'termEnd' => $term?->end_date?->format('jS F Y'),
             'nextTermStart' => $nextTerm?->start_date?->format('jS F Y'),

@@ -33,8 +33,16 @@ class AcademicSessionController extends Controller
      */
     public function index(Request $request)
     {
-        $this->ensurePermission($request, 'sessions.manage');
-        $schoolId = $request->user()->school_id;
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        // Allow all authenticated users of the school (including teachers)
+        // to view the list of sessions; only restrict create/update/delete
+        // to users with the sessions.manage permission.
+        $schoolId = $user->school_id;
         $sessions = Session::where('school_id', $schoolId)->get();
 
         return response()->json($sessions);
