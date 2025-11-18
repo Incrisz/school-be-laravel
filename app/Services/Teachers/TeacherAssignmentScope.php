@@ -95,13 +95,15 @@ class TeacherAssignmentScope
         $assignments = $this->subjectAssignments
             ->filter(fn (SubjectTeacherAssignment $assignment) => $assignment->subject_id && $assignment->school_class_id);
 
-        if ($assignments->isEmpty()) {
+        $studentContexts = $this->studentContexts();
+
+        if ($assignments->isEmpty() && $studentContexts->isEmpty()) {
             $builder->whereRaw('1 = 0');
 
             return;
         }
 
-        $builder->where(function (Builder $outer) use ($assignments) {
+        $builder->where(function (Builder $outer) use ($assignments, $studentContexts) {
             foreach ($assignments as $assignment) {
                 $outer->orWhere(function (Builder $clause) use ($assignment) {
                     $clause->where('subject_id', $assignment->subject_id);
@@ -125,6 +127,22 @@ class TeacherAssignmentScope
                             $studentQuery->where('class_section_id', $assignment->class_section_id);
                         }
                     });
+                });
+            }
+
+            // Allow class teachers to view results for students
+            // in their assigned classes/arms/sections, regardless of subject.
+            foreach ($studentContexts as $context) {
+                $outer->orWhereHas('student', function (Builder $studentQuery) use ($context) {
+                    $studentQuery->where('school_class_id', $context['school_class_id']);
+
+                    if ($context['class_arm_id']) {
+                        $studentQuery->where('class_arm_id', $context['class_arm_id']);
+                    }
+
+                    if ($context['class_section_id']) {
+                        $studentQuery->where('class_section_id', $context['class_section_id']);
+                    }
                 });
             }
         });
