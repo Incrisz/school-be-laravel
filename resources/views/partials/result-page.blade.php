@@ -9,7 +9,21 @@
         @endif
 
         <div class="school-heading">
-            <h1>{{ strtoupper($schoolName) }}</h1>
+            @php
+                $schoolLines = preg_split('/<br\s*\/?>/i', (string) $schoolName) ?: [];
+                $schoolLines = array_values(array_filter(array_map('trim', $schoolLines), fn ($line) => $line !== ''));
+                if (empty($schoolLines)) {
+                    $schoolLines = [(string) $schoolName];
+                }
+            @endphp
+            <h1>
+                @foreach ($schoolLines as $index => $line)
+                    @if ($index > 0)
+                        <br>
+                    @endif
+                    {{ strtoupper($line) }}
+                @endforeach
+            </h1>
             <p>
                 @if(!empty($schoolAddress))
                     {{ $schoolAddress }}
