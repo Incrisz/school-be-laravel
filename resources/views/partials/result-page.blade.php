@@ -122,8 +122,7 @@
                         })->implode(' , ');
                     @endphp
                     <div class="grade-line">
-                        KEY TO GRADINGS
-                        <span>{{ !empty($gradeLine) ? $gradeLine : 'No grading scale configured.' }}</span>
+                        <strong>KEY TO GRADINGS:</strong> {{ !empty($gradeLine) ? $gradeLine : 'No grading scale configured.' }}
                     </div>
                 </div>
                    <table class="rating-key-table">
@@ -151,16 +150,43 @@
                             <td>No Observable Trait</td>
                         </tr>
                     </table>
+
+                    <div class="info-box summary-box" style="margin-top: 8px;">
+                        <div class="section-title">Summary</div>
+                        <p>Marks Obtainable: {{ $aggregate['total_possible'] !== null ? number_format($aggregate['total_possible'], 0) : '-' }}</p>
+                        <p>Marks Obtained: {{ $aggregate['total_obtained'] !== null ? number_format($aggregate['total_obtained'], 0) : '-' }}</p>
+                        <p>Average: {{ $aggregate['average'] !== null ? number_format($aggregate['average'], 2) : '-' }}</p>
+                        <p>Class Average: {{ $aggregate['class_average'] !== null ? number_format($aggregate['class_average'], 2) : '-' }}</p>
+                        <p>Position: {{ $aggregate['position'] !== null ? $aggregate['position'] . ' of ' . ($classSize ?: 'N/A') : '-' }}</p>
+                        <p>Class Teacher Comment : {{ $aggregate['class_teacher_comment'] ?? 'No comment provided.' }}</p>
+                        @if(!empty($classTeacherName))
+                            <p><strong>Class Teacher:</strong> {{ $classTeacherName }}</p>
+                        @endif
+                        <p>Principal Comment : {{ $aggregate['principal_comment'] ?? 'No comment provided.' }}</p>
+                        @if(!empty($aggregate['final_grade']))
+                            <p><strong>Final Grade:</strong> {{ $aggregate['final_grade'] }}</p>
+                        @endif
+                        @if(!empty($principalName))
+                            <p><strong>Signed:</strong> {{ $principalName }}</p>
+                        @endif
+                        @if(!empty($principalSignatureUrl))
+                            <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px;">
+                                <span style="font-weight: 500;">Principal signature:</span>
+                                <img src="{{ $principalSignatureUrl }}" alt="Principal signature" style="max-height:50px;width:auto;">
+                            </div>
+                        @endif
+                    </div>
+
             </div>
             <div class="flex-col">
                 <div class="section-title">Skills &amp; Behaviour</div>
-                <div class="info-box" style="padding:18px 20px;">
+                <div class="info-box" style="padding:10px 14px;">
                     @if(!empty($skillRatingsByCategory))
                         @php
                             $skillChunks = array_chunk($skillRatingsByCategory, 2);
                         @endphp
                         @foreach($skillChunks as $chunk)
-                            <div class="skill-grid" style="margin-bottom:16px;">
+                            <div class="skill-grid" style="margin-bottom:10px;">
                                 @foreach($chunk as $category)
                                     <div class="skill-card">
                                         <div class="skill-card-title">{{ strtoupper($category['category']) }}</div>
@@ -182,53 +208,10 @@
                     @else
                         <p style="margin:0;">No skill ratings recorded.</p>
                     @endif
-                 
+
                 </div>
             </div>
         </div>
 
-        <div class="flex-row">
-            <div class="flex-col">
-                <div class="section-title">Class Teacher Comment</div>
-                <p>{{ $aggregate['class_teacher_comment'] ?? 'No comment provided.' }}</p>
-                @if(!empty($classTeacherName))
-                    <p><strong>Class Teacher:</strong> {{ $classTeacherName }}</p>
-                @endif
-            </div>
-            <div class="flex-col">
-                <div class="section-title">Principal Comment</div>
-                <p>{{ $aggregate['principal_comment'] ?? 'No comment provided.' }}</p>
-                @if(!empty($aggregate['final_grade']))
-                    <p><strong>Final Grade:</strong> {{ $aggregate['final_grade'] }}</p>
-                @endif
-                @if(!empty($principalName))
-                    <p><strong>Signed:</strong> {{ $principalName }}</p>
-                @endif
-                <!-- @if(!empty($principalSignatureUrl))
-                    <div style="margin-top: 10px;">
-                        <img src="{{ $principalSignatureUrl }}" alt="Principal signature" style="max-height:70px;width:auto;">
-                    </div>
-                @endif -->
-            </div>
-        </div>
-
-        <div class="flex-row signature-box">
-            <div class="flex-col">
-                <div class="info-box">
-                <div class="section-title">Summary</div>
-                <p>Marks Obtainable: {{ $aggregate['total_possible'] !== null ? number_format($aggregate['total_possible'], 0) : '-' }}</p>
-                <p>Marks Obtained: {{ $aggregate['total_obtained'] !== null ? number_format($aggregate['total_obtained'], 0) : '-' }}</p>
-                <p>Average: {{ $aggregate['average'] !== null ? number_format($aggregate['average'], 2) : '-' }}</p>
-                <p>Class Average: {{ $aggregate['class_average'] !== null ? number_format($aggregate['class_average'], 2) : '-' }}</p>
-                <p>Position: {{ $aggregate['position'] !== null ? $aggregate['position'] . ' of ' . ($classSize ?: 'N/A') : '-' }}</p>
-            </div>
-            </div>
-            <!-- <div class="flex-col" style="text-align: right;">
-                <div class="section-title">School Logo</div>
-                @php($schoolLogoUrl = optional($student->school)->logo_url)
-                @if(!empty($schoolLogoUrl))
-                    <img src="{{ $schoolLogoUrl }}" alt="School logo" style="max-height:70px;width:auto;">
-                @endif
-            </div> -->
         </div>
     </div>

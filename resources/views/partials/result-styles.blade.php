@@ -16,7 +16,7 @@
             max-width: 1080px;
             margin: 0 auto;
             background: #ffffff;
-            padding: 24px 32px;
+            padding: 16px 24px;
             box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
             max-height: calc(100vh - 48px);
             overflow-y: auto;
@@ -44,26 +44,26 @@
 
         .school-heading {
             text-align: center;
-            margin-top: 8px;
-            margin-bottom: 16px;
+            margin-top: 4px;
+            margin-bottom: 8px;
         }
 
         .school-heading h1 {
             margin: 0;
-            font-size: 28px;
+            font-size: 24px;
             letter-spacing: 1px;
         }
 
         .school-heading p {
-            margin: 6px 0 0;
-            font-size: 14px;
+            margin: 4px 0 0;
+            font-size: 13px;
             color: #555;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 24px;
+            margin-bottom: 12px;
         }
 
         .table-one td,
@@ -71,12 +71,12 @@
         .table-two td,
         .table-three td {
             border: 1px solid #d0d5dd;
-            padding: 8px 10px;
+            padding: 6px 8px;
             vertical-align: top;
         }
 
         .table-one td {
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .logo-cell {
@@ -124,7 +124,7 @@
             background: #0f172a;
             color: #ffffff;
             text-transform: uppercase;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 0.3px;
             text-align: center;
             font-weight: bold;
@@ -132,7 +132,7 @@
 
         .table-two td {
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .subject-name {
@@ -146,15 +146,15 @@
 
         .section-title {
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
-            font-size: 13px;
+            font-size: 12px;
             color: #0f172a;
         }
 
         .flex-row {
             display: flex;
-            gap: 24px;
+            gap: 16px;
         }
 
         .flex-col {
@@ -162,7 +162,7 @@
         }
 
         .signature-box {
-            margin-top: 24px;
+            margin-top: 6px;
         }
 
         .signature-box img {
@@ -170,18 +170,28 @@
             height: auto;
         }
 
+        .summary-box {
+            max-width: 100%;
+        }
+
+        .summary-box p {
+            margin: 4px 0;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
         .info-box {
             border: 1px solid #d0d5dd;
             border-radius: 6px;
-            padding: 12px 16px;
+            padding: 8px 12px;
             background: #fdfdfd;
-            margin-top: 12px;
+            margin-top: 4px;
         }
 
         .skill-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 12px;
         }
 
         .skill-card {
@@ -196,8 +206,8 @@
         .skill-card-title {
             background: #0f172a;
             color: #ffffff;
-            padding: 8px 12px;
-            font-size: 12px;
+            padding: 6px 10px;
+            font-size: 11px;
             letter-spacing: 0.4px;
             text-transform: uppercase;
             font-weight: bold;
@@ -210,8 +220,8 @@
 
         .skill-table td {
             border: 1px solid #d0d5dd;
-            padding: 6px 10px;
-            font-size: 13px;
+            padding: 4px 8px;
+            font-size: 12px;
         }
 
         .skill-table td:first-child {
@@ -220,31 +230,26 @@
         }
 
         .grade-line {
-            font-size: 13px;
+            font-size: 12px;
             color: #0f172a;
-            font-weight: bold;
-            text-transform: uppercase;
+            line-height: 1.5;
         }
 
-        .grade-line span {
-            display: block;
-            margin-top: 6px;
-            font-weight: 400;
-            text-transform: none;
-            font-size: 12px;
-            color: #475569;
+        .grade-line strong {
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         .rating-key-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
+            margin-top: 8px;
         }
 
         .rating-key-table td {
             border: 1px solid #d0d5dd;
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 4px 8px;
+            font-size: 11px;
         }
 
         .rating-key-table td:first-child {
@@ -271,8 +276,9 @@
                 overflow: visible;
                 page-break-after: avoid;
                 page-break-inside: avoid;
-                /* Scale content to fit on one page */
-                transform-origin: top left;
+                padding: 8px 12px;
+                transform: scale(0.90);
+                transform-origin: top center;
             }
 
             #print-button {
@@ -282,7 +288,7 @@
             /* Force content to fit on one page */
             @page {
                 size: A4 portrait;
-                margin: 8mm;
+                margin: 5mm;
             }
 
             /* Prevent page breaks inside elements */
@@ -299,18 +305,24 @@
 
             /* Reduce all spacing to fit content */
             table {
-                margin-bottom: 8px;
-                font-size: 11px;
+                margin-bottom: 3px;
+                font-size: 9px;
             }
 
-            .table-two th {
-                padding: 4px 6px;
-                font-weight: bold !important;
+            .table-one td {
+                padding: 2px 3px;
                 font-size: 10px;
             }
 
+            .table-two th {
+                padding: 2px 3px;
+                font-weight: bold !important;
+                font-size: 8px;
+            }
+
             .table-two td {
-                padding: 4px 6px;
+                padding: 2px 3px;
+                font-size: 9px;
             }
 
             .section-title,
@@ -320,40 +332,80 @@
                 font-weight: bold !important;
             }
 
+            .section-title {
+                margin-bottom: 3px;
+                font-size: 10px;
+            }
+
             .school-heading {
-                margin-bottom: 6px;
+                margin-top: 1px;
+                margin-bottom: 3px;
             }
 
             .school-heading h1 {
-                font-size: 22px;
+                font-size: 18px;
             }
 
             .school-heading p {
-                font-size: 12px;
+                font-size: 10px;
+                margin-top: 1px;
             }
 
             .info-box {
-                margin-top: 6px;
-                margin-bottom: 6px;
+                margin-top: 3px;
+                margin-bottom: 3px;
+                padding: 5px 8px;
             }
 
             .skill-grid {
-                gap: 8px;
+                gap: 4px;
+                margin-bottom: 0;
             }
 
             .flex-row {
-                gap: 12px;
+                gap: 8px;
             }
 
-            /* Reduce padding in cells */
-            .table-one td {
-                padding: 4px 6px;
-                font-size: 12px;
+            .skill-table td {
+                padding: 2px 4px;
+                font-size: 9px;
             }
 
-            .table-three td {
-                padding: 4px 6px;
-                font-size: 11px;
+            .skill-card-title {
+                padding: 3px 6px;
+                font-size: 9px;
+            }
+
+            .rating-key-table td {
+                padding: 2px 4px;
+                font-size: 9px;
+            }
+
+            .rating-key-table {
+                margin-top: 3px;
+            }
+
+            .grade-line {
+                font-size: 10px;
+            }
+
+            .summary-box {
+                max-width: 100%;
+            }
+
+            .summary-box p {
+                margin: 2px 0;
+                font-size: 10px;
+                line-height: 1.3;
+            }
+
+            .signature-box {
+                margin-top: 3px;
+            }
+
+            .signature-box img,
+            .summary-box img {
+                max-height: 40px !important;
             }
         }
     
