@@ -263,6 +263,11 @@
         }
 
         @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
             body {
                 padding: 0;
                 background: #ffffff;
@@ -316,8 +321,10 @@
 
             .table-two th {
                 padding: 2px 3px;
-                font-weight: bold !important;
-                font-size: 8px;
+                font-weight: 900 !important;
+                font-size: 9px;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .table-two td {
@@ -329,12 +336,13 @@
             .skill-card-title,
             .grade-line,
             .rating-key-table td:first-child {
-                font-weight: bold !important;
+                font-weight: 900 !important;
             }
 
             .section-title {
                 margin-bottom: 3px;
-                font-size: 10px;
+                font-size: 11px;
+                font-weight: 900 !important;
             }
 
             .school-heading {
@@ -373,12 +381,22 @@
 
             .skill-card-title {
                 padding: 3px 6px;
-                font-size: 9px;
+                font-size: 10px;
+                font-weight: 900 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .rating-key-table td {
                 padding: 2px 4px;
                 font-size: 9px;
+            }
+
+            .rating-key-table tr:first-child td {
+                font-weight: 900 !important;
+                font-size: 10px;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .rating-key-table {
