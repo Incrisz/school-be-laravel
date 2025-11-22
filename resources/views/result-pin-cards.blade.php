@@ -135,12 +135,27 @@
             @foreach($pageCards as $card)
                 <div class="card">
                     <div class="card-logo">
+                        @php
+                            $schoolLines = preg_split('/<br\s*\/?>/i', (string) ($school->name ?? '')) ?: [];
+                            $schoolLines = array_values(array_filter(array_map('trim', $schoolLines), fn ($line) => $line !== ''));
+                            if (empty($schoolLines)) {
+                                $schoolLines = [(string) ($school->name ?? 'Your School')];
+                            }
+                        @endphp
                         @if(!empty($schoolLogoUrl))
                             <img src="{{ $schoolLogoUrl }}" alt="School Logo">
                         @else
                             <div style="width:48px;height:48px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-weight:600;">LOGO</div>
                         @endif
-                        <strong>{{ strtoupper($school->name ?? 'Your School') }} <br>  RESULT ACCESS CARD</strong>
+                        <strong>
+                            @foreach($schoolLines as $index => $line)
+                                @if($index > 0)
+                                    <br>
+                                @endif
+                                {{ strtoupper($line) }}
+                            @endforeach
+                            <br>RESULT ACCESS CARD
+                        </strong>
                     </div>
                     <div class="card-details">
                         <div><strong>Student:</strong> {{ $card['student_name'] }}</div>

@@ -76,7 +76,7 @@
             {{ $status === 'success' ? 'Email verified' : 'Verification issue' }}
         </div>
         <p class="message">{{ $message }}</p>
-        <a class="cta" href="{{ config('app.frontend_login_url', '/school-fe-template/update/v10/login.html') }}">
+        <a class="cta" href="{{ config('app.frontend_login_url') }}">
             Go to Login
         </a>
     </div>

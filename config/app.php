@@ -56,6 +56,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend Login URL
+    |--------------------------------------------------------------------------
+    |
+    | URL to the frontend login page used when redirecting unauthenticated
+    | users or linking from verification screens.
+    |
+    */
+
+    'frontend_login_url' => env('FRONTEND_LOGIN_URL', '/'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
