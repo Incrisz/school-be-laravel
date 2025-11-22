@@ -94,7 +94,7 @@ class SchoolController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'required|string',
-            'email' => 'required|string|email|max:255|unique:schools',
+            'email' => 'required|string|email|max:255|unique:schools|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'subdomain' => 'required|string|max:255|unique:schools',
         ]);

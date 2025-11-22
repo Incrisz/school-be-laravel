@@ -27,6 +27,8 @@ class StudentAuthController extends Controller
         $student = Student::query()
             ->with([
                 'school',
+                'school.currentSession:id,name,slug',
+                'school.currentTerm:id,name,session_id',
                 'school_class:id,name,school_id',
                 'class_arm:id,name',
                 'session:id,name',
@@ -68,6 +70,8 @@ class StudentAuthController extends Controller
     {
         $student = $this->resolveStudentUser($request)->load([
             'school',
+            'school.currentSession:id,name,slug',
+            'school.currentTerm:id,name,session_id',
             'school_class:id,name,school_id',
             'school_class.subjects:id,name',
             'class_arm:id,name',
@@ -256,6 +260,9 @@ class StudentAuthController extends Controller
 
     private function transformStudent(Student $student): array
     {
+        $schoolCurrentSession = $student->school?->currentSession;
+        $schoolCurrentTerm = $student->school?->currentTerm;
+
         return [
             'id' => $student->id,
             'admission_no' => $student->admission_no,
@@ -278,8 +285,8 @@ class StudentAuthController extends Controller
                 'phone' => $student->parent->phone,
             ] : null,
             'school' => $student->school?->only(['id', 'name', 'logo_url', 'address', 'phone']),
-            'current_session' => $student->session?->only(['id', 'name']),
-            'current_term' => $student->term?->only(['id', 'name']),
+            'current_session' => ($schoolCurrentSession ?? $student->session)?->only(['id', 'name']),
+            'current_term' => ($schoolCurrentTerm ?? $student->term)?->only(['id', 'name']),
             'school_class' => $student->school_class?->only(['id', 'name']),
             'class_arm' => $student->class_arm?->only(['id', 'name']),
             'subjects' => $student->school_class?->subjects?->map(fn ($subject) => [
