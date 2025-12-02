@@ -49,113 +49,135 @@ class ResultViewController extends Controller
             'class_section_id' => ['nullable', 'uuid'],
         ]);
 
-        $schoolId = optional($request->user()->school)->id;
-        if (! $schoolId && ! empty($validated['school_class_id'])) {
-            // Fallback for admins/super admins without a linked school record: infer school from the class.
-            $schoolId = SchoolClass::query()
-                ->whereKey($validated['school_class_id'])
-                ->value('school_id');
-        }
+        $schoolId = null;
 
-        if (! $schoolId) {
-            abort(403, 'You are not linked to any school.');
-        }
+        try {
+            $schoolId = optional($request->user()->school)->id;
+            if (! $schoolId && ! empty($validated['school_class_id'])) {
+                // Fallback for admins/super admins without a linked school record: infer school from the class.
+                $schoolId = SchoolClass::query()
+                    ->whereKey($validated['school_class_id'])
+                    ->value('school_id');
+            }
 
-        $students = Student::query()
-            ->with([
-                'school',
-                'school_class',
-                'class_arm',
-                'class_section',
-                'parent',
-            ])
-            ->where('school_id', $schoolId)
-            ->where('school_class_id', $validated['school_class_id'])
-            ->when($validated['class_arm_id'] ?? null, fn ($query, $arm) => $query->where('class_arm_id', $arm))
-            ->when($validated['class_section_id'] ?? null, fn ($query, $section) => $query->where('class_section_id', $section))
-            ->whereNotIn('status', ['inactive', 'Inactive'])
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->orderBy('middle_name')
-            ->get();
+            if (! $schoolId) {
+                abort(403, 'You are not linked to any school.');
+            }
 
-        $pages = $students
-            ->map(function (Student $record) use ($validated, $schoolId) {
-                try {
-                    return $this->buildResultPageData(
-                        $record,
-                        $validated['session_id'],
-                        $validated['term_id'],
-                        $schoolId
-                    );
-                } catch (\Exception $e) {
-                    // Skip students without results or with errors instead of failing entire bulk print
-                    // Log the error for debugging but continue with other students
-                    \Log::info("Skipped student {$record->id} in bulk print: " . $e->getMessage());
-                    return null;
-                }
-            })
-            ->filter() // Remove null entries (students without results)
-            ->values();
+            $students = Student::query()
+                ->with([
+                    'school',
+                    'school_class',
+                    'class_arm',
+                    'class_section',
+                    'parent',
+                ])
+                ->where('school_id', $schoolId)
+                ->where('school_class_id', $validated['school_class_id'])
+                ->when($validated['class_arm_id'] ?? null, fn ($query, $arm) => $query->where('class_arm_id', $arm))
+                ->when($validated['class_section_id'] ?? null, fn ($query, $section) => $query->where('class_section_id', $section))
+                ->whereNotIn('status', ['inactive', 'Inactive'])
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->orderBy('middle_name')
+                ->get();
 
-        $session = Session::query()
-            ->where('school_id', $schoolId)
-            ->find($validated['session_id']);
+            $pages = $students
+                ->map(function (Student $record) use ($validated, $schoolId) {
+                    try {
+                        return $this->buildResultPageData(
+                            $record,
+                            $validated['session_id'],
+                            $validated['term_id'],
+                            $schoolId
+                        );
+                    } catch (\Exception $e) {
+                        // Skip students without results or with errors instead of failing entire bulk print
+                        // Log the error for debugging but continue with other students
+                        \Log::info("Skipped student {$record->id} in bulk print: " . $e->getMessage());
+                        return null;
+                    }
+                })
+                ->filter() // Remove null entries (students without results)
+                ->values();
 
-        $term = Term::query()
-            ->where('school_id', $schoolId)
-            ->find($validated['term_id']);
+            $session = Session::query()
+                ->where('school_id', $schoolId)
+                ->find($validated['session_id']);
 
-        $class = SchoolClass::query()
-            ->where('school_id', $schoolId)
-            ->find($validated['school_class_id']);
+            $term = Term::query()
+                ->where('school_id', $schoolId)
+                ->find($validated['term_id']);
 
-        // If no students have results, return an error with context
-        if ($pages->isEmpty()) {
-            $sessionName = $session?->name ?? 'Unknown Session';
-            $termName = $term?->name ?? 'Unknown Term';
-            $className = $class?->name ?? 'Unknown Class';
+            $class = SchoolClass::query()
+                ->where('school_id', $schoolId)
+                ->find($validated['school_class_id']);
+
+            // If no students have results, return an error with context
+            if ($pages->isEmpty()) {
+                $sessionName = $session?->name ?? 'Unknown Session';
+                $termName = $term?->name ?? 'Unknown Term';
+                $className = $class?->name ?? 'Unknown Class';
+
+                throw new HttpResponseException(
+                    response()->json([
+                        'message' => "No results found for any students in {$className} for {$sessionName} - {$termName}. Please ensure results have been added before attempting to print. Total students checked: {$students->count()}",
+                        'session_id' => $validated['session_id'],
+                        'term_id' => $validated['term_id'],
+                        'class_id' => $validated['school_class_id'],
+                        'students_checked' => $students->count(),
+                    ], 422)
+                );
+            }
+
+            $classArm = null;
+            if (! empty($validated['class_arm_id'])) {
+                $classArm = ClassArm::query()
+                    ->whereKey($validated['class_arm_id'])
+                    ->whereHas('school_class', fn ($query) => $query->where('school_id', $schoolId))
+                    ->first();
+            }
+
+            $classSection = null;
+            if (! empty($validated['class_section_id'])) {
+                $classSection = ClassSection::query()
+                    ->whereKey($validated['class_section_id'])
+                    ->whereHas('class_arm.school_class', fn ($query) => $query->where('school_id', $schoolId))
+                    ->first();
+            }
+
+            return view('result-bulk', [
+                'pages' => $pages,
+                'filters' => [
+                    'session' => $session?->name,
+                    'term' => $term?->name,
+                    'class' => $class?->name,
+                    'class_arm' => $classArm?->name,
+                    'class_section' => $classSection?->name,
+                    'student_count' => $pages->count(), // Count of students WITH results
+                    'total_students' => $students->count(), // Total students in class
+                ],
+                'generatedAt' => Carbon::now()->format('jS F Y, h:i A'),
+            ]);
+        } catch (HttpResponseException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            $errorRef = (string) Str::uuid();
+            \Log::error('Bulk result printing failed', [
+                'error_ref' => $errorRef,
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+                'user_id' => optional($request->user())->id,
+                'school_id' => $schoolId,
+                'filters' => $validated ?? [],
+            ]);
 
             throw new HttpResponseException(
                 response()->json([
-                    'message' => "No results found for any students in {$className} for {$sessionName} - {$termName}. Please ensure results have been added before attempting to print. Total students checked: {$students->count()}",
-                    'session_id' => $validated['session_id'],
-                    'term_id' => $validated['term_id'],
-                    'class_id' => $validated['school_class_id'],
-                    'students_checked' => $students->count(),
-                ], 422)
+                    'message' => 'Bulk result printing failed. Please contact support with code: ' . $errorRef,
+                ], 500)
             );
         }
-
-        $classArm = null;
-        if (! empty($validated['class_arm_id'])) {
-            $classArm = ClassArm::query()
-                ->whereKey($validated['class_arm_id'])
-                ->whereHas('school_class', fn ($query) => $query->where('school_id', $schoolId))
-                ->first();
-        }
-
-        $classSection = null;
-        if (! empty($validated['class_section_id'])) {
-            $classSection = ClassSection::query()
-                ->whereKey($validated['class_section_id'])
-                ->whereHas('class_arm.school_class', fn ($query) => $query->where('school_id', $schoolId))
-                ->first();
-        }
-
-        return view('result-bulk', [
-            'pages' => $pages,
-            'filters' => [
-                'session' => $session?->name,
-                'term' => $term?->name,
-                'class' => $class?->name,
-                'class_arm' => $classArm?->name,
-                'class_section' => $classSection?->name,
-                'student_count' => $pages->count(), // Count of students WITH results
-                'total_students' => $students->count(), // Total students in class
-            ],
-            'generatedAt' => Carbon::now()->format('jS F Y, h:i A'),
-        ]);
     }
 
     public function buildResultPageData(
