@@ -27,11 +27,15 @@ class ResultViewController extends Controller
     {
         // Temporarily allow all users to view/print single student results (permission check disabled).
 
+        $user = $request->user();
+        $role = strtolower((string) ($user->role ?? ''));
+        $isAdmin = in_array($role, ['admin', 'super_admin'], true) || ($user?->hasAnyRole(['admin', 'super_admin']) ?? false);
+
         $data = $this->buildResultPageData(
             $student,
             $request->input('session_id'),
             $request->input('term_id'),
-            optional($request->user()->school)->id
+            $isAdmin ? null : optional($user?->school)->id
         );
 
         return view('result', $data);
@@ -186,6 +190,10 @@ class ResultViewController extends Controller
         ?string $requestedTermId = null,
         ?string $requestingSchoolId = null
     ) {
+        $user = auth()->user();
+        $role = strtolower((string) ($user->role ?? ''));
+        $isAdmin = $user && (in_array($role, ['admin', 'super_admin'], true) || $user->hasAnyRole(['admin', 'super_admin']));
+
         $student->loadMissing([
             'school',
             'school_class',
@@ -194,7 +202,7 @@ class ResultViewController extends Controller
             'parent',
         ]);
 
-        if ($requestingSchoolId !== null && $requestingSchoolId !== $student->school_id) {
+        if (! $isAdmin && $requestingSchoolId !== null && $requestingSchoolId !== $student->school_id) {
             abort(403, 'You are not allowed to view this student result.');
         }
 
