@@ -31,8 +31,14 @@ class Controller extends BaseController
             ? $registrar->getPermissionsTeamId()
             : null;
 
-        if (! empty($user->school_id)) {
-            $registrar->setPermissionsTeamId($user->school_id);
+        $teamId = $user->school_id;
+        if (! $teamId) {
+            // Fallback: use the school_id from any attached role to scope permission checks.
+            $teamId = $user->roles()->value('school_id');
+        }
+
+        if (! empty($teamId)) {
+            $registrar->setPermissionsTeamId($teamId);
         }
 
         try {
@@ -52,7 +58,7 @@ class Controller extends BaseController
                 }
             }
         } finally {
-            $registrar->setPermissionsTeamId($previousTeamId);
+            $registrar->setPermissionsTeamId($previousTeamId ?? null);
         }
 
         abort(403, 'You do not have permission to perform this action.');
