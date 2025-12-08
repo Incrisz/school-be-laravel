@@ -18,7 +18,7 @@ $this->school = School::where('subdomain', 'demo')->first();
 ## Data Scoping Verification
 
 ### 1. School Creation
-- **Query:** `School::where('subdomain', 'demo')`
+- **Query:** `School::where('subdomain', 'demo ')`
 - **Create:** Sets unique `subdomain` and auto-increments `code_sequence`
 - ✅ **Isolated:** Each school has unique subdomain
 
