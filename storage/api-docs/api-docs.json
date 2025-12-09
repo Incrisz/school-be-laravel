@@ -17,7 +17,8 @@
                     "school-v1.1",
                     "school-v1.7",
                     "school-v1.8",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get list of sessions",
                 "description": "Returns list of sessions",
@@ -193,7 +194,8 @@
                     "school-v1.1",
                     "school-v1.7",
                     "school-v1.8",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get list of terms for a session",
                 "description": "Returns list of terms for a session",
@@ -275,7 +277,8 @@
                     "school-v1.1",
                     "school-v1.7",
                     "school-v1.8",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get term information",
                 "description": "Returns term data",
@@ -591,13 +594,40 @@
                 }
             }
         },
+        "/api/v1/fees/bank-details/{bankDetail}/set-default": {
+            "post": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Mark bank detail as default",
+                "operationId": "8899de0e5d5732df8f665ff4d6dd19b6",
+                "parameters": [
+                    {
+                        "name": "bankDetail",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                }
+            }
+        },
         "/api/v1/classes": {
             "get": {
                 "tags": [
                     "school-v1.2",
                     "school-v1.7",
                     "school-v1.8",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get list of classes",
                 "description": "Returns list of classes",
@@ -746,7 +776,8 @@
                     "school-v1.2",
                     "school-v1.7",
                     "school-v1.8",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get list of class arms",
                 "description": "Returns list of class arms for a given class",
@@ -942,7 +973,8 @@
                     "school-v1.2",
                     "school-v1.7",
                     "school-v1.8",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get list of class arm sections",
                 "description": "Returns list of class arm sections for a given class arm",
@@ -1411,6 +1443,264 @@
                 }
             }
         },
+        "/api/v1/fees/items": {
+            "get": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "List fee items",
+                "operationId": "ca9111a7970208c4c86da21317d7a71a",
+                "responses": {
+                    "200": {
+                        "description": "Fee items returned"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Create fee item",
+                "operationId": "b8b437f5a26e68a4d1fbecb6354c6a21",
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/api/v1/fees/items/{feeItem}": {
+            "get": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Get fee item",
+                "operationId": "a75b670e417c4b83b8a72b2fe98c6332",
+                "parameters": [
+                    {
+                        "name": "feeItem",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fee item returned"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Update fee item",
+                "operationId": "40557ced69a52bc911bf2588f532cdf0",
+                "parameters": [
+                    {
+                        "name": "feeItem",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Delete fee item",
+                "operationId": "b330485640498991a29fecc589470cc7",
+                "parameters": [
+                    {
+                        "name": "feeItem",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/fees/structures": {
+            "get": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "List fee structures",
+                "operationId": "f0cde3b78c5ca8834280d9a6d3e089f1",
+                "responses": {
+                    "200": {
+                        "description": "Fee structures returned"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Create fee structure",
+                "operationId": "1b5e9cc4f0bff2114496186f1de7eb82",
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate"
+                    }
+                }
+            }
+        },
+        "/api/v1/fees/structures/{feeStructure}": {
+            "get": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Get fee structure",
+                "operationId": "4e0ad488bc3c5915149362dead358126",
+                "parameters": [
+                    {
+                        "name": "feeStructure",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fee structure returned"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Update fee structure",
+                "operationId": "d06c3ed882211ff96b6d6b22e5fd6d1f",
+                "parameters": [
+                    {
+                        "name": "feeStructure",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Delete fee structure",
+                "operationId": "f3a6257786917f17217a1eb63aa9e787",
+                "parameters": [
+                    {
+                        "name": "feeStructure",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/fees/structures/copy": {
+            "post": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Copy fee structures between sessions/terms",
+                "operationId": "55f50832268f7702ebeb21425583c08c",
+                "responses": {
+                    "201": {
+                        "description": "Structures copied"
+                    },
+                    "404": {
+                        "description": "Source not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/fees/structures/by-session-term": {
+            "get": {
+                "tags": [
+                    "school-v2.4",
+                    "school-v2.0"
+                ],
+                "summary": "Fee structures by session and term",
+                "operationId": "f1b33e9d22d6504a60ab9ca7ce7a6805",
+                "responses": {
+                    "200": {
+                        "description": "Fee structures returned"
+                    }
+                }
+            }
+        },
         "/api/v1/grades/scales": {
             "get": {
                 "tags": [
@@ -1798,6 +2088,139 @@
                     },
                     "404": {
                         "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/promotions/bulk": {
+            "post": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Bulk promote students",
+                "description": "Promotes students from a source class/session/term to a target class/session (optionally retaining subjects).",
+                "operationId": "9387fc1e6cb94cc5335afabb6e3d2cb7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "target_session_id",
+                                    "target_class_id",
+                                    "student_ids"
+                                ],
+                                "properties": {
+                                    "current_session_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "current_term_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "current_class_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "current_class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "current_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "target_session_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "target_class_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "target_class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "target_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "retain_subjects": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "student_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Promotion completed"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/promotions/history": {
+            "get": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Promotion history",
+                "description": "Returns recent promotion logs with optional filters.",
+                "operationId": "8bdc353079b45750b84db2d1ebc2e1d6",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "term_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "school_class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "History returned"
                     }
                 }
             }
@@ -3085,12 +3508,129 @@
                 }
             }
         },
+        "/api/v1/attendance/staff": {
+            "get": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "List staff attendance",
+                "operationId": "89b816efc31ac8b95f45e1489f0f7e1a",
+                "responses": {
+                    "200": {
+                        "description": "Attendance returned"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Record staff attendance",
+                "operationId": "d6ce81ad2e47fbd97c7bf7a8fd633ee7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "date"
+                                ],
+                                "properties": {
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "staff_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "present"
+                                    },
+                                    "branch_name": {
+                                        "type": "string"
+                                    },
+                                    "metadata": {
+                                        "type": "object"
+                                    },
+                                    "entries": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "staff_id",
+                                                "status"
+                                            ],
+                                            "properties": {
+                                                "staff_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "present"
+                                                },
+                                                "branch_name": {
+                                                    "type": "string"
+                                                },
+                                                "metadata": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Attendance saved"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/attendance/staff/{id}": {
+            "delete": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Delete staff attendance record",
+                "operationId": "06cc7cff29cb999b50c0e576c226bb85",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attendance deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
         "/api/v1/staff": {
             "get": {
                 "tags": [
                     "school-v1.5",
                     "school-v1.7",
-                    "school-v1.8"
+                    "school-v1.8",
+                    "school-v2.0"
                 ],
                 "summary": "List staff",
                 "description": "Paginated list of staff for the authenticated school. Supports search and role filters.",
@@ -3454,11 +3994,229 @@
                 }
             }
         },
+        "/api/v1/attendance/students": {
+            "get": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "List student attendance",
+                "description": "Paginated student attendance with filters based on permissions.",
+                "operationId": "5754092e4d0935fda08ee9867bef12c2",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attendance returned"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Record student attendance",
+                "operationId": "abe7ab1f210500fe55344ded74989db8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "date"
+                                ],
+                                "properties": {
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "session_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "term_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "student_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "present"
+                                    },
+                                    "metadata": {
+                                        "type": "object"
+                                    },
+                                    "entries": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "student_id",
+                                                "status"
+                                            ],
+                                            "properties": {
+                                                "student_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "present"
+                                                },
+                                                "metadata": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Attendance saved"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/attendance/students/{id}": {
+            "delete": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Delete student attendance record",
+                "operationId": "afe18a649be0a4d3dfea53eee7a607a3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attendance deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/students/bulk/template": {
+            "get": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Download student bulk upload template",
+                "operationId": "aa6adab928d71ac8a882f06499464263",
+                "responses": {
+                    "200": {
+                        "description": "CSV template"
+                    }
+                }
+            }
+        },
+        "/api/v1/students/bulk/preview": {
+            "post": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Preview student bulk upload",
+                "operationId": "d1038eb4f6f3ca55bbe3a760110db314",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Preview generated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/students/bulk/{batch}/commit": {
+            "post": {
+                "tags": [
+                    "school-v2.0"
+                ],
+                "summary": "Commit student bulk upload",
+                "operationId": "64ed6bdf8f0e6282f53ae5062f8edc92",
+                "parameters": [
+                    {
+                        "name": "batch",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Upload committed"
+                    },
+                    "404": {
+                        "description": "Batch not found"
+                    }
+                }
+            }
+        },
         "/api/v1/students": {
             "get": {
                 "tags": [
                     "school-v1.4",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get list of students",
                 "description": "Returns list of students",
@@ -3501,7 +4259,8 @@
             "post": {
                 "tags": [
                     "school-v1.4",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Store new student",
                 "description": "Returns student data",
@@ -3617,7 +4376,8 @@
             "get": {
                 "tags": [
                     "school-v1.4",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Get student information",
                 "description": "Returns student data",
@@ -3648,7 +4408,8 @@
             "put": {
                 "tags": [
                     "school-v1.4",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Update existing student",
                 "description": "Returns updated student data",
@@ -3776,7 +4537,8 @@
             "delete": {
                 "tags": [
                     "school-v1.4",
-                    "school-v1.9"
+                    "school-v1.9",
+                    "school-v2.0"
                 ],
                 "summary": "Delete existing student",
                 "description": "Deletes a record and returns no content",
@@ -5003,6 +5765,14 @@
         {
             "name": "school-v1.9",
             "description": "v1.9 – Results, Components, Grading & Skills (supporting lookups)"
+        },
+        {
+            "name": "school-v2.0",
+            "description": "v2.0 – Rollover, Promotions, Attendance, Fees, Roles (supporting lookups)"
+        },
+        {
+            "name": "school-v2.4",
+            "description": "Fee Management"
         },
         {
             "name": "school-v1.2",

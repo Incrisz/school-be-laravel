@@ -14,10 +14,24 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rule;
 
+/**
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles"
+ * )
+ */
 class StaffAttendanceController extends Controller
 {
     private const STATUSES = ['present', 'absent', 'late', 'on_leave'];
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/attendance/staff",
+     *     tags={"school-v2.0"},
+     *     summary="List staff attendance",
+     *     @OA\Response(response=200, description="Attendance returned")
+     * )
+     */
     public function index(Request $request): JsonResponse
     {
         $query = $this->baseQuery($request);
@@ -34,6 +48,33 @@ class StaffAttendanceController extends Controller
         return response()->json($paginator);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/attendance/staff",
+     *     tags={"school-v2.0"},
+     *     summary="Record staff attendance",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"date"},
+     *             @OA\Property(property="date", type="string", format="date"),
+     *             @OA\Property(property="staff_id", type="string", format="uuid"),
+     *             @OA\Property(property="status", type="string", example="present"),
+     *             @OA\Property(property="branch_name", type="string"),
+     *             @OA\Property(property="metadata", type="object"),
+     *             @OA\Property(property="entries", type="array", @OA\Items(
+     *                 required={"staff_id","status"},
+     *                 @OA\Property(property="staff_id", type="string", format="uuid"),
+     *                 @OA\Property(property="status", type="string", example="present"),
+     *                 @OA\Property(property="branch_name", type="string"),
+     *                 @OA\Property(property="metadata", type="object")
+     *             ))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Attendance saved"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -177,6 +218,17 @@ class StaffAttendanceController extends Controller
             'message' => 'Staff attendance record deleted.',
         ]);
     }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/attendance/staff/{id}",
+     *     tags={"school-v2.0"},
+     *     summary="Delete staff attendance record",
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Attendance deleted"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
 
     public function report(Request $request): JsonResponse
     {

@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rule;
 
+/**
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles"
+ * )
+ */
 class StudentAttendanceController extends Controller
 {
     private const STATUSES = ['present', 'absent', 'late', 'excused'];
@@ -22,6 +28,16 @@ class StudentAttendanceController extends Controller
     {
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/attendance/students",
+     *     tags={"school-v2.0"},
+     *     summary="List student attendance",
+     *     description="Paginated student attendance with filters based on permissions.",
+     *     @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer", minimum=1)),
+     *     @OA\Response(response=200, description="Attendance returned")
+     * )
+     */
     public function index(Request $request): JsonResponse
     {
         $this->ensurePermission($request, 'attendance.students');
@@ -39,6 +55,36 @@ class StudentAttendanceController extends Controller
         return response()->json($paginator);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/attendance/students",
+     *     tags={"school-v2.0"},
+     *     summary="Record student attendance",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"date"},
+     *             @OA\Property(property="date", type="string", format="date"),
+     *             @OA\Property(property="session_id", type="string", format="uuid"),
+     *             @OA\Property(property="term_id", type="string", format="uuid"),
+     *             @OA\Property(property="school_class_id", type="string", format="uuid"),
+     *             @OA\Property(property="class_arm_id", type="string", format="uuid"),
+     *             @OA\Property(property="class_section_id", type="string", format="uuid"),
+     *             @OA\Property(property="student_id", type="string", format="uuid"),
+     *             @OA\Property(property="status", type="string", example="present"),
+     *             @OA\Property(property="metadata", type="object"),
+     *             @OA\Property(property="entries", type="array", @OA\Items(
+     *                 required={"student_id","status"},
+     *                 @OA\Property(property="student_id", type="string", format="uuid"),
+     *                 @OA\Property(property="status", type="string", example="present"),
+     *                 @OA\Property(property="metadata", type="object")
+     *             ))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Attendance saved"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function store(Request $request): JsonResponse
     {
         $this->ensurePermission($request, 'attendance.students');
@@ -240,6 +286,17 @@ class StudentAttendanceController extends Controller
             'message' => 'Attendance record deleted.',
         ]);
     }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/attendance/students/{id}",
+     *     tags={"school-v2.0"},
+     *     summary="Delete student attendance record",
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Attendance deleted"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
 
     public function report(Request $request): JsonResponse
     {

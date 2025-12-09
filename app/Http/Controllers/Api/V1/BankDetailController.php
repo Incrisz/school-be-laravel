@@ -16,6 +16,14 @@ use Illuminate\Support\Facades\DB;
 class BankDetailController extends Controller
 {
     /**
+     * @OA\Get(
+     *     path="/api/v1/fees/bank-details",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="List bank details",
+     *     @OA\Response(response=200, description="Bank details returned")
+     * )
+     */
+    /**
      * Display a listing of bank details.
      */
     public function index(Request $request)
@@ -37,6 +45,14 @@ class BankDetailController extends Controller
         return response()->json($bankDetails);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/fees/bank-details",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Create bank detail",
+     *     @OA\Response(response=201, description="Created")
+     * )
+     */
     /**
      * Store a newly created bank detail.
      */
@@ -101,6 +117,15 @@ class BankDetailController extends Controller
     }
 
     /**
+     * @OA\Put(
+     *     path="/api/v1/fees/bank-details/{bankDetail}",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Update bank detail",
+     *     @OA\Parameter(name="bankDetail", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Updated")
+     * )
+     */
+    /**
      * Update the specified bank detail.
      */
     public function update(Request $request, BankDetail $bankDetail)
@@ -145,6 +170,15 @@ class BankDetailController extends Controller
     }
 
     /**
+     * @OA\Delete(
+     *     path="/api/v1/fees/bank-details/{bankDetail}",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Delete bank detail",
+     *     @OA\Parameter(name="bankDetail", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=204, description="Deleted")
+     * )
+     */
+    /**
      * Remove the specified bank detail.
      */
     public function destroy(Request $request, BankDetail $bankDetail)
@@ -160,6 +194,15 @@ class BankDetailController extends Controller
 
     /**
      * Set a bank detail as default.
+     */
+    /**
+     * @OA\Post(
+     *     path="/api/v1/fees/bank-details/{bankDetail}/set-default",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Mark bank detail as default",
+     *     @OA\Parameter(name="bankDetail", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Updated")
+     * )
      */
     public function setDefault(Request $request, BankDetail $bankDetail)
     {
