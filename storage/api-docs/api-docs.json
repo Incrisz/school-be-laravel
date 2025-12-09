@@ -3288,6 +3288,197 @@
                 }
             }
         },
+        "/api/v1/settings/subjects": {
+            "get": {
+                "tags": [
+                    "school-v1.6"
+                ],
+                "summary": "List subjects",
+                "description": "Paginated list of subjects for the school. Teachers see only subjects they are assigned to.",
+                "operationId": "d3549de9e0c30d850cd457da85f64146",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Filter by name or code",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "name",
+                                "code",
+                                "created_at"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sortDirection",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subjects returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.6"
+                ],
+                "summary": "Create subject",
+                "operationId": "87a496d12002508ba0ee4fb30da03b2a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Mathematics"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "MTH101"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Core math curriculum"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Subject created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/subjects/{id}": {
+            "put": {
+                "tags": [
+                    "school-v1.6"
+                ],
+                "summary": "Update subject",
+                "operationId": "e7328fe4add8554b0d98db219a43f03e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Subject ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Mathematics"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "MTH101"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Core math curriculum"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Subject updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.6"
+                ],
+                "summary": "Delete subject",
+                "operationId": "c3bcf55f5c77c6c6d4f72d3d5bc96bc7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Subject ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Cannot delete subject with dependencies"
+                    }
+                }
+            }
+        },
         "/api/v1/staff/dashboard": {
             "get": {
                 "tags": [
@@ -3447,6 +3638,10 @@
         {
             "name": "school-v1.4",
             "description": "v1.4 – Student Management, Skills & Results"
+        },
+        {
+            "name": "school-v1.6",
+            "description": "v1.6 – Subjects"
         },
         {
             "name": "school-v1.0",
