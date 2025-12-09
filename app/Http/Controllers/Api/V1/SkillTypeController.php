@@ -20,7 +20,7 @@ class SkillTypeController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/settings/skill-types",
-     *     tags={"school-v1.4","school-v1.9"},"school-v1.9"},
+     *     tags={"school-v1.4","school-v1.9"},
      *     summary="List skill types",
      *     description="Returns skill types for the authenticated school. Supports filtering by skill_category_id.",
      *     @OA\Parameter(
@@ -70,7 +70,7 @@ class SkillTypeController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/settings/skill-types",
-     *     tags={"school-v1.4","school-v1.9"}},
+     *     tags={"school-v1.4","school-v1.9"},
      *     summary="Create a skill type",
      *     @OA\RequestBody(
      *         required=true,
@@ -121,7 +121,7 @@ class SkillTypeController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/settings/skill-types/{skillType}",
-     *     tags={"school-v1.4","school-v1.9"}},
+     *     tags={"school-v1.4","school-v1.9"},
      *     summary="Update a skill type",
      *     @OA\Parameter(
      *         name="skillType",
@@ -184,7 +184,7 @@ class SkillTypeController extends Controller
     /**
      * @OA\Delete(
      *     path="/api/v1/settings/skill-types/{skillType}",
-     *     tags={"school-v1.4","school-v1.9"}},
+     *     tags={"school-v1.4","school-v1.9"},
      *     summary="Delete a skill type",
      *     @OA\Parameter(
      *         name="skillType",

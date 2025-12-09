@@ -16,7 +16,8 @@
                 "tags": [
                     "school-v1.1",
                     "school-v1.7",
-                    "school-v1.8"
+                    "school-v1.8",
+                    "school-v1.9"
                 ],
                 "summary": "Get list of sessions",
                 "description": "Returns list of sessions",
@@ -191,7 +192,8 @@
                 "tags": [
                     "school-v1.1",
                     "school-v1.7",
-                    "school-v1.8"
+                    "school-v1.8",
+                    "school-v1.9"
                 ],
                 "summary": "Get list of terms for a session",
                 "description": "Returns list of terms for a session",
@@ -272,7 +274,8 @@
                 "tags": [
                     "school-v1.1",
                     "school-v1.7",
-                    "school-v1.8"
+                    "school-v1.8",
+                    "school-v1.9"
                 ],
                 "summary": "Get term information",
                 "description": "Returns term data",
@@ -382,12 +385,219 @@
                 }
             }
         },
+        "/api/v1/settings/assessment-components": {
+            "get": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "List assessment components",
+                "operationId": "9970effe184ca673023bb5435a34158f",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Components returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Create assessment component",
+                "operationId": "3d22e9cf45f6dcc43e495db3b22c8c0c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "weight",
+                                    "order",
+                                    "subject_ids"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "CA Test"
+                                    },
+                                    "weight": {
+                                        "type": "number",
+                                        "example": 20
+                                    },
+                                    "order": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                        "example": "CAT"
+                                    },
+                                    "subject_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Component created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/assessment-components/{id}": {
+            "get": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Get assessment component",
+                "operationId": "925273accff2ae14bb36ec6e54ffcf53",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Component returned"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Update assessment component",
+                "operationId": "780656eb99556043190ad7867f1521a2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "weight": {
+                                        "type": "number"
+                                    },
+                                    "order": {
+                                        "type": "integer"
+                                    },
+                                    "label": {
+                                        "type": "string"
+                                    },
+                                    "subject_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Component updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Delete assessment component",
+                "operationId": "97c7557ca1f658c249a3e0fd233aa324",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Component deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
         "/api/v1/classes": {
             "get": {
                 "tags": [
                     "school-v1.2",
                     "school-v1.7",
-                    "school-v1.8"
+                    "school-v1.8",
+                    "school-v1.9"
                 ],
                 "summary": "Get list of classes",
                 "description": "Returns list of classes",
@@ -535,7 +745,8 @@
                 "tags": [
                     "school-v1.2",
                     "school-v1.7",
-                    "school-v1.8"
+                    "school-v1.8",
+                    "school-v1.9"
                 ],
                 "summary": "Get list of class arms",
                 "description": "Returns list of class arms for a given class",
@@ -730,7 +941,8 @@
                 "tags": [
                     "school-v1.2",
                     "school-v1.7",
-                    "school-v1.8"
+                    "school-v1.8",
+                    "school-v1.9"
                 ],
                 "summary": "Get list of class arm sections",
                 "description": "Returns list of class arm sections for a given class arm",
@@ -1199,6 +1411,103 @@
                 }
             }
         },
+        "/api/v1/grades/scales": {
+            "get": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "List grading scales",
+                "operationId": "3b8939f0e9aa6c37060bef82be51c8fe",
+                "responses": {
+                    "200": {
+                        "description": "Scales returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            }
+        },
+        "/api/v1/grades/scales/{id}": {
+            "put": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Update grading scale ranges",
+                "operationId": "370c57023a356f680e63512f65908d59",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ranges"
+                                ],
+                                "properties": {
+                                    "ranges": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "min_score": {
+                                                    "type": "number"
+                                                },
+                                                "max_score": {
+                                                    "type": "number"
+                                                },
+                                                "grade_label": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "grade_point": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "deleted_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Scale updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
         "/api/v1/locations/countries": {
             "get": {
                 "tags": [
@@ -1493,10 +1802,204 @@
                 }
             }
         },
+        "/api/v1/results": {
+            "get": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "List results",
+                "description": "Paginated results with filters for student, subject, session, term, class/arm/section, and score ranges.",
+                "operationId": "7d0cd41ad3a2cfa0f820c9466d4bc1b4",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "session_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "term_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "assessment_component_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "school_class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_arm_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_section_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "min_score",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "max_score",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Results returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            }
+        },
+        "/api/v1/results/batch": {
+            "post": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Batch upsert results",
+                "description": "Creates or updates multiple result records for students and subjects.",
+                "operationId": "ffc6bbf2c88df1735bcef02d410f2abe",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "entries"
+                                ],
+                                "properties": {
+                                    "session_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "term_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "assessment_component_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "entries": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "student_id",
+                                                "subject_id",
+                                                "score"
+                                            ],
+                                            "properties": {
+                                                "student_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "subject_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "score": {
+                                                    "type": "number",
+                                                    "example": 75
+                                                },
+                                                "remarks": {
+                                                    "type": "string"
+                                                },
+                                                "assessment_component_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "session_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "term_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Results processed"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
         "/api/v1/students/{student}/result-pins": {
             "get": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "List result PINs for a student",
                 "description": "Returns a student's result PINs filtered by session and term.",
@@ -1544,7 +2047,8 @@
             },
             "post": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Generate a result PIN for a student",
                 "operationId": "b39cca4cc635a929bd72660612e1a176",
@@ -1615,7 +2119,8 @@
         "/api/v1/result-pins/bulk": {
             "post": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Bulk-generate result PINs",
                 "description": "Generate result PINs for many students using class or explicit student filters.",
@@ -1689,7 +2194,8 @@
         "/api/v1/result-pins": {
             "get": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "List result PINs across the school",
                 "description": "Requires session_id and term_id; supports filtering by student, class, arm, and status.",
@@ -1762,7 +2268,8 @@
         "/api/v1/result-pins/{resultPin}/invalidate": {
             "put": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Invalidate a result PIN",
                 "operationId": "aaba4276592d351c65c53e1b6a387ef7",
@@ -1791,7 +2298,8 @@
         "/api/v1/result-pins/cards/print": {
             "get": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Print scratch cards for result PINs",
                 "description": "Renders printable cards for a student or class for a given session/term.",
@@ -2276,10 +2784,141 @@
                 ]
             }
         },
+        "/api/v1/settings/skill-categories": {
+            "get": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "List skill categories",
+                "operationId": "850bae9f35876e463be134ab018a4482",
+                "responses": {
+                    "200": {
+                        "description": "Categories returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Create skill category",
+                "operationId": "37440ab75425f432e10d1a740646a101",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Affective Skills"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Behavioural attributes"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Category created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/skill-categories/{id}": {
+            "put": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Update skill category",
+                "operationId": "e27e6ca0768ccdfee19a7dc99ed901ed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Category updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.9"
+                ],
+                "summary": "Delete skill category",
+                "operationId": "ff9160582c04687d786dce8153bbcc6b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Category deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
         "/api/v1/settings/skill-types": {
             "get": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "List skill types",
                 "description": "Returns skill types for the authenticated school. Supports filtering by skill_category_id.",
@@ -2307,7 +2946,8 @@
             },
             "post": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Create a skill type",
                 "operationId": "382fcb5aed2d155abd11acc6e0eb5c9d",
@@ -2358,7 +2998,8 @@
         "/api/v1/settings/skill-types/{skillType}": {
             "put": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Update a skill type",
                 "operationId": "e086716e254fc334be2c7bd951d17684",
@@ -2417,7 +3058,8 @@
             },
             "delete": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Delete a skill type",
                 "operationId": "0f457929483a6feb8dcab8e73447b068",
@@ -2815,7 +3457,8 @@
         "/api/v1/students": {
             "get": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Get list of students",
                 "description": "Returns list of students",
@@ -2857,7 +3500,8 @@
             },
             "post": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Store new student",
                 "description": "Returns student data",
@@ -2972,7 +3616,8 @@
         "/api/v1/students/{id}": {
             "get": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Get student information",
                 "description": "Returns student data",
@@ -3002,7 +3647,8 @@
             },
             "put": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Update existing student",
                 "description": "Returns updated student data",
@@ -3129,7 +3775,8 @@
             },
             "delete": {
                 "tags": [
-                    "school-v1.4"
+                    "school-v1.4",
+                    "school-v1.9"
                 ],
                 "summary": "Delete existing student",
                 "description": "Deletes a record and returns no content",
@@ -4352,6 +4999,10 @@
         {
             "name": "school-v1.8",
             "description": "v1.8 – Class Teacher Assignments (supporting lookups)"
+        },
+        {
+            "name": "school-v1.9",
+            "description": "v1.9 – Results, Components, Grading & Skills (supporting lookups)"
         },
         {
             "name": "school-v1.2",
