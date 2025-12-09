@@ -14,7 +14,8 @@
         "/api/v1/sessions": {
             "get": {
                 "tags": [
-                    "school-v1.1"
+                    "school-v1.1",
+                    "school-v1.7"
                 ],
                 "summary": "Get list of sessions",
                 "description": "Returns list of sessions",
@@ -187,7 +188,8 @@
         "/api/v1/sessions/{id}/terms": {
             "get": {
                 "tags": [
-                    "school-v1.1"
+                    "school-v1.1",
+                    "school-v1.7"
                 ],
                 "summary": "Get list of terms for a session",
                 "description": "Returns list of terms for a session",
@@ -266,7 +268,8 @@
         "/api/v1/terms/{id}": {
             "get": {
                 "tags": [
-                    "school-v1.1"
+                    "school-v1.1",
+                    "school-v1.7"
                 ],
                 "summary": "Get term information",
                 "description": "Returns term data",
@@ -379,7 +382,8 @@
         "/api/v1/classes": {
             "get": {
                 "tags": [
-                    "school-v1.2"
+                    "school-v1.2",
+                    "school-v1.7"
                 ],
                 "summary": "Get list of classes",
                 "description": "Returns list of classes",
@@ -525,7 +529,8 @@
         "/api/v1/classes/{classId}/arms": {
             "get": {
                 "tags": [
-                    "school-v1.2"
+                    "school-v1.2",
+                    "school-v1.7"
                 ],
                 "summary": "Get list of class arms",
                 "description": "Returns list of class arms for a given class",
@@ -718,7 +723,8 @@
         "/api/v1/classes/{classId}/arms/{armId}/sections": {
             "get": {
                 "tags": [
-                    "school-v1.2"
+                    "school-v1.2",
+                    "school-v1.7"
                 ],
                 "summary": "Get list of class arm sections",
                 "description": "Returns list of class arm sections for a given class arm",
@@ -2196,7 +2202,8 @@
         "/api/v1/staff": {
             "get": {
                 "tags": [
-                    "school-v1.5"
+                    "school-v1.5",
+                    "school-v1.7"
                 ],
                 "summary": "List staff",
                 "description": "Paginated list of staff for the authenticated school. Supports search and role filters.",
@@ -3288,10 +3295,222 @@
                 }
             }
         },
+        "/api/v1/settings/subject-assignments": {
+            "get": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "List subject-to-class assignments",
+                "description": "Paginated list filtered by subject, class, arm, section, or search.",
+                "operationId": "eacfe25d7aa04891a9fee829033c2fad",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "school_class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_arm_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_section_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search subject name/code",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assignments returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "Create subject-to-class assignment",
+                "operationId": "4f61524453e873595329db13a5affc49",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "subject_id",
+                                    "school_class_id",
+                                    "class_arm_id"
+                                ],
+                                "properties": {
+                                    "subject_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Assignment created"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate assignment"
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/subject-assignments/{id}": {
+            "put": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "Update subject-to-class assignment",
+                "operationId": "4a5a5cd14ed618844718c5173b0feaaa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Assignment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "subject_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Assignment updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate assignment"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "Delete subject-to-class assignment",
+                "operationId": "2199bcf351b3f99a36f451d5e92ff8bb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Assignment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assignment deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
         "/api/v1/settings/subjects": {
             "get": {
                 "tags": [
-                    "school-v1.6"
+                    "school-v1.6",
+                    "school-v1.7"
                 ],
                 "summary": "List subjects",
                 "description": "Paginated list of subjects for the school. Teachers see only subjects they are assigned to.",
@@ -3479,6 +3698,264 @@
                 }
             }
         },
+        "/api/v1/settings/subject-teacher-assignments": {
+            "get": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "List teacher-subject assignments",
+                "description": "Paginated list filtered by subject, staff, class, arm, section, session, or term.",
+                "operationId": "af576689a425128361bd0f3b196c256f",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "staff_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "school_class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_arm_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_section_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "session_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "term_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search subject or teacher",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assignments returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "Create teacher-subject assignment",
+                "operationId": "015967aa78ec7919da400c467089fee3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "subject_id",
+                                    "staff_id",
+                                    "session_id",
+                                    "term_id"
+                                ],
+                                "properties": {
+                                    "subject_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "staff_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "session_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "term_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Assignment created"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate assignment"
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/subject-teacher-assignments/{id}": {
+            "put": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "Update teacher-subject assignment",
+                "operationId": "1f90b33ab6199e822019b683d452ed1c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Assignment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "subject_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "staff_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "session_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "term_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Assignment updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate assignment"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.7"
+                ],
+                "summary": "Delete teacher-subject assignment",
+                "operationId": "aaaa3cab0eadc8539d40534c83b73d56",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Assignment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assignment deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
         "/api/v1/staff/dashboard": {
             "get": {
                 "tags": [
@@ -3622,6 +4099,10 @@
         {
             "name": "school-v1.1",
             "description": "Academic Session & Term Management"
+        },
+        {
+            "name": "school-v1.7",
+            "description": "v1.7 – Subject & Teacher Assignments"
         },
         {
             "name": "school-v1.2",

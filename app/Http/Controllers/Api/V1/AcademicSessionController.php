@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Validator;
  *     name="school-v1.1",
  *     description="Academic Session & Term Management"
  * )
+ * @OA\Tag(
+ *     name="school-v1.7",
+ *     description="v1.7 – Subject & Teacher Assignments (supporting lookups)"
+ * )
  */
 class AcademicSessionController extends Controller
 {
@@ -22,7 +26,7 @@ class AcademicSessionController extends Controller
      * @OA\Get(
      *      path="/api/v1/sessions",
      *      operationId="getSessionsList",
-     *      tags={"school-v1.1"},
+     *      tags={"school-v1.1","school-v1.7"},
      *      summary="Get list of sessions",
      *      description="Returns list of sessions",
      *      @OA\Response(
@@ -281,7 +285,7 @@ class AcademicSessionController extends Controller
      * @OA\Get(
      *      path="/api/v1/sessions/{id}/terms",
      *      operationId="getTermsForSession",
-     *      tags={"school-v1.1"},
+     *      tags={"school-v1.1","school-v1.7"},
      *      summary="Get list of terms for a session",
      *      description="Returns list of terms for a session",
      *      @OA\Parameter(
@@ -378,7 +382,7 @@ class AcademicSessionController extends Controller
      * @OA\Get(
      *      path="/api/v1/terms/{id}",
      *      operationId="getTermById",
-     *      tags={"school-v1.1"},
+     *      tags={"school-v1.1","school-v1.7"},
      *      summary="Get term information",
      *      description="Returns term data",
      *      @OA\Parameter(

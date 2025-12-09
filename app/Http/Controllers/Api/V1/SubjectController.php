@@ -14,6 +14,10 @@ use Illuminate\Validation\Rule;
  *     name="school-v1.6",
  *     description="v1.6 – Subjects"
  * )
+ * @OA\Tag(
+ *     name="school-v1.7",
+ *     description="v1.7 – Subject & Teacher Assignments"
+ * )
  */
 class SubjectController extends Controller
 {
@@ -24,7 +28,7 @@ class SubjectController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/settings/subjects",
-     *     tags={"school-v1.6"},
+     *     tags={"school-v1.6","school-v1.7"},
      *     summary="List subjects",
      *     description="Paginated list of subjects for the school. Teachers see only subjects they are assigned to.",
      *     @OA\Parameter(name="search", in="query", required=false, description="Filter by name or code", @OA\Schema(type="string")),

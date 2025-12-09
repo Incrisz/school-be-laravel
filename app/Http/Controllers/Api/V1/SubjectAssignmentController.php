@@ -12,8 +12,30 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.7",
+ *     description="v1.7 – Subject & Teacher Assignments"
+ * )
+ */
 class SubjectAssignmentController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/settings/subject-assignments",
+     *     tags={"school-v1.7"},
+     *     summary="List subject-to-class assignments",
+     *     description="Paginated list filtered by subject, class, arm, section, or search.",
+     *     @OA\Parameter(name="subject_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="school_class_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="class_arm_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="class_section_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="search", in="query", required=false, description="Search subject name/code", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer", minimum=1)),
+     *     @OA\Response(response=200, description="Assignments returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function index(Request $request)
     {
         $this->ensurePermission($request, 'subject.assignments.class');
@@ -73,6 +95,25 @@ class SubjectAssignmentController extends Controller
         return response()->json($assignments);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/settings/subject-assignments",
+     *     tags={"school-v1.7"},
+     *     summary="Create subject-to-class assignment",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"subject_id","school_class_id","class_arm_id"},
+     *             @OA\Property(property="subject_id", type="string", format="uuid"),
+     *             @OA\Property(property="school_class_id", type="string", format="uuid"),
+     *             @OA\Property(property="class_arm_id", type="string", format="uuid"),
+     *             @OA\Property(property="class_section_id", type="string", format="uuid", nullable=true)
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Assignment created"),
+     *     @OA\Response(response=422, description="Validation error or duplicate assignment")
+     * )
+     */
     public function store(Request $request)
     {
         $this->ensurePermission($request, 'subject.assignments.class');
@@ -123,7 +164,6 @@ class SubjectAssignmentController extends Controller
             ]),
         ], 201);
     }
-
     public function show(Request $request, SubjectAssignment $assignment)
     {
         $this->authorizeAssignment($request, $assignment);
@@ -141,6 +181,32 @@ class SubjectAssignmentController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/settings/subject-assignments/{id}",
+     *     tags={"school-v1.7"},
+     *     summary="Update subject-to-class assignment",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Assignment ID",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="subject_id", type="string", format="uuid"),
+     *             @OA\Property(property="school_class_id", type="string", format="uuid"),
+     *             @OA\Property(property="class_arm_id", type="string", format="uuid"),
+     *             @OA\Property(property="class_section_id", type="string", format="uuid", nullable=true)
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Assignment updated"),
+     *     @OA\Response(response=404, description="Not found"),
+     *     @OA\Response(response=422, description="Validation error or duplicate assignment")
+     * )
+     */
     public function update(Request $request, SubjectAssignment $assignment)
     {
         $this->ensurePermission($request, 'subject.assignments.class');
@@ -204,6 +270,22 @@ class SubjectAssignmentController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/settings/subject-assignments/{id}",
+     *     tags={"school-v1.7"},
+     *     summary="Delete subject-to-class assignment",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Assignment ID",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(response=200, description="Assignment deleted"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
     public function destroy(Request $request, SubjectAssignment $assignment)
     {
         $this->ensurePermission($request, 'subject.assignments.class');

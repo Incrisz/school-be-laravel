@@ -18,13 +18,17 @@ use Spatie\Permission\PermissionRegistrar;
  *     name="school-v1.5",
  *     description="v1.5 – Staff Management & Self-Service"
  * )
+ * @OA\Tag(
+ *     name="school-v1.7",
+ *     description="v1.7 – Subject & Teacher Assignments (supporting lookups)"
+ * )
  */
 class StaffController extends Controller
 {
     /**
      * @OA\Get(
      *     path="/api/v1/staff",
-     *     tags={"school-v1.5"},
+     *     tags={"school-v1.5","school-v1.7"},
      *     summary="List staff",
      *     description="Paginated list of staff for the authenticated school. Supports search and role filters.",
      *     @OA\Parameter(name="search", in="query", required=false, description="Search full name, email, or phone", @OA\Schema(type="string")),
