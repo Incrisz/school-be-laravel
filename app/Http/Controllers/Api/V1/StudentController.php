@@ -16,6 +16,10 @@ use App\Services\Teachers\TeacherAccessService;
  *     name="school-v1.4",
  *     description="v1.4 – Student Management, Skills & Results"
  * )
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="v1.9 – Results, Components, Grading & Skills (supporting lookups)"
+ * )
  */
 class StudentController extends Controller
 {
@@ -32,7 +36,7 @@ class StudentController extends Controller
      * @OA\Get(
      *      path="/api/v1/students",
      *      operationId="getStudentsList",
-     *      tags={"school-v1.4"},
+     *      tags={"school-v1.4","school-v1.9"}},
      *      summary="Get list of students",
      *      description="Returns list of students",
      *      @OA\Parameter(
@@ -149,7 +153,7 @@ class StudentController extends Controller
      * @OA\Post(
      *      path="/api/v1/students",
      *      operationId="storeStudent",
-     *      tags={"school-v1.4"},
+     *      tags={"school-v1.4","school-v1.9"}},
      *      summary="Store new student",
      *      description="Returns student data",
      *      @OA\RequestBody(
@@ -292,7 +296,7 @@ class StudentController extends Controller
      * @OA\Get(
      *      path="/api/v1/students/{id}",
      *      operationId="getStudentById",
-     *      tags={"school-v1.4"},
+     *      tags={"school-v1.4","school-v1.9"}},
      *      summary="Get student information",
      *      description="Returns student data",
      *      @OA\Parameter(
@@ -348,7 +352,7 @@ class StudentController extends Controller
      * @OA\Put(
      *      path="/api/v1/students/{id}",
      *      operationId="updateStudent",
-     *      tags={"school-v1.4"},
+     *      tags={"school-v1.4","school-v1.9"}},
      *      summary="Update existing student",
      *      description="Returns updated student data",
      *      @OA\Parameter(
@@ -506,7 +510,7 @@ class StudentController extends Controller
      * @OA\Delete(
      *      path="/api/v1/students/{id}",
      *      operationId="deleteStudent",
-     *      tags={"school-v1.4"},
+     *      tags={"school-v1.4","school-v1.9"}},
      *      summary="Delete existing student",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(

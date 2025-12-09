@@ -11,6 +11,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="v1.9 – Results, Components, Grading & Skills"
+ * )
+ */
 class ResultPinController extends Controller
 {
     public function __construct(private readonly ResultPinService $service)
@@ -20,7 +26,7 @@ class ResultPinController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/students/{student}/result-pins",
-     *     tags={"school-v1.4"},
+     *     tags={"school-v1.4","school-v1.9"}},
      *     summary="List result PINs for a student",
      *     description="Returns a student's result PINs filtered by session and term.",
      *     @OA\Parameter(
@@ -67,7 +73,7 @@ class ResultPinController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/students/{student}/result-pins",
-     *     tags={"school-v1.4"},
+     *     tags={"school-v1.4","school-v1.9"}},
      *     summary="Generate a result PIN for a student",
      *     @OA\Parameter(
      *         name="student",
@@ -131,7 +137,7 @@ class ResultPinController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/result-pins/bulk",
-     *     tags={"school-v1.4"},
+     *     tags={"school-v1.4","school-v1.9"}},
      *     summary="Bulk-generate result PINs",
      *     description="Generate result PINs for many students using class or explicit student filters.",
      *     @OA\RequestBody(
@@ -218,7 +224,7 @@ class ResultPinController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/result-pins",
-     *     tags={"school-v1.4"},
+     *     tags={"school-v1.4","school-v1.9"}},
      *     summary="List result PINs across the school",
      *     description="Requires session_id and term_id; supports filtering by student, class, arm, and status.",
      *     @OA\Parameter(name="session_id", in="query", required=true, @OA\Schema(type="string", format="uuid")),
@@ -285,7 +291,7 @@ class ResultPinController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/result-pins/{resultPin}/invalidate",
-     *     tags={"school-v1.4"},
+     *     tags={"school-v1.4","school-v1.9"}},
      *     summary="Invalidate a result PIN",
      *     @OA\Parameter(
      *         name="resultPin",
@@ -314,7 +320,7 @@ class ResultPinController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/result-pins/cards/print",
-     *     tags={"school-v1.4"},
+     *     tags={"school-v1.4","school-v1.9"}},
      *     summary="Print scratch cards for result PINs",
      *     description="Renders printable cards for a student or class for a given session/term.",
      *     @OA\Parameter(name="session_id", in="query", required=true, @OA\Schema(type="string", format="uuid")),

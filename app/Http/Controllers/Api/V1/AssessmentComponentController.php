@@ -12,8 +12,25 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="v1.9 – Results, Components, Grading & Skills"
+ * )
+ */
 class AssessmentComponentController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/settings/assessment-components",
+     *     tags={"school-v1.9"},
+     *     summary="List assessment components",
+     *     @OA\Parameter(name="subject_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="search", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="Components returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function index(Request $request)
     {
         $school = $request->user()->school;
@@ -54,6 +71,26 @@ class AssessmentComponentController extends Controller
         return response()->json($components);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/settings/assessment-components",
+     *     tags={"school-v1.9"},
+     *     summary="Create assessment component",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","weight","order","subject_ids"},
+     *             @OA\Property(property="name", type="string", example="CA Test"),
+     *             @OA\Property(property="weight", type="number", example=20),
+     *             @OA\Property(property="order", type="integer", example=1),
+     *             @OA\Property(property="label", type="string", example="CAT"),
+     *             @OA\Property(property="subject_ids", type="array", @OA\Items(type="string", format="uuid"))
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Component created"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function store(Request $request)
     {
         $school = $request->user()->school;
@@ -107,6 +144,16 @@ class AssessmentComponentController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/settings/assessment-components/{id}",
+     *     tags={"school-v1.9"},
+     *     summary="Get assessment component",
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Component returned"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
     public function show(Request $request, AssessmentComponent $assessmentComponent)
     {
         $this->authorizeComponent($request, $assessmentComponent);
@@ -116,6 +163,27 @@ class AssessmentComponentController extends Controller
         );
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/settings/assessment-components/{id}",
+     *     tags={"school-v1.9"},
+     *     summary="Update assessment component",
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="weight", type="number"),
+     *             @OA\Property(property="order", type="integer"),
+     *             @OA\Property(property="label", type="string"),
+     *             @OA\Property(property="subject_ids", type="array", @OA\Items(type="string", format="uuid"))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Component updated"),
+     *     @OA\Response(response=404, description="Not found"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function update(Request $request, AssessmentComponent $assessmentComponent)
     {
         $this->authorizeComponent($request, $assessmentComponent);
@@ -172,6 +240,16 @@ class AssessmentComponentController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/settings/assessment-components/{id}",
+     *     tags={"school-v1.9"},
+     *     summary="Delete assessment component",
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Component deleted"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
     public function destroy(Request $request, AssessmentComponent $assessmentComponent)
     {
         $this->authorizeComponent($request, $assessmentComponent);
