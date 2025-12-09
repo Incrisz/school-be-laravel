@@ -14,6 +14,16 @@ class TeacherDashboardController extends Controller
     {
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/staff/dashboard",
+     *     tags={"school-v1.5"},
+     *     summary="Staff dashboard (teacher view)",
+     *     description="Returns teacher dashboard data for the authenticated staff member.",
+     *     @OA\Response(response=200, description="Dashboard returned"),
+     *     @OA\Response(response=403, description="Forbidden")
+     * )
+     */
     public function show(Request $request): JsonResponse
     {
         $scope = $this->teacherAccess->forUser($request->user());

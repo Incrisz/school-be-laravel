@@ -12,6 +12,16 @@ use Illuminate\Validation\Rule;
 
 class StaffSelfController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/staff/me",
+     *     tags={"school-v1.5"},
+     *     summary="Get my staff profile",
+     *     description="Returns the authenticated staff profile.",
+     *     @OA\Response(response=200, description="Profile returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function show(Request $request): JsonResponse
     {
         $this->ensurePermission($request, 'profile.view');
@@ -23,6 +33,32 @@ class StaffSelfController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/staff/me",
+     *     tags={"school-v1.5"},
+     *     summary="Update my staff profile",
+     *     description="Allows a staff member to update their profile and password.",
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="full_name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="phone", type="string", example="+2348000000000"),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="qualifications", type="string"),
+     *             @OA\Property(property="gender", type="string", example="female"),
+     *             @OA\Property(property="employment_start_date", type="string", format="date"),
+     *             @OA\Property(property="password", type="string", format="password", example="newPassword123"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="newPassword123"),
+     *             @OA\Property(property="old_password", type="string", format="password", example="currentPassword123")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Profile updated"),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function update(Request $request): JsonResponse
     {
         $this->ensurePermission($request, 'profile.edit');

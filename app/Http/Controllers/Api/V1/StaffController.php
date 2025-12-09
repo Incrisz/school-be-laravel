@@ -13,8 +13,29 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\PermissionRegistrar;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.5",
+ *     description="v1.5 – Staff Management & Self-Service"
+ * )
+ */
 class StaffController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/staff",
+     *     tags={"school-v1.5"},
+     *     summary="List staff",
+     *     description="Paginated list of staff for the authenticated school. Supports search and role filters.",
+     *     @OA\Parameter(name="search", in="query", required=false, description="Search full name, email, or phone", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="role", in="query", required=false, description="Filter by role label", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="sortBy", in="query", required=false, description="Sort column", @OA\Schema(type="string", enum={"full_name","email","phone","role","created_at"})),
+     *     @OA\Parameter(name="sortDirection", in="query", required=false, description="Sort direction", @OA\Schema(type="string", enum={"asc","desc"})),
+     *     @OA\Parameter(name="per_page", in="query", required=false, description="Items per page", @OA\Schema(type="integer", minimum=1)),
+     *     @OA\Response(response=200, description="List returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function index(Request $request)
     {
         $this->ensurePermission($request, 'staff.view');
@@ -50,6 +71,30 @@ class StaffController extends Controller
         return response()->json($staff);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/staff",
+     *     tags={"school-v1.5"},
+     *     summary="Create staff",
+     *     description="Creates a staff profile and linked user account.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"full_name","email","phone","role","gender"},
+     *             @OA\Property(property="full_name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="phone", type="string", example="+2348000000000"),
+     *             @OA\Property(property="role", type="string", example="Teacher"),
+     *             @OA\Property(property="gender", type="string", example="female"),
+     *             @OA\Property(property="address", type="string", example="12 Example Street"),
+     *             @OA\Property(property="qualifications", type="string", example="B.Ed"),
+     *             @OA\Property(property="employment_start_date", type="string", format="date", example="2024-09-01")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Staff created"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function store(Request $request)
     {
         $this->ensurePermission($request, 'staff.create');
@@ -128,6 +173,22 @@ class StaffController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/staff/{id}",
+     *     tags={"school-v1.5"},
+     *     summary="Get staff by ID",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(response=200, description="Staff returned"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
     public function show(Request $request, Staff $staff)
     {
         $this->ensurePermission($request, 'staff.view');
@@ -140,6 +201,37 @@ class StaffController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/staff/{id}",
+     *     tags={"school-v1.5"},
+     *     summary="Update staff",
+     *     description="Updates staff profile and linked user account.",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="full_name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="phone", type="string", example="+2348000000000"),
+     *             @OA\Property(property="role", type="string", example="Accountant"),
+     *             @OA\Property(property="gender", type="string", example="female"),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="qualifications", type="string"),
+     *             @OA\Property(property="employment_start_date", type="string", format="date")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Staff updated"),
+     *     @OA\Response(response=404, description="Not found"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function update(Request $request, Staff $staff)
     {
         $this->ensurePermission($request, 'staff.update');
@@ -258,6 +350,22 @@ class StaffController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/staff/{id}",
+     *     tags={"school-v1.5"},
+     *     summary="Delete staff",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(response=204, description="Deleted"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
+     */
     public function destroy(Request $request, Staff $staff)
     {
         $this->ensurePermission($request, 'staff.delete');
