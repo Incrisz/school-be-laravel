@@ -19,6 +19,10 @@ use Illuminate\Validation\Rule;
  *     name="school-v1.7",
  *     description="v1.7 – Subject & Teacher Assignments"
  * )
+ * @OA\Tag(
+ *     name="school-v1.8",
+ *     description="v1.8 – Class Teacher Assignments"
+ * )
  */
 class ClassController extends Controller
 {
@@ -30,7 +34,7 @@ class ClassController extends Controller
      * @OA\Get(
      *      path="/api/v1/classes",
      *      operationId="getClassesList",
-     *      tags={"school-v1.2","school-v1.7"},
+     *      tags={"school-v1.2","school-v1.7","school-v1.8"},
      *      summary="Get list of classes",
      *      description="Returns list of classes",
      *      @OA\Response(
@@ -233,7 +237,7 @@ class ClassController extends Controller
      * @OA\Get(
      *      path="/api/v1/classes/{classId}/arms",
      *      operationId="getClassArmsList",
-     *      tags={"school-v1.2","school-v1.7"},
+     *      tags={"school-v1.2","school-v1.7","school-v1.8"},
      *      summary="Get list of class arms",
      *      description="Returns list of class arms for a given class",
      *      @OA\Parameter(
@@ -458,7 +462,7 @@ class ClassController extends Controller
      * @OA\Get(
      *      path="/api/v1/classes/{classId}/arms/{armId}/sections",
      *      operationId="getClassArmSectionsList",
-     *      tags={"school-v1.2","school-v1.7"},
+     *      tags={"school-v1.2","school-v1.7","school-v1.8"},
      *      summary="Get list of class arm sections",
      *      description="Returns list of class arm sections for a given class arm",
      *      @OA\Parameter(

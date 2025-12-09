@@ -15,7 +15,8 @@
             "get": {
                 "tags": [
                     "school-v1.1",
-                    "school-v1.7"
+                    "school-v1.7",
+                    "school-v1.8"
                 ],
                 "summary": "Get list of sessions",
                 "description": "Returns list of sessions",
@@ -189,7 +190,8 @@
             "get": {
                 "tags": [
                     "school-v1.1",
-                    "school-v1.7"
+                    "school-v1.7",
+                    "school-v1.8"
                 ],
                 "summary": "Get list of terms for a session",
                 "description": "Returns list of terms for a session",
@@ -269,7 +271,8 @@
             "get": {
                 "tags": [
                     "school-v1.1",
-                    "school-v1.7"
+                    "school-v1.7",
+                    "school-v1.8"
                 ],
                 "summary": "Get term information",
                 "description": "Returns term data",
@@ -383,7 +386,8 @@
             "get": {
                 "tags": [
                     "school-v1.2",
-                    "school-v1.7"
+                    "school-v1.7",
+                    "school-v1.8"
                 ],
                 "summary": "Get list of classes",
                 "description": "Returns list of classes",
@@ -530,7 +534,8 @@
             "get": {
                 "tags": [
                     "school-v1.2",
-                    "school-v1.7"
+                    "school-v1.7",
+                    "school-v1.8"
                 ],
                 "summary": "Get list of class arms",
                 "description": "Returns list of class arms for a given class",
@@ -724,7 +729,8 @@
             "get": {
                 "tags": [
                     "school-v1.2",
-                    "school-v1.7"
+                    "school-v1.7",
+                    "school-v1.8"
                 ],
                 "summary": "Get list of class arm sections",
                 "description": "Returns list of class arm sections for a given class arm",
@@ -951,6 +957,244 @@
                 "responses": {
                     "204": {
                         "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/class-teachers": {
+            "get": {
+                "tags": [
+                    "school-v1.8"
+                ],
+                "summary": "List class teacher assignments",
+                "description": "Paginated list filtered by staff, class, arm, section, session, or term.",
+                "operationId": "edec74c91931ccf39404e8645b32fec1",
+                "parameters": [
+                    {
+                        "name": "staff_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "school_class_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_arm_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "class_section_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "session_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "term_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search teacher or class name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assignments returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "school-v1.8"
+                ],
+                "summary": "Create class teacher assignment",
+                "operationId": "231ab63a20b591cd98919199c7e13e85",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "staff_id",
+                                    "school_class_id",
+                                    "class_arm_id",
+                                    "session_id",
+                                    "term_id"
+                                ],
+                                "properties": {
+                                    "staff_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "session_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "term_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Assignment created"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate assignment"
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/class-teachers/{id}": {
+            "put": {
+                "tags": [
+                    "school-v1.8"
+                ],
+                "summary": "Update class teacher assignment",
+                "operationId": "a28dd8d5c4bf21779d297e9000d007ad",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Assignment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "staff_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "school_class_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_arm_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "class_section_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "session_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "term_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Assignment updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate assignment"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "school-v1.8"
+                ],
+                "summary": "Delete class teacher assignment",
+                "operationId": "7e529a60ddbc2cfdf014539540b36f38",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Assignment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assignment deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
                     }
                 }
             }
@@ -2203,7 +2447,8 @@
             "get": {
                 "tags": [
                     "school-v1.5",
-                    "school-v1.7"
+                    "school-v1.7",
+                    "school-v1.8"
                 ],
                 "summary": "List staff",
                 "description": "Paginated list of staff for the authenticated school. Supports search and role filters.",
@@ -4103,6 +4348,10 @@
         {
             "name": "school-v1.7",
             "description": "v1.7 – Subject & Teacher Assignments"
+        },
+        {
+            "name": "school-v1.8",
+            "description": "v1.8 – Class Teacher Assignments (supporting lookups)"
         },
         {
             "name": "school-v1.2",
