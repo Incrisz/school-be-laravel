@@ -4136,6 +4136,79 @@
                 }
             }
         },
+        "/api/v1/student/login": {
+            "post": {
+                "tags": [
+                    "school-v2.6"
+                ],
+                "summary": "Student login",
+                "operationId": "27347970a9d2ef7e83a9f21c18b17331",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "admission_no",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "admission_no": {
+                                        "type": "string",
+                                        "example": "NC001-2024/2025/1"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Logged in"
+                    },
+                    "422": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/student/logout": {
+            "post": {
+                "tags": [
+                    "school-v2.6"
+                ],
+                "summary": "Student logout",
+                "operationId": "8f018298fe4dff5c5ee40d24548c1e09",
+                "responses": {
+                    "200": {
+                        "description": "Logged out"
+                    }
+                }
+            }
+        },
+        "/api/v1/student/profile": {
+            "get": {
+                "tags": [
+                    "school-v2.6"
+                ],
+                "summary": "Get student profile",
+                "operationId": "685574a6c975dae2c856ce9b2d94bd93",
+                "responses": {
+                    "200": {
+                        "description": "Profile returned"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            }
+        },
         "/api/v1/students/bulk/template": {
             "get": {
                 "tags": [
@@ -5785,6 +5858,10 @@
         {
             "name": "school-v1.5",
             "description": "v1.5 – Staff Management & Self-Service"
+        },
+        {
+            "name": "school-v2.6",
+            "description": "v2.6 – Student Portal"
         },
         {
             "name": "school-v1.4",
