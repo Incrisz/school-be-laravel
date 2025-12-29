@@ -14,11 +14,20 @@ use Illuminate\Validation\ValidationException;
  *     name="school-v2.4",
  *     description="Fee Management"
  * )
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles"
+ * )
  */
 class FeeStructureController extends Controller
 {
     /**
-     * Display a listing of fee structures.
+     * @OA\Get(
+     *     path="/api/v1/fees/structures",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="List fee structures",
+     *     @OA\Response(response=200, description="Fee structures returned")
+     * )
      */
     public function index(Request $request)
     {
@@ -46,7 +55,13 @@ class FeeStructureController extends Controller
     }
 
     /**
-     * Store a newly created fee structure.
+     * @OA\Post(
+     *     path="/api/v1/fees/structures",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Create fee structure",
+     *     @OA\Response(response=201, description="Created"),
+     *     @OA\Response(response=422, description="Validation error or duplicate")
+     * )
      */
     public function store(Request $request)
     {
@@ -90,7 +105,14 @@ class FeeStructureController extends Controller
     }
 
     /**
-     * Display the specified fee structure.
+     * @OA\Get(
+     *     path="/api/v1/fees/structures/{feeStructure}",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Get fee structure",
+     *     @OA\Parameter(name="feeStructure", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Fee structure returned"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function show(Request $request, FeeStructure $feeStructure)
     {
@@ -104,7 +126,14 @@ class FeeStructureController extends Controller
     }
 
     /**
-     * Update the specified fee structure.
+     * @OA\Put(
+     *     path="/api/v1/fees/structures/{feeStructure}",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Update fee structure",
+     *     @OA\Parameter(name="feeStructure", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Updated"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function update(Request $request, FeeStructure $feeStructure)
     {
@@ -125,7 +154,14 @@ class FeeStructureController extends Controller
     }
 
     /**
-     * Remove the specified fee structure.
+     * @OA\Delete(
+     *     path="/api/v1/fees/structures/{feeStructure}",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Delete fee structure",
+     *     @OA\Parameter(name="feeStructure", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=204, description="Deleted"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function destroy(Request $request, FeeStructure $feeStructure)
     {
@@ -178,7 +214,13 @@ class FeeStructureController extends Controller
     }
 
     /**
-     * Copy fee structure from one term/session to another.
+     * @OA\Post(
+     *     path="/api/v1/fees/structures/copy",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Copy fee structures between sessions/terms",
+     *     @OA\Response(response=201, description="Structures copied"),
+     *     @OA\Response(response=404, description="Source not found")
+     * )
      */
     public function copy(Request $request)
     {
@@ -264,7 +306,12 @@ class FeeStructureController extends Controller
     }
 
     /**
-     * Get fee structures grouped by class for a session and term.
+     * @OA\Get(
+     *     path="/api/v1/fees/structures/by-session-term",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Fee structures by session and term",
+     *     @OA\Response(response=200, description="Fee structures returned")
+     * )
      */
     public function getBySessionTerm(Request $request)
     {

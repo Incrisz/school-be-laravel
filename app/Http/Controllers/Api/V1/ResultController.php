@@ -17,12 +17,38 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="v1.9 – Results, Components, Grading & Skills"
+ * )
+ */
 class ResultController extends Controller
 {
     public function __construct(private TeacherAccessService $teacherAccess)
     {
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/results",
+     *     tags={"school-v1.9"},
+     *     summary="List results",
+     *     description="Paginated results with filters for student, subject, session, term, class/arm/section, and score ranges.",
+     *     @OA\Parameter(name="student_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="subject_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="session_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="term_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="assessment_component_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="school_class_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="class_arm_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="class_section_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="min_score", in="query", required=false, @OA\Schema(type="number")),
+     *     @OA\Parameter(name="max_score", in="query", required=false, @OA\Schema(type="number")),
+     *     @OA\Response(response=200, description="Results returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function index(Request $request)
     {
         $this->ensurePermission($request, 'results.view');
@@ -110,6 +136,37 @@ class ResultController extends Controller
         return response()->json($results);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/results/batch",
+     *     tags={"school-v1.9"},
+     *     summary="Batch upsert results",
+     *     description="Creates or updates multiple result records for students and subjects.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"entries"},
+     *             @OA\Property(property="session_id", type="string", format="uuid"),
+     *             @OA\Property(property="term_id", type="string", format="uuid"),
+     *             @OA\Property(property="assessment_component_id", type="string", format="uuid"),
+     *             @OA\Property(property="entries", type="array",
+     *                 @OA\Items(
+     *                     required={"student_id","subject_id","score"},
+     *                     @OA\Property(property="student_id", type="string", format="uuid"),
+     *                     @OA\Property(property="subject_id", type="string", format="uuid"),
+     *                     @OA\Property(property="score", type="number", example=75),
+     *                     @OA\Property(property="remarks", type="string"),
+     *                     @OA\Property(property="assessment_component_id", type="string", format="uuid"),
+     *                     @OA\Property(property="session_id", type="string", format="uuid"),
+     *                     @OA\Property(property="term_id", type="string", format="uuid")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Results processed"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function batchUpsert(Request $request)
     {
         $this->ensurePermission($request, 'results.enter');

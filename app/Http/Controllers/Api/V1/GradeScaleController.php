@@ -13,8 +13,23 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="v1.9 – Results, Components, Grading & Skills"
+ * )
+ */
 class GradeScaleController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/grades/scales",
+     *     tags={"school-v1.9"},
+     *     summary="List grading scales",
+     *     @OA\Response(response=200, description="Scales returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function index(Request $request)
     {
         $school = optional($request->user())->school;
@@ -53,6 +68,32 @@ class GradeScaleController extends Controller
         );
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/grades/scales/{id}",
+     *     tags={"school-v1.9"},
+     *     summary="Update grading scale ranges",
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"ranges"},
+     *             @OA\Property(property="ranges", type="array", @OA\Items(
+     *                 @OA\Property(property="id", type="string", format="uuid"),
+     *                 @OA\Property(property="min_score", type="number"),
+     *                 @OA\Property(property="max_score", type="number"),
+     *                 @OA\Property(property="grade_label", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="grade_point", type="number")
+     *             )),
+     *             @OA\Property(property="deleted_ids", type="array", @OA\Items(type="string", format="uuid"))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Scale updated"),
+     *     @OA\Response(response=404, description="Not found"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function updateRanges(Request $request, GradingScale $gradingScale)
     {
         $this->authorizeScale($request, $gradingScale);

@@ -11,12 +11,45 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rule;
 
+/**
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles"
+ * )
+ */
 class PromotionController extends Controller
 {
     public function __construct(private readonly PromotionService $service)
     {
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/promotions/bulk",
+     *     tags={"school-v2.0"},
+     *     summary="Bulk promote students",
+     *     description="Promotes students from a source class/session/term to a target class/session (optionally retaining subjects).",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"target_session_id","target_class_id","student_ids"},
+     *             @OA\Property(property="current_session_id", type="string", format="uuid", nullable=true),
+     *             @OA\Property(property="current_term_id", type="string", format="uuid", nullable=true),
+     *             @OA\Property(property="current_class_id", type="string", format="uuid", nullable=true),
+     *             @OA\Property(property="current_class_arm_id", type="string", format="uuid", nullable=true),
+     *             @OA\Property(property="current_section_id", type="string", format="uuid", nullable=true),
+     *             @OA\Property(property="target_session_id", type="string", format="uuid"),
+     *             @OA\Property(property="target_class_id", type="string", format="uuid"),
+     *             @OA\Property(property="target_class_arm_id", type="string", format="uuid", nullable=true),
+     *             @OA\Property(property="target_section_id", type="string", format="uuid", nullable=true),
+     *             @OA\Property(property="retain_subjects", type="boolean", example=false),
+     *             @OA\Property(property="student_ids", type="array", @OA\Items(type="string", format="uuid"))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Promotion completed"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function bulk(Request $request)
     {
         $validated = $request->validate([
@@ -55,6 +88,18 @@ class PromotionController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/promotions/history",
+     *     tags={"school-v2.0"},
+     *     summary="Promotion history",
+     *     description="Returns recent promotion logs with optional filters.",
+     *     @OA\Parameter(name="session_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="term_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="school_class_id", in="query", required=false, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="History returned")
+     * )
+     */
     public function history(Request $request)
     {
         $user = $request->user();

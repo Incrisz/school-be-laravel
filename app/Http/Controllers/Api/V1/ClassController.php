@@ -15,6 +15,22 @@ use Illuminate\Validation\Rule;
  *     name="school-v1.2",
  *     description="Class & Arm Setup"
  * )
+ * @OA\Tag(
+ *     name="school-v1.7",
+ *     description="v1.7 – Subject & Teacher Assignments"
+ * )
+ * @OA\Tag(
+ *     name="school-v1.8",
+ *     description="v1.8 – Class Teacher Assignments"
+ * )
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="v1.9 – Results, Components, Grading & Skills (supporting lookups)"
+ * )
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles (supporting lookups)"
+ * )
  */
 class ClassController extends Controller
 {
@@ -24,9 +40,9 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/classes",
+     *      path="/api/v1/classes",
      *      operationId="getClassesList",
-     *      tags={"school-v1.2"},
+     *      tags={"school-v1.2","school-v1.7","school-v1.8","school-v1.9","school-v2.0"},
      *      summary="Get list of classes",
      *      description="Returns list of classes",
      *      @OA\Response(
@@ -67,7 +83,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/classes",
+     *      path="/api/v1/classes",
      *      operationId="storeClass",
      *      tags={"school-v1.2"},
      *      summary="Store new class",
@@ -114,7 +130,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/classes/{id}",
+     *      path="/api/v1/classes/{id}",
      *      operationId="getClassById",
      *      tags={"school-v1.2"},
      *      summary="Get session information",
@@ -142,7 +158,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/v1/classes/{id}",
+     *      path="/api/v1/classes/{id}",
      *      operationId="updateClass",
      *      tags={"school-v1.2"},
      *      summary="Update existing class",
@@ -193,7 +209,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/classes/{id}",
+     *      path="/api/v1/classes/{id}",
      *      operationId="deleteClass",
      *      tags={"school-v1.2"},
      *      summary="Delete existing class",
@@ -227,9 +243,9 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/classes/{classId}/arms",
+     *      path="/api/v1/classes/{classId}/arms",
      *      operationId="getClassArmsList",
-     *      tags={"school-v1.2"},
+     *      tags={"school-v1.2","school-v1.7","school-v1.8","school-v1.9","school-v2.0"},
      *      summary="Get list of class arms",
      *      description="Returns list of class arms for a given class",
      *      @OA\Parameter(
@@ -255,7 +271,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/classes/{classId}/arms",
+     *      path="/api/v1/classes/{classId}/arms",
      *      operationId="storeClassArm",
      *      tags={"school-v1.2"},
      *      summary="Store new class arm",
@@ -307,7 +323,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/classes/{classId}/arms/{armId}",
+     *      path="/api/v1/classes/{classId}/arms/{armId}",
      *      operationId="getClassArmById",
      *      tags={"school-v1.2"},
      *      summary="Get class arm information",
@@ -344,7 +360,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/v1/classes/{classId}/arms/{armId}",
+     *      path="/api/v1/classes/{classId}/arms/{armId}",
      *      operationId="updateClassArm",
      *      tags={"school-v1.2"},
      *      summary="Update existing class arm",
@@ -407,7 +423,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/classes/{classId}/arms/{armId}",
+     *      path="/api/v1/classes/{classId}/arms/{armId}",
      *      operationId="deleteClassArm",
      *      tags={"school-v1.2"},
      *      summary="Delete existing class arm",
@@ -452,9 +468,9 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/classes/{classId}/arms/{armId}/sections",
+     *      path="/api/v1/classes/{classId}/arms/{armId}/sections",
      *      operationId="getClassArmSectionsList",
-     *      tags={"school-v1.2"},
+     *      tags={"school-v1.2","school-v1.7","school-v1.8","school-v1.9","school-v2.0"},
      *      summary="Get list of class arm sections",
      *      description="Returns list of class arm sections for a given class arm",
      *      @OA\Parameter(
@@ -489,7 +505,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/classes/{classId}/arms/{armId}/sections",
+     *      path="/api/v1/classes/{classId}/arms/{armId}/sections",
      *      operationId="storeClassArmSection",
      *      tags={"school-v1.2"},
      *      summary="Store new class arm section",
@@ -551,7 +567,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
+     *      path="/api/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
      *      operationId="getClassArmSectionById",
      *      tags={"school-v1.2"},
      *      summary="Get class arm section information",
@@ -597,7 +613,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
+     *      path="/api/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
      *      operationId="updateClassArmSection",
      *      tags={"school-v1.2"},
      *      summary="Update existing class arm section",
@@ -668,7 +684,7 @@ class ClassController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
+     *      path="/api/v1/classes/{classId}/arms/{armId}/sections/{sectionId}",
      *      operationId="deleteClassArmSection",
      *      tags={"school-v1.2"},
      *      summary="Delete existing class arm section",

@@ -10,12 +10,26 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
+/**
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles"
+ * )
+ */
 class StudentBulkUploadController extends Controller
 {
     public function __construct(private readonly StudentBulkUploadService $service)
     {
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/students/bulk/template",
+     *     tags={"school-v2.0"},
+     *     summary="Download student bulk upload template",
+     *     @OA\Response(response=200, description="CSV template")
+     * )
+     */
     public function template(Request $request)
     {
         $school = $request->user()->school;
@@ -29,6 +43,24 @@ class StudentBulkUploadController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/students/bulk/preview",
+     *     tags={"school-v2.0"},
+     *     summary="Preview student bulk upload",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="file", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Preview generated"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function preview(Request $request): JsonResponse
     {
         $request->validate([
@@ -61,6 +93,16 @@ class StudentBulkUploadController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/students/bulk/{batch}/commit",
+     *     tags={"school-v2.0"},
+     *     summary="Commit student bulk upload",
+     *     @OA\Parameter(name="batch", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Upload committed"),
+     *     @OA\Response(response=404, description="Batch not found")
+     * )
+     */
     public function commit(Request $request, BulkUploadBatch $batch): JsonResponse
     {
         $user = $request->user();

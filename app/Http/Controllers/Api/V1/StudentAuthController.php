@@ -15,8 +15,31 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Tag(
+ *     name="school-v2.6",
+ *     description="v2.6 – Student Portal"
+ * )
+ */
 class StudentAuthController extends Controller
 {
+    /**
+     * @OA\Post(
+     *     path="/api/v1/student/login",
+     *     tags={"school-v2.6"},
+     *     summary="Student login",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"admission_no","password"},
+     *             @OA\Property(property="admission_no", type="string", example="NC001-2024/2025/1"),
+     *             @OA\Property(property="password", type="string", format="password", example="secret")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Logged in"),
+     *     @OA\Response(response=422, description="Invalid credentials")
+     * )
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -55,6 +78,14 @@ class StudentAuthController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/student/logout",
+     *     tags={"school-v2.6"},
+     *     summary="Student logout",
+     *     @OA\Response(response=200, description="Logged out")
+     * )
+     */
     public function logout(Request $request)
     {
         $student = $this->resolveStudentUser($request);
@@ -66,6 +97,15 @@ class StudentAuthController extends Controller
         return response()->json(['message' => 'Logged out successfully.']);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/student/profile",
+     *     tags={"school-v2.6"},
+     *     summary="Get student profile",
+     *     @OA\Response(response=200, description="Profile returned"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function profile(Request $request)
     {
         $student = $this->resolveStudentUser($request)->load([
@@ -185,6 +225,19 @@ class StudentAuthController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/student/results/download",
+     *     tags={"school-v2.6"},
+     *     summary="Download student result",
+     *     description="Downloads the student's result for a given session and term.",
+     *     @OA\Parameter(name="session_id", in="query", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Parameter(name="term_id", in="query", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Result file or payload returned"),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function downloadResult(Request $request)
     {
         $student = $this->resolveStudentUser($request);

@@ -15,14 +15,30 @@ use Illuminate\Support\Facades\Validator;
  *     name="school-v1.1",
  *     description="Academic Session & Term Management"
  * )
+ * @OA\Tag(
+ *     name="school-v1.7",
+ *     description="v1.7 – Subject & Teacher Assignments (supporting lookups)"
+ * )
+ * @OA\Tag(
+ *     name="school-v1.8",
+ *     description="v1.8 – Class Teacher Assignments (supporting lookups)"
+ * )
+ * @OA\Tag(
+ *     name="school-v1.9",
+ *     description="v1.9 – Results, Components, Grading & Skills (supporting lookups)"
+ * )
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles (supporting lookups)"
+ * )
  */
 class AcademicSessionController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/v1/sessions",
+     *      path="/api/v1/sessions",
      *      operationId="getSessionsList",
-     *      tags={"school-v1.1"},
+     *      tags={"school-v1.1","school-v1.7","school-v1.8","school-v1.9","school-v2.0"},
      *      summary="Get list of sessions",
      *      description="Returns list of sessions",
      *      @OA\Response(
@@ -50,7 +66,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/sessions",
+     *      path="/api/v1/sessions",
      *      operationId="storeSession",
      *      tags={"school-v1.1"},
      *      summary="Store new session",
@@ -115,7 +131,7 @@ class AcademicSessionController extends Controller
     
 /**
  * @OA\Get(
- *     path="/v1/sessions/{id}",
+ *     path="/api/v1/sessions/{id}",
  *     operationId="getSessionById",
  *     tags={"school-v1.1"},
  *     summary="Get session information",
@@ -151,7 +167,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/v1/sessions/{id}",
+     *     path="/api/v1/sessions/{id}",
      *     operationId="updateSession",
      *     tags={"school-v1.1"},
      *     summary="Update existing session",
@@ -236,7 +252,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/sessions/{id}",
+     *      path="/api/v1/sessions/{id}",
      *      operationId="deleteSession",
      *      tags={"school-v1.1"},
      *      summary="Delete existing session",
@@ -279,9 +295,9 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/sessions/{id}/terms",
+     *      path="/api/v1/sessions/{id}/terms",
      *      operationId="getTermsForSession",
-     *      tags={"school-v1.1"},
+     *      tags={"school-v1.1","school-v1.7","school-v1.8","school-v1.9","school-v2.0"},
      *      summary="Get list of terms for a session",
      *      description="Returns list of terms for a session",
      *      @OA\Parameter(
@@ -306,7 +322,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/sessions/{id}/terms",
+     *      path="/api/v1/sessions/{id}/terms",
      *      operationId="storeTerm",
      *      tags={"school-v1.1"},
      *      summary="Store new term",
@@ -376,9 +392,9 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/terms/{id}",
+     *      path="/api/v1/terms/{id}",
      *      operationId="getTermById",
-     *      tags={"school-v1.1"},
+     *      tags={"school-v1.1","school-v1.7","school-v1.8","school-v1.9","school-v2.0"},
      *      summary="Get term information",
      *      description="Returns term data",
      *      @OA\Parameter(
@@ -414,7 +430,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/v1/terms/{id}",
+     *      path="/api/v1/terms/{id}",
      *      operationId="updateTerm",
      *      tags={"school-v1.1"},
      *      summary="Update existing term",
@@ -479,7 +495,7 @@ class AcademicSessionController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/terms/{id}",
+     *      path="/api/v1/terms/{id}",
      *      operationId="deleteTerm",
      *      tags={"school-v1.1"},
      *      summary="Delete existing term",

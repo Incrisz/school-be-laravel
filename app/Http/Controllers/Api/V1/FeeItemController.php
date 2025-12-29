@@ -12,11 +12,20 @@ use Illuminate\Validation\Rule;
  *     name="school-v2.4",
  *     description="Fee Management"
  * )
+ * @OA\Tag(
+ *     name="school-v2.0",
+ *     description="v2.0 – Rollover, Promotions, Attendance, Fees, Roles"
+ * )
  */
 class FeeItemController extends Controller
 {
     /**
-     * Display a listing of fee items.
+     * @OA\Get(
+     *     path="/api/v1/fees/items",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="List fee items",
+     *     @OA\Response(response=200, description="Fee items returned")
+     * )
      */
     public function index(Request $request)
     {
@@ -45,7 +54,12 @@ class FeeItemController extends Controller
     }
 
     /**
-     * Store a newly created fee item.
+     * @OA\Post(
+     *     path="/api/v1/fees/items",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Create fee item",
+     *     @OA\Response(response=201, description="Created")
+     * )
      */
     public function store(Request $request)
     {
@@ -80,7 +94,14 @@ class FeeItemController extends Controller
     }
 
     /**
-     * Display the specified fee item.
+     * @OA\Get(
+     *     path="/api/v1/fees/items/{feeItem}",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Get fee item",
+     *     @OA\Parameter(name="feeItem", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Fee item returned"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function show(Request $request, FeeItem $feeItem)
     {
@@ -94,7 +115,14 @@ class FeeItemController extends Controller
     }
 
     /**
-     * Update the specified fee item.
+     * @OA\Put(
+     *     path="/api/v1/fees/items/{feeItem}",
+     *     tags={"school-v2.4","school-v2.0"},
+     *     summary="Update fee item",
+     *     @OA\Parameter(name="feeItem", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+     *     @OA\Response(response=200, description="Updated"),
+     *     @OA\Response(response=404, description="Not found")
+     * )
      */
     public function update(Request $request, FeeItem $feeItem)
     {
@@ -123,8 +151,15 @@ class FeeItemController extends Controller
     }
 
     /**
-     * Remove the specified fee item.
-     */
+    * @OA\Delete(
+    *     path="/api/v1/fees/items/{feeItem}",
+    *     tags={"school-v2.4","school-v2.0"},
+    *     summary="Delete fee item",
+    *     @OA\Parameter(name="feeItem", in="path", required=true, @OA\Schema(type="string", format="uuid")),
+    *     @OA\Response(response=204, description="Deleted"),
+    *     @OA\Response(response=404, description="Not found")
+    * )
+    */
     public function destroy(Request $request, FeeItem $feeItem)
     {
         if ($feeItem->school_id !== $request->user()->school_id) {
