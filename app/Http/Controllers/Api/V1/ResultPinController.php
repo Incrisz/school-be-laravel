@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResultPin;
+use App\Models\School;
+use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Services\ResultPinService;
 use Carbon\Carbon;
@@ -345,6 +347,25 @@ class ResultPinController extends Controller
 
         $user = $request->user();
         $school = $user?->school;
+
+        if (! $school) {
+            // Fallback: try to infer school from the class if one is provided
+            if (! empty($validated['school_class_id'])) {
+                $school = SchoolClass::query()
+                    ->whereKey($validated['school_class_id'])
+                    ->with('school')
+                    ->first()
+                    ?->school;
+            }
+
+            // If still no school, try to get from the user's roles
+            if (! $school && $user) {
+                $schoolId = $user->roles()->value('school_id');
+                if ($schoolId) {
+                    $school = School::query()->find($schoolId);
+                }
+            }
+        }
 
         if (! $school) {
             abort(403, 'You are not linked to any school.');
