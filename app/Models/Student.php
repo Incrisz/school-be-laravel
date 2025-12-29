@@ -231,6 +231,43 @@ class Student extends Model implements AuthenticatableContract
 			throw new RuntimeException('Cannot generate admission number without a session name.');
 		}
 
+		// Special format for An-Nur Model Islamic School Minna
+		if (strtolower($school->slug) === 'an-nur-model-islamic-school-minna') {
+			// Format: Amis/25/1034 (SchoolCode/YearOfAdmission/SerialNumber)
+			$schoolCode = 'Amis';
+			
+			// Extract year from session name (e.g., "2024/2025" -> "25")
+			$yearParts = explode('/', $sessionName);
+			$yearOfAdmission = isset($yearParts[1]) ? substr((string) $yearParts[1], -2) : '25';
+			
+			$prefix = "{$schoolCode}/{$yearOfAdmission}";
+			
+			$maxSequence = (int) DB::table('students')
+				->where('school_id', $school->id)
+				->where('current_session_id', $session->id)
+				->where('admission_no', 'like', $prefix . '/%')
+				->lockForUpdate()
+				->selectRaw('MAX(CAST(SUBSTRING_INDEX(admission_no, "/", -1) AS UNSIGNED)) as max_sequence')
+				->value('max_sequence');
+			
+			$nextSequence = $maxSequence > 0 ? $maxSequence + 1 : 1;
+			$paddedSequence = str_pad((string) $nextSequence, 4, '0', STR_PAD_LEFT);
+			$candidate = "{$prefix}/{$paddedSequence}";
+			
+			while (
+				DB::table('students')
+					->where('admission_no', $candidate)
+					->exists()
+			) {
+				$nextSequence++;
+				$paddedSequence = str_pad((string) $nextSequence, 4, '0', STR_PAD_LEFT);
+				$candidate = "{$prefix}/{$paddedSequence}";
+			}
+			
+			return $candidate;
+		}
+
+		// Default format for other schools
 		$acronym = $school->resolved_acronym;
 		$code = $school->formatted_code_sequence;
 
