@@ -1,5 +1,11 @@
 # School Management System
 
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-red?logo=laravel)](https://laravel.com/)
+[![PHP](https://img.shields.io/badge/PHP-8.1+-blue?logo=php)](https://www.php.net/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
 A comprehensive Laravel-based school management system designed to streamline administrative tasks, student management, and academic operations.
 
 ## Features
