@@ -265,7 +265,23 @@ class ClassController extends Controller
      */
     public function indexArms(SchoolClass $schoolClass)
     {
-        $this->ensurePermission(request(), 'classes.manage');
+        $request = request();
+        $user = $request->user();
+        
+        // Check permission - teachers can view class arms for classes they're assigned to
+        $scope = $this->teacherAccess->forUser($user);
+        $isTeacher = $scope->isTeacher();
+        
+        if (! $isTeacher) {
+            $this->ensurePermission($request, 'classes.manage');
+        } else {
+            // Teachers can only view arms for their assigned classes
+            $allowedClassIds = $scope->allowedClassIds();
+            if (! $allowedClassIds->contains($schoolClass->id)) {
+                abort(403, 'You do not have access to this class.');
+            }
+        }
+        
         return $schoolClass->class_arms;
     }
 
