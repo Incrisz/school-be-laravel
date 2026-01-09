@@ -11,9 +11,11 @@ services:
     volumes:
       # Named volumes for persistent data
       - appdev-storage:/var/www/html/storage/app
-      - appdev-public:/var/www/html/public/storage 
+      - appdev-public:/var/www/html/public/storage
+    environment:
+      - DB_CONNECTION=mariadb
+      - DB_HOST=school-mgt-system-mariadb-h8yt0c
 volumes:
-  dbdata:
   appdev-storage:
   appdev-public:
 
