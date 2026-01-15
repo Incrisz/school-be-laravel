@@ -321,6 +321,25 @@ class AcademicSessionController extends Controller
     }
 
     /**
+     * Get all terms for the authenticated user's school
+     */
+    public function getAllTerms(Request $request)
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        $schoolId = $user->school_id;
+        $terms = Term::whereHas('session', function ($query) use ($schoolId) {
+            $query->where('school_id', $schoolId);
+        })->get();
+
+        return response()->json($terms);
+    }
+
+    /**
      * @OA\Post(
      *      path="/api/v1/sessions/{id}/terms",
      *      operationId="storeTerm",

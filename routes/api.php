@@ -42,6 +42,7 @@ use App\Http\Controllers\Api\V1\QuizController;
 use App\Http\Controllers\Api\V1\QuizAttemptController;
 use App\Http\Controllers\Api\V1\QuizAnswerController;
 use App\Http\Controllers\Api\V1\QuizResultController;
+use App\Http\Controllers\Api\V1\AssessmentComponentStructureController;
 
 $host = parse_url(config('app.url'), PHP_URL_HOST);
 
@@ -127,6 +128,7 @@ Route::prefix('api/v1')->group(function () {
         Route::apiResource('sessions', AcademicSessionController::class);
         Route::get('sessions/{session}/terms', [AcademicSessionController::class, 'getTermsForSession']);
         Route::post('sessions/{session}/terms', [AcademicSessionController::class, 'storeTerm']);
+        Route::get('terms', [AcademicSessionController::class, 'getAllTerms']);
         Route::get('terms/{term}', [AcademicSessionController::class, 'showTerm']);
         Route::put('terms/{term}', [AcademicSessionController::class, 'updateTerm']);
         Route::delete('terms/{term}', [AcademicSessionController::class, 'destroyTerm']);
@@ -308,6 +310,25 @@ Route::prefix('api/v1')->group(function () {
             Route::apiResource('assessment-components', AssessmentComponentController::class)
                 ->parameters(['assessment-components' => 'assessmentComponent'])
                 ->except(['create', 'edit']);
+            
+            // Assessment Component Structures
+            Route::prefix('assessment-component-structures')->group(function () {
+                Route::get('component/{assessmentComponent}', [AssessmentComponentStructureController::class, 'indexByComponent'])
+                    ->whereUuid('assessmentComponent')
+                    ->name('assessment-component-structures.by-component');
+                Route::post('/', [AssessmentComponentStructureController::class, 'store'])
+                    ->name('assessment-component-structures.store');
+                Route::post('bulk', [AssessmentComponentStructureController::class, 'bulkStore'])
+                    ->name('assessment-component-structures.bulk-store');
+                Route::get('max-score', [AssessmentComponentStructureController::class, 'getMaxScore'])
+                    ->name('assessment-component-structures.max-score');
+                Route::get('applicable', [AssessmentComponentStructureController::class, 'getApplicable'])
+                    ->name('assessment-component-structures.applicable');
+                Route::delete('{structure}', [AssessmentComponentStructureController::class, 'destroy'])
+                    ->whereUuid('structure')
+                    ->name('assessment-component-structures.destroy');
+            });
+            
             Route::apiResource('subject-assignments', SubjectAssignmentController::class)
                 ->parameters(['subject-assignments' => 'assignment'])
                 ->except(['create', 'edit']);

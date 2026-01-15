@@ -63,4 +63,9 @@ class AssessmentComponent extends Model
 	{
 		return $this->hasMany(Result::class, 'assessment_component_id');
 	}
+
+	public function structures()
+	{
+		return $this->hasMany(AssessmentComponentStructure::class);
+	}
 }
