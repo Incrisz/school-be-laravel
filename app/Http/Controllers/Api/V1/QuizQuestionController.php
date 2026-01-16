@@ -41,7 +41,7 @@ class QuizQuestionController extends Controller
 
 	private function formatQuestion(QuizQuestion $question, bool $includeCorrect = false): array
 	{
-		return [
+		$payload = [
 			'id' => $question->id,
 			'quiz_id' => $question->quiz_id,
 			'question_text' => $question->question_text,
@@ -54,6 +54,34 @@ class QuizQuestionController extends Controller
 				return $this->formatOption($option, $includeCorrect);
 			}),
 		];
+
+		if ($includeCorrect) {
+			$payload['short_answer_answers'] = $question->short_answer_answers ?? [];
+			$payload['short_answer_keywords'] = $question->short_answer_keywords ?? [];
+			$payload['short_answer_match'] = $question->short_answer_match ?? 'exact';
+		}
+
+		return $payload;
+	}
+
+	private function normalizeShortAnswerList(?array $values): array
+	{
+		if (!$values) {
+			return [];
+		}
+
+		$normalized = array_map(static function ($value) {
+			if (!is_string($value)) {
+				return '';
+			}
+			return trim($value);
+		}, $values);
+
+		$normalized = array_values(array_filter($normalized, static function ($value) {
+			return $value !== '';
+		}));
+
+		return array_values(array_unique($normalized));
 	}
 
 	private function clearOtherCorrectOptions(QuizQuestion $question, string $optionId): void
@@ -88,6 +116,11 @@ class QuizQuestionController extends Controller
 			'order' => 'nullable|integer|min:1',
 			'image_url' => 'nullable|string',
 			'explanation' => 'nullable|string',
+			'short_answer_answers' => 'nullable|array',
+			'short_answer_answers.*' => 'string',
+			'short_answer_keywords' => 'nullable|array',
+			'short_answer_keywords.*' => 'string',
+			'short_answer_match' => 'nullable|in:exact,contains,keywords',
 			'options' => 'nullable|array',
 			'options.*.option_text' => 'required_with:options|string',
 			'options.*.is_correct' => 'boolean',
@@ -97,6 +130,9 @@ class QuizQuestionController extends Controller
 
 		$questionType = $validated['question_type'];
 		$options = $validated['options'] ?? [];
+		$shortAnswerAnswers = $this->normalizeShortAnswerList($validated['short_answer_answers'] ?? []);
+		$shortAnswerKeywords = $this->normalizeShortAnswerList($validated['short_answer_keywords'] ?? []);
+		$shortAnswerMatch = $validated['short_answer_match'] ?? 'exact';
 
 		if (in_array($questionType, ['mcq', 'multiple_select', 'true_false'], true) && !empty($options) && count($options) < 2) {
 			return response()->json(['message' => 'At least two options are required.'], 422);
@@ -109,6 +145,10 @@ class QuizQuestionController extends Controller
 			}
 		}
 
+		if ($questionType === 'short_answer' && empty($shortAnswerAnswers) && empty($shortAnswerKeywords)) {
+			return response()->json(['message' => 'Provide accepted answers or keywords for short answer questions.'], 422);
+		}
+
 		$questionData = Arr::only($validated, [
 			'question_text',
 			'question_type',
@@ -117,6 +157,12 @@ class QuizQuestionController extends Controller
 			'image_url',
 			'explanation',
 		]);
+
+		if ($questionType === 'short_answer') {
+			$questionData['short_answer_answers'] = $shortAnswerAnswers;
+			$questionData['short_answer_keywords'] = $shortAnswerKeywords;
+			$questionData['short_answer_match'] = $shortAnswerMatch;
+		}
 
 		$question = $this->questionService->addQuestion($quiz, $questionData);
 
@@ -183,6 +229,11 @@ class QuizQuestionController extends Controller
 			'order' => 'sometimes|integer|min:1',
 			'image_url' => 'nullable|string',
 			'explanation' => 'nullable|string',
+			'short_answer_answers' => 'nullable|array',
+			'short_answer_answers.*' => 'string',
+			'short_answer_keywords' => 'nullable|array',
+			'short_answer_keywords.*' => 'string',
+			'short_answer_match' => 'nullable|in:exact,contains,keywords',
 		]);
 
 		$questionData = Arr::only($validated, [
@@ -193,6 +244,29 @@ class QuizQuestionController extends Controller
 			'image_url',
 			'explanation',
 		]);
+
+		$nextQuestionType = $validated['question_type'] ?? $question->question_type;
+		if ($nextQuestionType === 'short_answer') {
+			$shortAnswerAnswers = array_key_exists('short_answer_answers', $validated)
+				? $this->normalizeShortAnswerList($validated['short_answer_answers'] ?? [])
+				: ($question->short_answer_answers ?? []);
+			$shortAnswerKeywords = array_key_exists('short_answer_keywords', $validated)
+				? $this->normalizeShortAnswerList($validated['short_answer_keywords'] ?? [])
+				: ($question->short_answer_keywords ?? []);
+			$shortAnswerMatch = $validated['short_answer_match'] ?? $question->short_answer_match ?? 'exact';
+
+			if (empty($shortAnswerAnswers) && empty($shortAnswerKeywords)) {
+				return response()->json(['message' => 'Provide accepted answers or keywords for short answer questions.'], 422);
+			}
+
+			$questionData['short_answer_answers'] = $shortAnswerAnswers;
+			$questionData['short_answer_keywords'] = $shortAnswerKeywords;
+			$questionData['short_answer_match'] = $shortAnswerMatch;
+		} else {
+			$questionData['short_answer_answers'] = null;
+			$questionData['short_answer_keywords'] = null;
+			$questionData['short_answer_match'] = 'exact';
+		}
 
 		if (!empty($questionData)) {
 			$this->questionService->updateQuestion($question, $questionData);

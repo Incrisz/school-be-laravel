@@ -90,8 +90,7 @@ class ScoringService
 			case 'multiple_select':
 				return $this->evaluateMultipleSelect($question, $answer);
 			case 'short_answer':
-				// Short answers need manual grading
-				return false;
+				return $this->evaluateShortAnswer($question, $answer);
 			default:
 				return false;
 		}
@@ -164,6 +163,112 @@ class ScoringService
 		sort($correctOptionIds);
 
 		return $selectedOptionIds === $correctOptionIds;
+	}
+
+	/**
+	 * Evaluate Short Answer response
+	 */
+	private function evaluateShortAnswer(QuizQuestion $question, QuizAnswer $answer): bool
+	{
+		$studentAnswer = $this->normalizeShortAnswerText($answer->answer_text);
+		if ($studentAnswer === '') {
+			return false;
+		}
+
+		$matchMode = $question->short_answer_match ?: 'exact';
+		$acceptedAnswers = $this->normalizeShortAnswerList($question->short_answer_answers ?? []);
+		$keywords = $this->normalizeShortAnswerList($question->short_answer_keywords ?? []);
+
+		if (empty($acceptedAnswers) && empty($keywords)) {
+			return false;
+		}
+
+		if ($matchMode === 'keywords') {
+			$requiredKeywords = !empty($keywords) ? $keywords : $acceptedAnswers;
+			return $this->containsAllKeywords($studentAnswer, $requiredKeywords);
+		}
+
+		$comparisonList = !empty($acceptedAnswers) ? $acceptedAnswers : $keywords;
+
+		if ($matchMode === 'contains') {
+			return $this->containsAnyPhrase($studentAnswer, $comparisonList);
+		}
+
+		return in_array($studentAnswer, $comparisonList, true);
+	}
+
+	private function normalizeShortAnswerText(?string $text): string
+	{
+		$text = trim((string) $text);
+		if ($text === '') {
+			return '';
+		}
+
+		$text = Str::lower($text);
+		$text = preg_replace('/[^\p{L}\p{N}\s]+/u', ' ', $text) ?? '';
+		$text = preg_replace('/\s+/u', ' ', $text) ?? '';
+
+		return trim($text);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function normalizeShortAnswerList($values): array
+	{
+		if (!is_array($values)) {
+			return [];
+		}
+
+		$normalized = array_map(function ($value) {
+			return $this->normalizeShortAnswerText(is_string($value) ? $value : '');
+		}, $values);
+
+		$normalized = array_values(array_filter($normalized, static function ($value) {
+			return $value !== '';
+		}));
+
+		return array_values(array_unique($normalized));
+	}
+
+	/**
+	 * Check if the student answer contains all keywords.
+	 *
+	 * @param string[] $keywords
+	 */
+	private function containsAllKeywords(string $studentAnswer, array $keywords): bool
+	{
+		if (empty($keywords)) {
+			return false;
+		}
+
+		foreach ($keywords as $keyword) {
+			if (!str_contains($studentAnswer, $keyword)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if the student answer contains any accepted phrase.
+	 *
+	 * @param string[] $phrases
+	 */
+	private function containsAnyPhrase(string $studentAnswer, array $phrases): bool
+	{
+		if (empty($phrases)) {
+			return false;
+		}
+
+		foreach ($phrases as $phrase) {
+			if ($phrase !== '' && str_contains($studentAnswer, $phrase)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

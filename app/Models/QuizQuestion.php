@@ -41,6 +41,14 @@ class QuizQuestion extends Model
 		'order',
 		'image_url',
 		'explanation',
+		'short_answer_answers',
+		'short_answer_keywords',
+		'short_answer_match',
+	];
+
+	protected $casts = [
+		'short_answer_answers' => 'array',
+		'short_answer_keywords' => 'array',
 	];
 
 	public function quiz()

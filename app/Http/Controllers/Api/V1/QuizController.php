@@ -283,7 +283,7 @@ class QuizController extends Controller
 			return response()->json([
 				'message' => 'Questions retrieved successfully',
 				'data' => $questions->map(function ($question) use ($includeCorrect) {
-					return [
+					$payload = [
 						'id' => $question->id,
 						'quiz_id' => $question->quiz_id,
 						'question_text' => $question->question_text,
@@ -308,6 +308,14 @@ class QuizController extends Controller
 							return $payload;
 						}),
 					];
+
+					if ($includeCorrect) {
+						$payload['short_answer_answers'] = $question->short_answer_answers ?? [];
+						$payload['short_answer_keywords'] = $question->short_answer_keywords ?? [];
+						$payload['short_answer_match'] = $question->short_answer_match ?? 'exact';
+					}
+
+					return $payload;
 				}),
 			]);
 		}
