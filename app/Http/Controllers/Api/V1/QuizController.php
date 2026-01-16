@@ -47,6 +47,7 @@ class QuizController extends Controller
 						'duration_minutes' => $quiz->duration_minutes,
 						'total_questions' => $quiz->total_questions,
 						'passing_score' => $quiz->passing_score,
+						'allow_multiple_attempts' => $quiz->allow_multiple_attempts,
 						'status' => $quiz->status,
 						'attempted' => $quiz->attempts->isNotEmpty(),
 						'created_at' => $quiz->created_at,
@@ -84,6 +85,7 @@ class QuizController extends Controller
 						'duration_minutes' => $quiz->duration_minutes,
 						'total_questions' => $quiz->total_questions,
 						'passing_score' => $quiz->passing_score,
+						'allow_multiple_attempts' => $quiz->allow_multiple_attempts,
 						'status' => $quiz->status,
 						'created_at' => $quiz->created_at,
 						'updated_at' => $quiz->updated_at,
@@ -107,6 +109,7 @@ class QuizController extends Controller
 					'duration_minutes' => $quiz->duration_minutes,
 					'total_questions' => $quiz->total_questions,
 					'passing_score' => $quiz->passing_score,
+					'allow_multiple_attempts' => $quiz->allow_multiple_attempts,
 					'status' => $quiz->status,
 					'attempted' => $quiz->attempts->isNotEmpty(),
 					'created_at' => $quiz->created_at,
@@ -151,6 +154,7 @@ class QuizController extends Controller
 					'duration_minutes' => $quiz->duration_minutes,
 					'total_questions' => $quiz->total_questions,
 					'passing_score' => $quiz->passing_score,
+					'allow_multiple_attempts' => $quiz->allow_multiple_attempts,
 					'status' => $quiz->status,
 					'start_time' => $quiz->start_time,
 					'end_time' => $quiz->end_time,
@@ -178,6 +182,10 @@ class QuizController extends Controller
 
 		if ($user instanceof Student) {
 			if (!$this->quizService->canStudentTakeQuiz($user, $quiz)) {
+				if (! $quiz->allow_multiple_attempts && $this->quizService->hasStudentAttempted($user, $quiz)) {
+					return response()->json(['message' => 'This quiz can only be taken once.'], 403);
+				}
+
 				return response()->json(['message' => 'You do not have access to this quiz'], 403);
 			}
 
@@ -226,6 +234,10 @@ class QuizController extends Controller
 
 		if ($user instanceof Student) {
 			if (!$this->quizService->canStudentTakeQuiz($user, $quiz)) {
+				if (! $quiz->allow_multiple_attempts && $this->quizService->hasStudentAttempted($user, $quiz)) {
+					return response()->json(['message' => 'This quiz can only be taken once.'], 403);
+				}
+
 				return response()->json(['message' => 'You do not have access to this quiz'], 403);
 			}
 
@@ -360,6 +372,7 @@ class QuizController extends Controller
 			'shuffle_questions' => 'boolean',
 			'shuffle_options' => 'boolean',
 			'allow_review' => 'boolean',
+			'allow_multiple_attempts' => 'boolean',
 		]);
 
 		$quiz = $this->quizService->createQuiz($validated, $user);
@@ -402,6 +415,7 @@ class QuizController extends Controller
 			'shuffle_questions' => 'boolean',
 			'shuffle_options' => 'boolean',
 			'allow_review' => 'boolean',
+			'allow_multiple_attempts' => 'boolean',
 		]);
 
 		$this->quizService->updateQuiz($quiz, $validated);

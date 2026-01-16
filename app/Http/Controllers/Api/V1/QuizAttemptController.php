@@ -7,6 +7,7 @@ use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Services\CBT\AttemptService;
 use App\Services\CBT\ScoringService;
+use App\Services\CBT\QuizService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -15,6 +16,7 @@ class QuizAttemptController extends Controller
 	public function __construct(
 		private AttemptService $attemptService,
 		private ScoringService $scoringService,
+		private QuizService $quizService,
 	) {
 	}
 
@@ -34,6 +36,22 @@ class QuizAttemptController extends Controller
 		]);
 
 		$quiz = Quiz::find($validated['quiz_id']);
+
+		if (! $quiz) {
+			return response()->json(['message' => 'Quiz not found'], 404);
+		}
+
+		if ($user instanceof \App\Models\Student) {
+			if (! $this->quizService->canStudentTakeQuiz($user, $quiz)) {
+				if (! $quiz->allow_multiple_attempts && $this->quizService->hasStudentAttempted($user, $quiz)) {
+					return response()->json([
+						'message' => 'This quiz can only be taken once.',
+					], 403);
+				}
+
+				return response()->json(['message' => 'You do not have access to this quiz'], 403);
+			}
+		}
 
 		// Start attempt
 		$attempt = $this->attemptService->startAttempt($quiz, $user);

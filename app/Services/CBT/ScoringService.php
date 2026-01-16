@@ -4,6 +4,7 @@ namespace App\Services\CBT;
 
 use App\Models\QuizAttempt;
 use App\Models\QuizAnswer;
+use App\Models\QuizQuestion;
 use App\Models\QuizResult;
 use Carbon\Carbon;
 use Illuminate\Support\Str;

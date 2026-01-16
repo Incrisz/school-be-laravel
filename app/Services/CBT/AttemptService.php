@@ -132,6 +132,7 @@ class AttemptService
 		return $attempts->map(function ($attempt) {
 			return [
 				'id' => $attempt->id,
+				'result_id' => $attempt->result?->id,
 				'quiz_id' => $attempt->quiz_id,
 				'quiz_title' => $attempt->quiz->title,
 				'start_time' => $attempt->start_time,

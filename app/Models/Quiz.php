@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $shuffle_questions
  * @property bool $shuffle_options
  * @property bool $allow_review
+ * @property bool $allow_multiple_attempts
  * @property string $status (draft|published|closed)
  * @property Carbon|null $start_time
  * @property Carbon|null $end_time
@@ -63,6 +64,7 @@ class Quiz extends Model
 		'shuffle_questions',
 		'shuffle_options',
 		'allow_review',
+		'allow_multiple_attempts',
 		'status',
 		'start_time',
 		'end_time',
@@ -73,6 +75,7 @@ class Quiz extends Model
 		'shuffle_questions' => 'boolean',
 		'shuffle_options' => 'boolean',
 		'allow_review' => 'boolean',
+		'allow_multiple_attempts' => 'boolean',
 		'start_time' => 'datetime',
 		'end_time' => 'datetime',
 	];

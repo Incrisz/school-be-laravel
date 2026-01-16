@@ -67,6 +67,7 @@ class QuizService
 			'shuffle_questions' => $quiz->shuffle_questions,
 			'shuffle_options' => $quiz->shuffle_options,
 			'allow_review' => $quiz->allow_review,
+			'allow_multiple_attempts' => $quiz->allow_multiple_attempts,
 			'status' => $quiz->status,
 			'start_time' => $quiz->start_time,
 			'end_time' => $quiz->end_time,
@@ -100,6 +101,11 @@ class QuizService
 	{
 		// Check if quiz is published
 		if ($quiz->status !== 'published') {
+			return false;
+		}
+
+		// Enforce single-attempt quizzes
+		if (! $quiz->allow_multiple_attempts && $this->hasStudentAttempted($student, $quiz)) {
 			return false;
 		}
 
