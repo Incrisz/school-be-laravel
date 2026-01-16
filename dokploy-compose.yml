@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: school-app
+    # container_name: school-app
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
