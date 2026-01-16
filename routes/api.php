@@ -391,6 +391,8 @@ Route::prefix('api/v1')->group(function () {
                 ->except(['create', 'edit']);
             Route::post('quiz-attempts/{attempt}/submit', [QuizAttemptController::class, 'submit'])->whereUuid('attempt');
             Route::get('quiz-attempts/history/{user}', [QuizAttemptController::class, 'history'])->whereUuid('user');
+            Route::get('quiz-attempts/{attempt}/answers', [QuizAnswerController::class, 'byAttemptDetailed'])
+                ->whereUuid('attempt');
 
             // Quiz Answers
             Route::apiResource('quiz-answers', QuizAnswerController::class)
@@ -401,6 +403,7 @@ Route::prefix('api/v1')->group(function () {
             Route::apiResource('quiz-results', QuizResultController::class)
                 ->parameters(['quiz-results' => 'result'])
                 ->only(['index', 'show']);
+            Route::get('quizzes/{quiz}/results', [QuizResultController::class, 'byQuiz'])->whereUuid('quiz');
             Route::get('quiz-results/{result}/review', [QuizResultController::class, 'review'])->whereUuid('result');
             Route::post('quiz-results/{result}/export', [QuizResultController::class, 'export'])->whereUuid('result');
             Route::get('quiz-results/analytics/performance', [QuizResultController::class, 'analytics']);
