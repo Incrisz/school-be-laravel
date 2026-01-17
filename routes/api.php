@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\V1\QuizAttemptController;
 use App\Http\Controllers\Api\V1\QuizAnswerController;
 use App\Http\Controllers\Api\V1\QuizResultController;
 use App\Http\Controllers\Api\V1\AssessmentComponentStructureController;
+use App\Http\Controllers\Api\V1\CbtAssessmentLinkController;
 
 $host = parse_url(config('app.url'), PHP_URL_HOST);
 
@@ -321,6 +322,9 @@ Route::prefix('api/v1')->group(function () {
                     ->name('assessment-component-structures.by-component');
                 Route::post('/', [AssessmentComponentStructureController::class, 'store'])
                     ->name('assessment-component-structures.store');
+                Route::put('{structure}', [AssessmentComponentStructureController::class, 'update'])
+                    ->whereUuid('structure')
+                    ->name('assessment-component-structures.update');
                 Route::post('bulk', [AssessmentComponentStructureController::class, 'bulkStore'])
                     ->name('assessment-component-structures.bulk-store');
                 Route::get('max-score', [AssessmentComponentStructureController::class, 'getMaxScore'])
@@ -331,6 +335,31 @@ Route::prefix('api/v1')->group(function () {
                     ->whereUuid('structure')
                     ->name('assessment-component-structures.destroy');
             });
+
+            // CBT assessment links
+            Route::prefix('assessment-components/{assessmentComponent}/cbt-links')
+                ->whereUuid('assessmentComponent')
+                ->group(function () {
+                    Route::get('/', [CbtAssessmentLinkController::class, 'index'])
+                        ->name('assessment-components.cbt-links.index');
+                    Route::post('/', [CbtAssessmentLinkController::class, 'store'])
+                        ->name('assessment-components.cbt-links.store');
+                });
+
+            Route::prefix('cbt-assessment-links/{linkId}')
+                ->whereUuid('linkId')
+                ->group(function () {
+                    Route::delete('/', [CbtAssessmentLinkController::class, 'destroy'])
+                        ->name('cbt-assessment-links.destroy');
+                    Route::post('import', [CbtAssessmentLinkController::class, 'importScores'])
+                        ->name('cbt-assessment-links.import');
+                    Route::get('pending-scores', [CbtAssessmentLinkController::class, 'pendingScores'])
+                        ->name('cbt-assessment-links.pending');
+                    Route::post('approve', [CbtAssessmentLinkController::class, 'approveScores'])
+                        ->name('cbt-assessment-links.approve');
+                    Route::post('reject', [CbtAssessmentLinkController::class, 'rejectScores'])
+                        ->name('cbt-assessment-links.reject');
+                });
             
             Route::apiResource('subject-assignments', SubjectAssignmentController::class)
                 ->parameters(['subject-assignments' => 'assignment'])

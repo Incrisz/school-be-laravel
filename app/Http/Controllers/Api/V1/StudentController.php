@@ -554,18 +554,34 @@ class StudentController extends Controller
             abort(403, 'You are not allowed to delete this student.');
         }
 
-        if ($student->results()->exists() || $student->attendances()->exists() || $student->fee_payments()->exists()) {
-            return response()->json(['message' => 'Cannot delete student with dependent records.'], 409);
-        }
+        $photoUrl = $student->photo_url;
 
-        if ($student->photo_url) {
-            $this->deletePublicFile($student->photo_url);
-        }
+        DB::transaction(function () use ($student) {
+            $studentId = $student->id;
 
-        $student->delete();
+            DB::table('results')->where('student_id', $studentId)->delete();
+            DB::table('attendances')->where('student_id', $studentId)->delete();
+            DB::table('fee_payments')->where('student_id', $studentId)->delete();
+            DB::table('performance_reports')->where('student_id', $studentId)->delete();
+            DB::table('result_pins')->where('student_id', $studentId)->delete();
+            DB::table('skill_ratings')->where('student_id', $studentId)->delete();
+            DB::table('student_enrollments')->where('student_id', $studentId)->delete();
+            DB::table('term_summaries')->where('student_id', $studentId)->delete();
+            DB::table('promotion_logs')->where('student_id', $studentId)->delete();
+            DB::table('quiz_results')->where('student_id', $studentId)->delete();
+            DB::table('quiz_attempts')->where('student_id', $studentId)->delete();
+            DB::table('cbt_score_imports')->where('student_id', $studentId)->delete();
+
+            $student->delete();
+        });
+
+        if ($photoUrl) {
+            $this->deletePublicFile($photoUrl);
+        }
 
         return response()->json(null, 204);
     }
+
 
     protected function studentRelations(): array
     {

@@ -396,7 +396,6 @@ class QuizController extends Controller
 			'subject_id' => 'nullable|exists:subjects,id',
 			'class_id' => 'nullable|exists:classes,id',
 			'duration_minutes' => 'required|integer|min:1',
-			'total_questions' => 'required|integer|min:1',
 			'passing_score' => 'required|integer|min:0|max:100',
 			'show_answers' => 'boolean',
 			'show_score' => 'boolean',
@@ -441,7 +440,6 @@ class QuizController extends Controller
 			'subject_id' => 'nullable|exists:subjects,id',
 			'class_id' => 'nullable|exists:classes,id',
 			'duration_minutes' => 'sometimes|integer|min:1',
-			'total_questions' => 'sometimes|integer|min:1',
 			'passing_score' => 'sometimes|integer|min:0|max:100',
 			'show_answers' => 'boolean',
 			'show_score' => 'boolean',
@@ -507,6 +505,12 @@ class QuizController extends Controller
 			return response()->json(['message' => 'Quiz not found'], 404);
 		}
 
+		$questionCount = $quiz->questions()->count();
+		if ($questionCount === 0) {
+			return response()->json(['message' => 'Add at least one question before publishing.'], 422);
+		}
+
+		$quiz->update(['total_questions' => $questionCount]);
 		$this->quizService->publishQuiz($quiz);
 
 		return response()->json([

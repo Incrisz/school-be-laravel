@@ -193,6 +193,7 @@ class QuizQuestionController extends Controller
 		}
 
 		$question->load('options');
+		$quiz->update(['total_questions' => $quiz->questions()->count()]);
 
 		return response()->json([
 			'message' => 'Question created successfully',
@@ -307,6 +308,7 @@ class QuizQuestionController extends Controller
 		}
 
 		$this->questionService->deleteQuestion($question);
+		$quiz->update(['total_questions' => $quiz->questions()->count()]);
 
 		return response()->json([
 			'message' => 'Question deleted successfully',

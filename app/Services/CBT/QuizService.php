@@ -201,6 +201,10 @@ class QuizService
 	 */
 	public function createQuiz(array $data, User $creator): Quiz
 	{
+		if (!array_key_exists('total_questions', $data)) {
+			$data['total_questions'] = 0;
+		}
+
 		if (array_key_exists('allow_multiple_attempts', $data) && ! $data['allow_multiple_attempts']) {
 			$data['max_attempts'] = 1;
 		}
@@ -218,6 +222,8 @@ class QuizService
 	 */
 	public function updateQuiz(Quiz $quiz, array $data): bool
 	{
+		unset($data['total_questions']);
+
 		if (array_key_exists('allow_multiple_attempts', $data) && ! $data['allow_multiple_attempts']) {
 			$data['max_attempts'] = 1;
 		}
