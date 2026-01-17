@@ -321,6 +321,9 @@ Route::prefix('api/v1')->group(function () {
                     ->name('assessment-component-structures.by-component');
                 Route::post('/', [AssessmentComponentStructureController::class, 'store'])
                     ->name('assessment-component-structures.store');
+                Route::put('{structure}', [AssessmentComponentStructureController::class, 'update'])
+                    ->whereUuid('structure')
+                    ->name('assessment-component-structures.update');
                 Route::post('bulk', [AssessmentComponentStructureController::class, 'bulkStore'])
                     ->name('assessment-component-structures.bulk-store');
                 Route::get('max-score', [AssessmentComponentStructureController::class, 'getMaxScore'])

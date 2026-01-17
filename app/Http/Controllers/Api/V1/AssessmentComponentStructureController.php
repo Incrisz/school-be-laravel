@@ -138,6 +138,46 @@ class AssessmentComponentStructureController extends Controller
     }
 
     /**
+     * Update a structure
+     */
+    public function update(Request $request, string $id): JsonResponse
+    {
+        $user = auth()->user();
+
+        $structure = AssessmentComponentStructure::where('school_id', $user->school_id)
+            ->findOrFail($id);
+
+        $validated = $request->validate([
+            'assessment_component_id' => 'required|uuid|exists:assessment_components,id',
+            'class_id' => 'nullable|uuid|exists:classes,id',
+            'term_id' => 'nullable|uuid|exists:terms,id',
+            'max_score' => 'required|numeric|min:0|max:1000',
+            'description' => 'nullable|string|max:1000',
+            'is_active' => 'boolean',
+        ]);
+
+        AssessmentComponent::where('school_id', $user->school_id)
+            ->findOrFail($validated['assessment_component_id']);
+
+        $duplicate = AssessmentComponentStructure::where('school_id', $user->school_id)
+            ->where('assessment_component_id', $validated['assessment_component_id'])
+            ->where('class_id', $validated['class_id'] ?? null)
+            ->where('term_id', $validated['term_id'] ?? null)
+            ->where('id', '!=', $structure->id)
+            ->exists();
+
+        if ($duplicate) {
+            return response()->json([
+                'message' => 'A structure for this class and term already exists.',
+            ], 422);
+        }
+
+        $structure->update($validated);
+
+        return response()->json($structure->fresh()->load(['class', 'term']));
+    }
+
+    /**
      * Bulk create/update structures
      */
     public function bulkStore(Request $request): JsonResponse
